@@ -12,7 +12,7 @@ namespace PlayerModelChanger;
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "0.0.1";
+    public override string ModuleVersion => "1.0.0";
     public ModelConfig Config { get; set; }
     public PlayerData Data { get; set; } = new PlayerData();
     public override void Load(bool hotReload)
