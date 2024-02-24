@@ -24,10 +24,12 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 ## Commands
 ### Server side
 - `playermodelchanger_sync_resourceprecacher` Sync with ResourcePrecacher
+- `playermodelchanger_enable [true/false]` Enable / Disable the plugin
 ### Client side
 - `!model` show sender the model he is using
 - `!model <model name>` change sender's model
 - `!models` show sender all models
+- `!resetmodel` reset sender's model
 
 ## Configuration
 When you install the plugin successfully, it will generate `counterstrikesharp/configs/plugins/PlayerModelChanger/PlayerModelChanger.json`.
