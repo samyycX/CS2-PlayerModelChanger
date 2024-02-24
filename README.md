@@ -1,6 +1,7 @@
 # CS2-PlayerModelChanger
 A lightweighted counterstrikesharp plugin to change player model.
 
+[中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
 - [Known issues](#known-issues)
 - [Dependencies](#dependencies)
@@ -8,6 +9,7 @@ A lightweighted counterstrikesharp plugin to change player model.
 - [Commands](#commands)
 - [Configuration](#configuration)
 - [How to add your own model](#how-to-add-your-own-model)
+- [TODOs](#todos)
 - [Contribution](#contribution)
 ## Before you use
 1. This plugin is still in development, which means the player's data database structure may be changed **(If changed, the database need to be reseted or be modified by your own)**
@@ -92,7 +94,7 @@ AddonConfig
 
 **Step 3.** Go to folder `./game/csgo_addons/<your addon name>/` and paste your characters folder to here.
 
-**Step 4.** Open Asset Browser, then click the `Tools` button on the top-right corner, open `Counter-Strike 2 Workshop Manager`
+**Step 4.** Open `Asset Browser`, then click the `Tools` button on the top-right corner, open `Counter-Strike 2 Workshop Manager`
 
 **Step 5.** Click `New` button in the `Counter-Strike 2 Workshop Manager`, fill in all the information, and publish it.
 
