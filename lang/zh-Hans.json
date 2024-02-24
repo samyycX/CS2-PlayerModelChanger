@@ -1,0 +1,14 @@
+{
+    "plugin.enable": "{green}插件已启用.",
+    "plugin.disable": "{red}插件已禁用.",
+    "command.incorrectusage": "{red}错误的用法，请检查您的参数。",
+    "player.notusingmodel": "您目前没有使用任何模型。",
+    "player.currentmodel": "您当前使用的模型: {green}{0}",
+    "command.model.hint1": "输入 {green}!model <模型名> {default} 切换模型。",
+    "command.model.hint2": "输入 {green}!resetmodel {default} 重置模型。",
+    "command.model.hint3": "输入 {green}!models {default} 查看所有可用的模型。",
+    "command.model.notfound": "{red}模型名 {default}{0} {red}不存在.",
+    "command.model.success": "{green}您的模型会在下一次重生后生效。",
+    "command.resetmodel.success": "{green}您的模型会在下一次重生后重置。",
+    "command.models": "{green}可用的模型 ({0}个): {default}"
+}

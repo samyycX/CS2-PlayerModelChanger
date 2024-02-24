@@ -1,6 +1,8 @@
 # CS2-PlayerModelChanger
 A lightweighted counterstrikesharp plugin to change player model.
 
+If you like this plugin, please give a star :)
+### This plugin can cause a GSLT ban, please use at your own risk.
 [中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
 - [Known issues](#known-issues)
@@ -117,6 +119,9 @@ Modify `cs2f_extra_addon` to your workshop ID.
 
 ### Config PlayerModelChanger
 See the [Configuration](#configuration)
+
+### Fix workshop model hand animations
+put your `characters` folder and all folders related to it in **your server's** `./game/csgo/` folder.
 
 ## TODOs
 1. Translation

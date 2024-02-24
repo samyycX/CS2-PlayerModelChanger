@@ -1,5 +1,8 @@
 # CS2-PlayerModelChanger
 一个轻量的counterstrikesharp插件，用于改变玩家模型
+
+如果你喜欢这个插件请给个Star :)
+### 此插件可能导致GSLT封禁，请自行承担风险
 - **[用前须知](#用前须知)**
 - [已知问题](#k已知问题)
 - [依赖插件](#依赖插件)
@@ -10,7 +13,7 @@
 - [TODOs](#todos)
 - [Contribution](#contribution)
 ## 用前须知
-1. 此插件仍然在开发过程中，数据库的结构可能会发生变化**(如果改变，需要你自己修改数据库或者删除数据库)**
+1. 此插件仍然在开发过程中，数据库的结构可能会发生变化 **(如果改变，需要你自己修改数据库或者删除数据库)**
 ## 已知问题
 1. 暂不支持Windows (因为ResourcePrecacher插件现在有问题)
 
@@ -116,6 +119,8 @@ AddonConfig
 ### 设置 PlayerModelChanger
 请看 [Configuration](#configuration) 部分
 
+### 修复自定义模型手部动画
+把 `characters` 文件夹和所有相关文件夹放进**服务器的** `./game/csgo/` 文件夹内。
 ## TODOs
 1. 翻译
 2. 美化指令的输出
