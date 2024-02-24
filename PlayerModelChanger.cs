@@ -8,6 +8,7 @@ using CounterStrikeSharp.API;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Core.Translations;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -60,12 +61,12 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         var arg = commandInfo.GetArg(1);
         if (arg == "1" || arg == "true") {
             Enable = true;
-            commandInfo.ReplyToCommand("Plugin is now enabled.");
+            commandInfo.ReplyToCommand(Localizer["plugin.enable"]);
         } else if (arg == "0" || arg == "false") {
             Enable = false;
-            commandInfo.ReplyToCommand("Plugin is now disabled.");
+            commandInfo.ReplyToCommand(Localizer["plugin.disable"]);
         } else {
-            commandInfo.ReplyToCommand("Unknown arg. please type 'true' or 'false'.");
+            commandInfo.ReplyToCommand(Localizer["command.incorrectusage"]);
         }
         
     }
@@ -77,38 +78,38 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         if (commandInfo.ArgCount == 1) {
             var usingModelName = Data.GetPlayerModel(player!.AuthorizedSteamID!.SteamId64);
             if (usingModelName == "") {
-                commandInfo.ReplyToCommand($"You are currently not using any models.");
+                commandInfo.ReplyToCommand(Localizer["player.notusingmodel"]);
             } else {
-                commandInfo.ReplyToCommand($"Current model: {usingModelName}");
+                commandInfo.ReplyToCommand(Localizer["player.currentmodel",usingModelName]);
             }
-            commandInfo.ReplyToCommand($"Type '!model <model name>' to change your model.");
-            commandInfo.ReplyToCommand($"Type '!resetmodel' to reset your model.");
-            commandInfo.ReplyToCommand($"Type '!models' for a list of all available models.");
+            commandInfo.ReplyToCommand(Localizer["command.model.hint1"]);
+            commandInfo.ReplyToCommand(Localizer["command.model.hint2"]);
+            commandInfo.ReplyToCommand(Localizer["command.model.hint3"]);
             return;
         }
 
         var modelName = commandInfo.GetArg(1);
 
         if (!Config.ModelPaths.ContainsKey(modelName)) {
-            commandInfo.ReplyToCommand($"Model Name {modelName} not found.");
+            commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelName]);
             return;
         }
 
         Data.SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, modelName);
-        commandInfo.ReplyToCommand($"Your model will be set after next spawn.");
+        commandInfo.ReplyToCommand(Localizer["command.model.success"]);
     }
 
     [ConsoleCommand("css_resetmodel", "Reset your model.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void ResetModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
         Data.SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, "");
-        commandInfo.ReplyToCommand("Your model will be reseted from next spawn.");
+        commandInfo.ReplyToCommand(Localizer["command.resetmodel.success"]);
     }
 
     [ConsoleCommand("css_models", "List all models.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
-        commandInfo.ReplyToCommand($"Available models ({Config.ModelPaths.Count()}): "+ string.Join("   ", Config.ModelPaths.Keys));
+        commandInfo.ReplyToCommand(Localizer["command.models", Config.ModelPaths.Count()] + string.Join("   ", Config.ModelPaths.Keys));
     }
 
 

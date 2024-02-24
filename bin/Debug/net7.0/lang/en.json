@@ -1,0 +1,14 @@
+{
+    "plugin.enable": "{green}Plugin is now enabled.",
+    "plugin.disable": "{red}Plugin is now disabled.",
+    "command.incorrectusage": "{red}Incorrect usage. Please check your args.",
+    "player.notusingmodel": "You are currently not using any models.",
+    "player.currentmodel": "Your current model: {green}{0}",
+    "command.model.hint1": "Type {green}!model <model name> {default}to change your model.",
+    "command.model.hint2": "Type {green}!resetmodel {default}to reset your model.",
+    "command.model.hint3": "Type {green}!models {default}for a list of all available models.",
+    "command.model.notfound": "{red}Model name {default}{0} {red}not found.",
+    "command.model.success": "{green}Your model will be set after next spawn.",
+    "command.resetmodel.success": "{green}Your model will be reseted from next spawn.",
+    "command.models": "{green}Available models ({0}): {default}"
+}
