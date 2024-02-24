@@ -7,6 +7,7 @@ using Data;
 using CounterStrikeSharp.API;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using CounterStrikeSharp.API.Modules.Cvars;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -15,6 +16,8 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     public override string ModuleVersion => "1.0.0";
     public ModelConfig Config { get; set; }
     public PlayerData Data { get; set; } = new PlayerData();
+
+    public bool Enable = true;
     public override void Load(bool hotReload)
     {
 
@@ -41,7 +44,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
         var jobject = JObject.Parse(JsonString);
 
-        var array = (JArray)jobject["Resources"];
+        var array = (JArray)jobject["Resources"]!;
         foreach (var item in Config.ModelPaths.Values)
         {
             array.Add(item);
@@ -51,18 +54,35 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         File.WriteAllText(ConfigPath, jobject.ToString());
     }
 
+    [ConsoleCommand("playermodelchanger_enable", "Enable/Disable the plugin.")]
+    [CommandHelper(minArgs: 1, usage: "[true/false]", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void Switch(CCSPlayerController? player, CommandInfo commandInfo) {
+        var arg = commandInfo.GetArg(1);
+        if (arg == "1" || arg == "true") {
+            Enable = true;
+            commandInfo.ReplyToCommand("Plugin is now enabled.");
+        } else if (arg == "0" || arg == "false") {
+            Enable = false;
+            commandInfo.ReplyToCommand("Plugin is now disabled.");
+        } else {
+            commandInfo.ReplyToCommand("Unknown arg. please type 'true' or 'false'.");
+        }
+        
+    }
+
     [ConsoleCommand("css_model", "Change your model.")]
     [CommandHelper(minArgs: 0, usage: "<model name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void ChangeModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
 
         if (commandInfo.ArgCount == 1) {
-            var usingModelName = Data.GetPlayerModel(player.AuthorizedSteamID.SteamId64);
+            var usingModelName = Data.GetPlayerModel(player!.AuthorizedSteamID!.SteamId64);
             if (usingModelName == "") {
                 commandInfo.ReplyToCommand($"You are currently not using any models.");
             } else {
-                commandInfo.ReplyToCommand($"You are using model: {usingModelName}");
+                commandInfo.ReplyToCommand($"Current model: {usingModelName}");
             }
             commandInfo.ReplyToCommand($"Type '!model <model name>' to change your model.");
+            commandInfo.ReplyToCommand($"Type '!resetmodel' to reset your model.");
             commandInfo.ReplyToCommand($"Type '!models' for a list of all available models.");
             return;
         }
@@ -74,8 +94,15 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             return;
         }
 
-        Data.SetPlayerModel(player.AuthorizedSteamID.SteamId64, modelName);
+        Data.SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, modelName);
         commandInfo.ReplyToCommand($"Your model will be set after next spawn.");
+    }
+
+    [ConsoleCommand("css_resetmodel", "Reset your model.")]
+    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    public void ResetModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
+        Data.SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, "");
+        commandInfo.ReplyToCommand("Your model will be reseted from next spawn.");
     }
 
     [ConsoleCommand("css_models", "List all models.")]
@@ -88,6 +115,11 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     // from https://github.com/Challengermode/cm-cs2-defaultskins/
     [GameEventHandler]
     public HookResult OnPlayerSpawnEvent(EventPlayerSpawn @event, GameEventInfo info) {
+        
+        if (!Enable) {
+            return HookResult.Continue;
+        }
+
           if(@event == null)
         {
             return HookResult.Continue;
