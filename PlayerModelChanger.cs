@@ -15,7 +15,7 @@ namespace PlayerModelChanger;
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.0.2";
+    public override string ModuleVersion => "1.0.3";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
