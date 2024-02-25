@@ -3,26 +3,40 @@
 using Config;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
-using Data;
+using Storage;
 using CounterStrikeSharp.API;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Core.Translations;
+using CounterStrikeSharp.API.Modules.Utils;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.0.0";
-    public ModelConfig Config { get; set; }
-    public PlayerData Data { get; set; } = new PlayerData();
+    public override string ModuleVersion => "1.0.2";
+
+    public override string ModuleAuthor => "samyyc";
+    public required ModelConfig Config { get; set; }
+    public required IStorage Storage { get; set; }
 
     public bool Enable = true;
     public override void Load(bool hotReload)
     {
-
-        Data.initialize(ModuleDirectory);
+        switch (Config.StorageType) {
+            case "sqlite":
+                Storage = new SqliteStorage(ModuleDirectory);
+                break;
+            case "mysql":
+                Storage = new MySQLStorage(
+                    Config.MySQLIP,
+                    Config.MySQLPort,
+                    Config.MySQLUser,
+                    Config.MySQLPassword,
+                    Config.MySQLDatabase,
+                    Config.MySQLTable
+                );
+                break;
+        };
 
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
@@ -33,6 +47,28 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
     public void OnConfigParsed(ModelConfig config)
     {
+        var availableStorageType = new []{"sqlite", "mysql"};
+        if (!availableStorageType.Contains(config.StorageType)) {
+            throw new Exception($"Unknown storage type: {Config.StorageType}, available types: {string.Join(",", availableStorageType)}");
+        }
+
+        if (config.StorageType == "mysql") {
+            if (config.MySQLIP == "") {
+                throw new Exception("You must fill in the MySQL_IP");
+            }
+            if (config.MySQLPort == "") {
+                throw new Exception("You must fill in the MYSQL_Port");
+            }
+            if (config.MySQLUser == "") {
+                throw new Exception("You must fill in the MYSQL_User");
+            }
+            if (config.MySQLPassword == "") {
+                throw new Exception("You must fill in the MYSQL_Password");
+            }
+            if (config.MySQLDatabase == "") {
+                throw new Exception("You must fill in the MySQL_Database");
+            }
+        }
         Config = config;
     }
 
@@ -72,15 +108,21 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     [ConsoleCommand("css_model", "Change your model.")]
-    [CommandHelper(minArgs: 0, usage: "<model name>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+    [CommandHelper(minArgs: 0, usage: "<model name> <all/ct/t>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void ChangeModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
 
         if (commandInfo.ArgCount == 1) {
-            var usingModelName = Data.GetPlayerModel(player!.AuthorizedSteamID!.SteamId64);
-            if (usingModelName == "") {
-                commandInfo.ReplyToCommand(Localizer["player.notusingmodel"]);
+            var usingTModelName = Storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
+            var usingCTModelName = Storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
+            if (usingTModelName == "") {
+                commandInfo.ReplyToCommand(Localizer["player.notusingmodel.t"]);
             } else {
-                commandInfo.ReplyToCommand(Localizer["player.currentmodel",usingModelName]);
+                commandInfo.ReplyToCommand(Localizer["player.currentmodel.t",usingTModelName]);
+            }
+             if (usingCTModelName == "") {
+                commandInfo.ReplyToCommand(Localizer["player.notusingmodel.ct"]);
+            } else {
+                commandInfo.ReplyToCommand(Localizer["player.currentmodel.ct",usingCTModelName]);
             }
             commandInfo.ReplyToCommand(Localizer["command.model.hint1"]);
             commandInfo.ReplyToCommand(Localizer["command.model.hint2"]);
@@ -90,19 +132,49 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
         var modelName = commandInfo.GetArg(1);
 
-        if (!Config.ModelPaths.ContainsKey(modelName)) {
+        if (modelName != "@random" && !Config.ModelPaths.ContainsKey(modelName)) {
             commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelName]);
             return;
         }
 
-        Data.SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, modelName);
+        var side = "all";
+        if (commandInfo.ArgCount == 3) {
+            side = commandInfo.GetArg(2).ToLower();
+        }
+
+        if (side == "all") {
+            Storage.SetPlayerTModel(player!.AuthorizedSteamID!.SteamId64, modelName);
+            Storage.SetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64, modelName);
+        } else if (side == "t") {
+            Storage.SetPlayerTModel(player!.AuthorizedSteamID!.SteamId64, modelName);
+        } else if (side == "ct") {
+            Storage.SetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64, modelName);
+        } else {
+            commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
+            return;
+        }
         commandInfo.ReplyToCommand(Localizer["command.model.success"]);
     }
 
     [ConsoleCommand("css_resetmodel", "Reset your model.")]
-    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 0, usage: "<all/ct/t>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void ResetModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
-        Data.SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, "");
+        var side = "all";
+        if (commandInfo.ArgCount == 2) {
+            side = commandInfo.GetArg(1).ToLower();
+        }
+
+        if (side == "all") {
+            Storage.SetPlayerTModel(player!.AuthorizedSteamID!.SteamId64, "");
+            Storage.SetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64, "");
+        } else if (side == "t") {
+            Storage.SetPlayerTModel(player!.AuthorizedSteamID!.SteamId64, "");
+        } else if (side == "ct") {
+            Storage.SetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64, "");
+        } else {
+            commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
+            return;
+        }
         commandInfo.ReplyToCommand(Localizer["command.resetmodel.success"]);
     }
 
@@ -141,7 +213,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         try
         {
             // TODO: Server crash if player connects, mp_swapteams and reconnect       
-            // CsTeam team = player.PendingTeamNum != player.TeamNum ? (CsTeam)player.PendingTeamNum : (CsTeam)player.TeamNum;
+            CsTeam team = player.PendingTeamNum != player.TeamNum ? (CsTeam)player.PendingTeamNum : (CsTeam)player.TeamNum;
 
             // TODO: different models for CT and T? (may change database structure)
 
@@ -149,8 +221,24 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 // bot?
                 return HookResult.Continue;
             }
-            var modelName = Data.GetPlayerModel(player.AuthorizedSteamID.SteamId64);
-            var modelPath = Config.ModelPaths.GetValueOrDefault(modelName, "");
+            if (team != CsTeam.Terrorist && team != CsTeam.CounterTerrorist) {
+                return HookResult.Continue;
+            }
+            
+            var modelName = "";
+            if (team == CsTeam.Terrorist) {
+                modelName = Storage.GetPlayerTModel(player.AuthorizedSteamID.SteamId64);
+            } else {
+                modelName = Storage.GetPlayerCTModel(player.AuthorizedSteamID.SteamId64);
+            }
+            var modelPath = "";
+            if (modelName == "@random") {
+                var entry = Config.ModelPaths.ElementAt(Random.Shared.Next(Config.ModelPaths.Count()));
+                modelPath = entry.Value;
+                // player.PrintToChat(Localizer["random.using", entry.Key]);
+            } else {
+                modelPath = Config.ModelPaths.GetValueOrDefault(modelName, "");
+            }
 
             if (modelPath != "") {
                 SetModelNextServerFrame(player.PlayerPawn.Value, modelPath);

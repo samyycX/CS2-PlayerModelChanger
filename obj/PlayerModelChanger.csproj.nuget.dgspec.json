@@ -55,6 +55,10 @@
               "target": "Package",
               "version": "[8.0.2, )"
             },
+            "MySQLConnector": {
+              "target": "Package",
+              "version": "[2.3.5, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"

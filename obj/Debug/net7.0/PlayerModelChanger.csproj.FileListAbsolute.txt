@@ -76,3 +76,4 @@ D:\development\PlayerModelChanger\obj\Debug\net7.0\ref\PlayerModelChanger.dll
 D:\development\PlayerModelChanger\obj\Debug\net7.0\PlayerModelChanger.sourcelink.json
 D:\development\PlayerModelChanger\bin\Debug\net7.0\lang\en.json
 D:\development\PlayerModelChanger\bin\Debug\net7.0\lang\zh-Hans.json
+D:\development\PlayerModelChanger\bin\Debug\net7.0\MySqlConnector.dll
