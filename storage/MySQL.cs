@@ -1,5 +1,6 @@
 using Dapper;
 using MySqlConnector;
+using Service;
 using Storage;
 
 namespace Storage;
@@ -19,6 +20,9 @@ public class MySQLStorage : IStorage {
                 `ct_model` TEXT
             );
         """);
+    }
+    public List<ModelCache> GetAllPlayerModel() {
+        return conn.Query<ModelCache>($"select * from {table};").ToList();
     }
 
     public dynamic? GetPlayerModel(ulong SteamID, string modelfield)
@@ -50,11 +54,14 @@ public class MySQLStorage : IStorage {
         var sql = $"""
             INSERT INTO {table} (`steamid`, `{modelfield}`) VALUES ({SteamID}, @Model) ON DUPLICATE key UPDATE `{modelfield}` = @Model;
             """;
-        conn.Execute(sql,
-            new {
-                Model = modelName
-            }
-        );
+        Task.Run( async () => {
+            await conn.ExecuteAsync(sql,
+                new {
+                    Model = modelName
+                }
+            );
+        });
+       
     }
     public void SetPlayerTModel(ulong SteamID, string modelName) {
         SetPlayerModel(SteamID, modelName, "t_model");

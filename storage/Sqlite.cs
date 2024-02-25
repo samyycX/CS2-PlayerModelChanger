@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Dapper;
+using Service;
 namespace Storage;
 
 public class SqliteStorage : IStorage {
@@ -20,6 +21,10 @@ public class SqliteStorage : IStorage {
                 )
             ");
         });
+    }
+
+    public List<ModelCache> GetAllPlayerModel() {
+        return conn.Query<ModelCache>($"select * from players;").ToList();
     }
 
     public dynamic? GetPlayerModel(ulong SteamID, string modelfield) {
