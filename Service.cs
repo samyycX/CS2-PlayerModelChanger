@@ -145,7 +145,7 @@ public class ModelService {
             return "";
         }
         if (modelIndex == "@random") {
-            return modelIndex;
+            return localizer["modelmenu.random"];
         } else {
             var model = GetModel(modelIndex);
             if (model == null) {
