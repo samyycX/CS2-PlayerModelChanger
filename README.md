@@ -29,6 +29,7 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 ### Server side
 - `playermodelchanger_sync_resourceprecacher` Sync with ResourcePrecacher
 - `playermodelchanger_enable [true/false]` Enable / Disable the plugin
+- `playermodelchanger_resynccache` Resync cache.
 ### Client side
 - `!model` show sender the model he is using + helper
 - `!model <@random / model name> <all/ct/t>` change sender's model (@random for random model every spawn)

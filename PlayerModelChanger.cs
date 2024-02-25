@@ -120,6 +120,13 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         
     }
 
+    [ConsoleCommand("playermodelchanger_resynccache", "Resync cache.")]
+    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void ResyncCache(CCSPlayerController? player, CommandInfo commandInfo) {
+        Service.ResyncCache();
+        commandInfo.ReplyToCommand("Resynced.");
+    }
+
     [ConsoleCommand("css_model", "Change your model.")]
     [CommandHelper(minArgs: 0, usage: "<model name> <all/ct/t>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void ChangeModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {

@@ -7,6 +7,12 @@ using Storage;
 
 namespace Service;
 
+public class ModelCache {
+
+    public ulong steamid { get; set; }
+    public string t_model { get; set; }
+    public string ct_model { get; set; }
+}
 public class ModelService {
 
     private ModelConfig config;
@@ -14,10 +20,14 @@ public class ModelService {
 
     private IStringLocalizer localizer;
 
+    private List<ModelCache> cache;
+
     public ModelService(ModelConfig Config, IStorage storage, IStringLocalizer localizer) {
         this.config = Config;
         this.storage = storage;
         this.localizer = localizer;
+
+        cache = storage.GetAllPlayerModel();
     }
 
     public static void InitializeModel(string key, Model model) {
@@ -28,6 +38,10 @@ public class ModelService {
         if (model.side == null) {
             model.side = "ALL";
         }
+    }
+
+    public void ResyncCache() {
+        cache = storage.GetAllPlayerModel();
     }
 
     public int GetModelCount() {
@@ -49,6 +63,22 @@ public class ModelService {
         return config.Models.Values.Where(model => model.side == "ALL" || model.side == (team == CsTeam.Terrorist ? "T" : "CT")).ToList();
     }
 
+    private void PutInCache(ulong steamid, string modelIndex, CsTeam team) {
+        var obj = cache.Find(model => model.steamid == steamid);
+
+        if (obj == null) {
+            var modelcache = new ModelCache();
+            modelcache.steamid = steamid;
+            cache.Add(modelcache);
+            obj = modelcache;
+        }
+        if (team == CsTeam.Terrorist) {
+            obj.t_model = modelIndex;
+        } else {
+            obj.ct_model = modelIndex;
+        }
+    }
+
     public void SetPlayerModel(CCSPlayerController? player, string modelIndex, CsTeam team) {
         var isSpecial = modelIndex == "" || modelIndex == "@random";
         
@@ -58,10 +88,12 @@ public class ModelService {
             return;
         }
         if (isSpecial || GetAllAppliableModels(team).Contains(model)) {
+            var steamid = player!.AuthorizedSteamID!.SteamId64;
+            PutInCache(steamid, modelIndex, team);
             if (team == CsTeam.Terrorist) { 
-                storage.SetPlayerTModel(player!.AuthorizedSteamID!.SteamId64, modelIndex);
+                storage.SetPlayerTModel(steamid, modelIndex);
             } else {
-                storage.SetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64, modelIndex);
+                storage.SetPlayerCTModel(steamid, modelIndex);
             }
             
         } else {
@@ -83,11 +115,13 @@ public class ModelService {
         var team = (CsTeam)player.TeamNum;
         var modelIndex = "";
         if (team == CsTeam.Terrorist) {
-            modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
+            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
+            // modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
         } else {
-            modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
+            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
+            // modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
         }
-        if (modelIndex == "") {
+        if (modelIndex == null || modelIndex == "") {
             return null;
         }
         if (modelIndex == "@random") {
@@ -101,11 +135,13 @@ public class ModelService {
         
         var modelIndex = "";
         if (team == CsTeam.Terrorist) {
-            modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
+            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
+            // modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
         } else {
-            modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
+            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
+            // modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
         }
-        if (modelIndex == "") {
+        if (modelIndex == null || modelIndex == "") {
             return "";
         }
         if (modelIndex == "@random") {

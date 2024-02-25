@@ -28,6 +28,7 @@
 ### 服务器端
 - `playermodelchanger_sync_resourceprecacher` 同步ResourcePrecacher的配置
 - `playermodelchanger_enable [true/false]` 开启 / 关闭此插件
+- `playermodelchanger_resynccache` 重新同步缓存
 ### 客户端
 - `!model` 显示玩家当前用的模型 + 帮助
 - `!model <@random / model name> <all/ct/t>` 改变玩家的模型 (@random 代表随机模型)
