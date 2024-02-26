@@ -199,11 +199,11 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             models = Service.GetAllAppliableModels(team); 
         }
 
-        modelMenu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, option, Localizer["modelmenu.unset"], side));
-        modelMenu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, option, Localizer["modelmenu.random"], side));
+        modelMenu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, Localizer["modelmenu.unset"], side));
+        modelMenu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, Localizer["modelmenu.random"], side));
         foreach (var model in models)
         {
-            modelMenu.AddMenuOption($"{model.name}", (player, option) => HandleModelMenu(player, option, model.index, side));
+            modelMenu.AddMenuOption($"{model.name}", (player, option) => HandleModelMenu(player, model.index, side));
         }
 
         if (modelMenu.MenuOptions.Count == 0) {
@@ -212,7 +212,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         MenuManager.OpenChatMenu(player, modelMenu);
     }
 
-    private void HandleModelMenu(CCSPlayerController player, ChatMenuOption option, string index, string side) {
+    private void HandleModelMenu(CCSPlayerController player, string index, string side) {
         var modelIndex = "";
         if (index == Localizer["modelmenu.unset"])
         {
