@@ -6,7 +6,7 @@ If you like this plugin, please give a star :)
 [中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
 - [Known issues](#known-issues)
-- [Dependencies](#dependencies)
+- [Dependencies for custom model](#dependencies-for-custom-model)
 - [Installation Guide](#installation-guide)
 - [Commands](#commands)
 - [Configuration](#configuration)
@@ -15,10 +15,14 @@ If you like this plugin, please give a star :)
 - [Contribution](#contribution)
 ## Before you use
 1. This plugin is still in development, which means the player's data database structure may be changed **(If changed, the database need to be reseted or be modified by your own)**
-## Known issues
-1. Windows is unsupported now (due to the ResourcePrecacher plugin)
+2. **this plugin can cause a GSLT ban, use at your own risk**
+3. See [Known issues](#known-issues)
 
-## Dependencies
+## Known issues
+1. You can't have custom model on Windows system now (due to the precache problems)
+
+## Dependencies for custom model
+**If you are not using custom model, these plugins are not necessarily needed**
 1. [ResourcePrecacher](https://github.com/KillStr3aK/ResourcePrecacher)
 2. [CS2Fixes](https://github.com/Source2ZE/CS2Fixes)
 
@@ -139,7 +143,6 @@ put your `characters` folder and all folders related to it in **your server's** 
 
 ## TODOs
 1. Translation
-2. Beautify command outputs
 
 ## Contribution
 To build this plugin, run `dotnet build`.
