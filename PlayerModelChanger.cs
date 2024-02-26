@@ -199,11 +199,11 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             models = Service.GetAllAppliableModels(team); 
         }
 
-        modelMenu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, option, side));
-        modelMenu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, option, side));
+        modelMenu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, option, Localizer["modelmenu.unset"], side));
+        modelMenu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, option, Localizer["modelmenu.random"], side));
         foreach (var model in models)
         {
-            modelMenu.AddMenuOption($"{model.name} [{model.index}]", (player, option) => HandleModelMenu(player, option, side));
+            modelMenu.AddMenuOption($"{model.name}", (player, option) => HandleModelMenu(player, option, model.index, side));
         }
 
         if (modelMenu.MenuOptions.Count == 0) {
@@ -212,17 +212,17 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         MenuManager.OpenChatMenu(player, modelMenu);
     }
 
-    private void HandleModelMenu(CCSPlayerController player, ChatMenuOption option, string side) {
-        var parts = option.Text.Split('[', ']');
-        
+    private void HandleModelMenu(CCSPlayerController player, ChatMenuOption option, string index, string side) {
         var modelIndex = "";
-        if (option.Text == Localizer["modelmenu.unset"]) {
+        if (index == Localizer["modelmenu.unset"])
+        {
             modelIndex = "";
-        } else if (option.Text == Localizer["modelmenu.random"]) {
-            modelIndex = "@random";
-        } else {
-            modelIndex = parts[parts.Length - 2]; 
         }
+        else if (index == Localizer["modelmenu.random"])
+        {
+            modelIndex = "@random";
+        }
+        else modelIndex = index;
 
          if (side == "all") {
             Service.SetPlayerTModel(player, modelIndex);
