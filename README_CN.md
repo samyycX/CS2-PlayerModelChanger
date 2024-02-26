@@ -5,7 +5,7 @@
 ### 此插件可能导致GSLT封禁，请自行承担风险
 - **[用前须知](#用前须知)**
 - [已知问题](#k已知问题)
-- [依赖插件](#依赖插件)
+- [自定义模型依赖插件](#自定义模型依赖插件)
 - [安装指南](#安装指南)
 - [命令](#命令)
 - [配置](#配置)
@@ -14,10 +14,14 @@
 - [Contribution](#contribution)
 ## 用前须知
 1. 此插件仍然在开发过程中，数据库的结构可能会发生变化 **(如果改变，需要你自己修改数据库或者删除数据库)**
-## 已知问题
-1. 暂不支持Windows (因为ResourcePrecacher插件现在有问题)
+2. **此插件可能导致GSLT封禁，请自行承担风险**
+3. 查看 [已知问题](#已知问题)
 
-## 依赖插件
+## 已知问题
+1. Windows暂时不能使用自定义模型 (因为预加载的问题)
+
+## 自定义模型依赖插件
+**如果你不使用自定义模型，这些插件不用被安装**
 1. [ResourcePrecacher](https://github.com/KillStr3aK/ResourcePrecacher)
 2. [CS2Fixes](https://github.com/Source2ZE/CS2Fixes)
 
@@ -133,15 +137,14 @@ AddonConfig
 3. 重启服务器
 
 ### 设置 PlayerModelChanger
-请看 [Configuration](#configuration) 部分
+请看 [配置](#配置) 部分
 
 ### 修复自定义模型手部动画
 把 `characters` 文件夹和所有相关文件夹放进**服务器的** `./game/csgo/` 文件夹内。
 ## TODOs
 1. 翻译
-2. 美化指令的输出
 
 ## Contribution
-To build this plugin, run `dotnet build`.
+构建插件请使用 `dotnet build`.
 
-Feel free to create Pull Requests or issues.
+欢迎一切 Issues / Pull Requests

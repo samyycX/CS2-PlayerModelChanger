@@ -44,6 +44,13 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             throw new Exception("Failed to initialize storage. Please check your config");
         }
         this.Service = new ModelService(Config, Storage, Localizer);
+        RegisterListener<Listeners.OnMapStart>((map) => {
+            foreach (var model in Service.GetAllModels())
+            {
+                Console.WriteLine($"Precaching {model.path}");
+                Server.PrecacheModel(model.path);
+            }
+        });
 
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
