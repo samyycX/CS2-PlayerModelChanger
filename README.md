@@ -56,6 +56,7 @@ Config the json like this:
 		"side": "T"
 	} 
  },
+  "MenuType": "chat", // "chat" or "centerhtml", default "chat"
   "StorageType": "sqlite", // sqlite or mysql
   "MySQL_IP": "",
   "MySQL_Port": "",

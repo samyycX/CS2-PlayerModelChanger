@@ -15,7 +15,7 @@ namespace PlayerModelChanger;
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.0.4";
+    public override string ModuleVersion => "1.0.5";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -84,6 +84,9 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             }
         }
 
+        if (config.MenuType != "chat" && config.MenuType != "centerhtml") {
+            throw new Exception($"Unknown menu type: {config.MenuType}");
+        }
         foreach (var entry in config.Models)
         {
             ModelService.InitializeModel(entry.Key, entry.Value);
@@ -134,33 +137,30 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         commandInfo.ReplyToCommand("Resynced.");
     }
 
-    [ConsoleCommand("css_model", "Change your model.")]
-    [CommandHelper(minArgs: 0, usage: "<model name> <all/ct/t>", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+    [ConsoleCommand("css_model", "Show your model.")]
+    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void ChangeModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
 
         if (commandInfo.ArgCount == 1) {
             var TModel = Service.GetPlayerModelName(player, CsTeam.Terrorist);
             var CTModel = Service.GetPlayerModelName(player, CsTeam.CounterTerrorist);
-            if (TModel == "") {
-                commandInfo.ReplyToCommand(Localizer["player.notusingmodel.t"]);
-            } else {
-                commandInfo.ReplyToCommand(Localizer["player.currentmodel.t",TModel]);
-            }
-             if (CTModel == "") {
-                commandInfo.ReplyToCommand(Localizer["player.notusingmodel.ct"]);
-            } else {
-                commandInfo.ReplyToCommand(Localizer["player.currentmodel.ct",CTModel]);
-            }
+            commandInfo.ReplyToCommand(Localizer["player.currentmodel", Localizer["side.t"], TModel]);
+            commandInfo.ReplyToCommand(Localizer["player.currentmodel", Localizer["side.ct"], CTModel]);
             commandInfo.ReplyToCommand(Localizer["command.model.hint1"]);
             commandInfo.ReplyToCommand(Localizer["command.model.hint2"]);
             return;
         }
 
-        var modelName = commandInfo.GetArg(1);
+        var modelIndex = commandInfo.GetArg(1);
 
-        if (modelName != "@random" && !Service.ExistModel(modelName)) {
-            commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelName]);
-            return;
+        if (modelIndex != "@random" && !Service.ExistModel(modelIndex)) {
+            var model = Service.FindModel(modelIndex);
+            if (model == null) {
+                commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelIndex]);
+                return;
+            } else {
+                modelIndex = model.index;
+            }
         }
 
         var side = "all";
@@ -169,47 +169,53 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         }
 
         if (side == "all") {
-            Service.SetPlayerTModel(player, modelName);
-            Service.SetPlayerCTModel(player, modelName);
+            Service.SetPlayerTModel(player, modelIndex);
+            Service.SetPlayerCTModel(player, modelIndex);
         } else if (side == "t") {
-            Service.SetPlayerTModel(player, modelName);
+            Service.SetPlayerTModel(player, modelIndex);
         } else if (side == "ct") {
-            Service.SetPlayerCTModel(player, modelName);
+            Service.SetPlayerCTModel(player, modelIndex);
         } else {
             commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
             return;
         }
     }
 
-    [ConsoleCommand("css_models", "List all models.")]
+    [ConsoleCommand("css_models", "Select models.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
-        ChatMenu modelMenu = new ChatMenu(Localizer["modelmenu.title"]);
-
+        
         var side = player.Team == CsTeam.Terrorist ? "t" : "ct";
         if (commandInfo.ArgCount == 2) {
-            side = commandInfo.GetArg(1);
+            side = commandInfo.GetArg(1).ToLower();
         }
 
         List<Model> models;
+        Model? currentModel;
         if (side == "all") {
             models = Service.GetAllSideAppliableModels();
+            currentModel = Service.GetPlayerNowTeamModel(player);
         } else {
-            var team = side.ToLower() == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
-            models = Service.GetAllAppliableModels(team); 
+            var team = side == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
+            models = Service.GetAllAppliableModels(team);
+            currentModel = Service.GetPlayerModel(player, team);
         }
 
-        modelMenu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, "", side));
-        modelMenu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, "@random", side));
+        var localizerside = Localizer[side == "all" ? (player.Team == CsTeam.Terrorist ? "side.t" : "side.ct") : $"side.{side}"];
+        ModelMenu modelMenu = new ModelMenu(Config, Localizer["modelmenu.title", localizerside, currentModel == null ? Localizer["model.none"] : currentModel.name]);
+        BaseMenu menu = modelMenu.GetMenu();
+
+        menu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, "", side));
+        menu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, "@random", side));
         foreach (var model in models)
         {
-            modelMenu.AddMenuOption($"{model.name}", (player, option) => HandleModelMenu(player, model.index, side));
+            menu.AddMenuOption($"{model.name}", (player, option) => HandleModelMenu(player, model.index, side));
         }
 
-        if (modelMenu.MenuOptions.Count == 0) {
+        if (menu.MenuOptions.Count == 0) {
             commandInfo.ReplyToCommand(Localizer["modelmenu.nomodel"]);
         }
-        MenuManager.OpenChatMenu(player, modelMenu);
+        modelMenu.OpenMenu(this, player);
     }
 
     private void HandleModelMenu(CCSPlayerController player, string modelIndex, string side) {
@@ -262,7 +268,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             if (team != CsTeam.Terrorist && team != CsTeam.CounterTerrorist) {
                 return HookResult.Continue;
             }
-            var model = Service.GetPlayerModel(player);
+            var model = Service.GetPlayerNowTeamModel(player);
             if (model != null) {
                 SetModelNextServerFrame(player.PlayerPawn.Value, model.path);
             }
