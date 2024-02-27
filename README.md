@@ -13,6 +13,9 @@ If you like this plugin, please give a star :)
 - [How to add your own model](#how-to-add-your-own-model)
 - [TODOs](#todos)
 - [Contribution](#contribution)
+
+![preview1](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview/1.png?raw=true)
+![preview2](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview/2.png?raw=true)
 ## Before you use
 1. This plugin is still in development, which means the player's data database structure may be changed **(If changed, the database need to be reseted or be modified by your own)**
 2. **this plugin can cause a GSLT ban, use at your own risk**
