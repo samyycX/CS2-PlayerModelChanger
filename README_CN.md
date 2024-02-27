@@ -26,7 +26,7 @@
 ## 自定义模型依赖插件
 **如果你不使用自定义模型，这些插件不用被安装**
 1. [ResourcePrecacher](https://github.com/KillStr3aK/ResourcePrecacher)
-2. [CS2Fixes](https://github.com/Source2ZE/CS2Fixes)
+2. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## 安装指南
 从 [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases)下载最新版插件, 然后放到counterstrikesharp的plugins文件夹里
@@ -125,9 +125,8 @@ AddonConfig
 
 **Step 6.** 等待Steam审核。
 
-### 设置 CS2Fixes
-当你正确安装CS2Fixes插件后，会在`./game/csgo/cfg/cs2fixes/` 目录生成 `cs2fixes.cfg` 文件。
-把 `cs2f_extra_addon` 后面的空字符串改成你需要的Workshop ID。
+### 设置 MultiAddonManager
+在这个插件里设置你的workshop id, 请看 [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ### 设置 ResourcePrecacher
 #### 自动设置
