@@ -56,6 +56,7 @@
 		"side": "T"
 	} 
   },
+  "MenuType": "chat", // 菜单类型, "chat" 或者 "centerhtml", 默认 "chat"
   "StorageType": "sqlite", // sqlite 或者 mysql
   "MySQL_IP": "",
   "MySQL_Port": "",

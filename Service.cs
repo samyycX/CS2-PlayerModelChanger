@@ -56,6 +56,9 @@ public class ModelService {
     public bool ExistModel(string modelIndex) {
         return config.Models.ContainsKey(modelIndex);
     }
+    public Model? FindModel(string modelName) {
+        return config.Models.Values.FirstOrDefault(model => model?.name == modelName, null);
+    }
     public Model? GetModel(string modelIndex) {
         return config.Models.GetValueOrDefault(modelIndex, null);
     }
@@ -101,8 +104,8 @@ public class ModelService {
             return;
         }
 
-        
-        player.PrintToChat(localizer["command.model.success"]);
+        var side = team == CsTeam.Terrorist ? "side.t" : "side.ct";
+        player.PrintToChat(localizer["command.model.success", localizer[side]]);
         
     }
     public void SetPlayerTModel(CCSPlayerController? player, string modelIndex) {
@@ -111,8 +114,7 @@ public class ModelService {
     public void SetPlayerCTModel(CCSPlayerController? player, string modelIndex) {
         SetPlayerModel(player, modelIndex, CsTeam.CounterTerrorist);
     }
-    public Model? GetPlayerModel(CCSPlayerController? player) {
-        var team = (CsTeam)player.TeamNum;
+    public Model? GetPlayerModel(CCSPlayerController? player, CsTeam team) {
         var modelIndex = "";
         if (team == CsTeam.Terrorist) {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
@@ -131,6 +133,10 @@ public class ModelService {
         }
         return GetModel(modelIndex);
     }
+    public Model? GetPlayerNowTeamModel(CCSPlayerController? player) {
+        var team = (CsTeam)player.TeamNum;
+        return GetPlayerModel(player, team);
+    }
     public string GetPlayerModelName(CCSPlayerController? player, CsTeam team) {
         
         var modelIndex = "";
@@ -142,14 +148,14 @@ public class ModelService {
             // modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
         }
         if (modelIndex == null || modelIndex == "") {
-            return "";
+            return localizer["model.none"];
         }
         if (modelIndex == "@random") {
             return localizer["modelmenu.random"];
         } else {
             var model = GetModel(modelIndex);
             if (model == null) {
-                return "";
+                return localizer["model.none"];
             } 
             return model.name;
         }
