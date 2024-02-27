@@ -27,7 +27,7 @@ If you like this plugin, please give a star :)
 ## Dependencies for custom model
 **If you are not using custom model, these plugins are not necessarily needed**
 1. [ResourcePrecacher](https://github.com/KillStr3aK/ResourcePrecacher)
-2. [CS2Fixes](https://github.com/Source2ZE/CS2Fixes)
+2. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
@@ -124,9 +124,8 @@ AddonConfig
 
 **Step 6.** After verification, you should be able to use the workshop item.
 
-### Setup CS2Fixes
-After you install CS2Fixes plugin, you should have `cs2fixes.cfg` in `./game/csgo/cfg/cs2fixes/` folder.
-Modify `cs2f_extra_addon` to your workshop ID.
+### Setup MultiAddonManager
+add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ### Setup ResourcePrecacher
 #### Automatically
