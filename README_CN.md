@@ -11,6 +11,7 @@
 - [配置](#配置)
 - [如何添加自定义模型](#如何添加自定义模型)
 - [TODOs](#todos)
+- [常见问题](#常见问题)
 - [Contribution](#contribution)
 
 ![preview1](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview/1.png?raw=true)
@@ -146,6 +147,13 @@ AddonConfig
 把 `characters` 文件夹和所有相关文件夹放进**服务器的** `./game/csgo/` 文件夹内。
 ## TODOs
 1. 翻译
+
+## 常见问题
+对于自定义模型
+- **你应该使用编译后的模型 (后缀为 `.vmdl_c`)**
+- **在配置文件内，你应该使用 `.vmdl` 而不是 `.vmdl_c` 作为后缀**
+- 如果你没有使用`host_workshop_map`或使用的自定义地图和模型不在一个创意工坊物品内, 你需要在服务器开始后切换一次地图
+
 
 ## Contribution
 构建插件请使用 `dotnet build`.

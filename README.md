@@ -11,6 +11,7 @@ If you like this plugin, please give a star :)
 - [Commands](#commands)
 - [Configuration](#configuration)
 - [How to add your own model](#how-to-add-your-own-model)
+- [Common Issues](#common-issues)
 - [TODOs](#todos)
 - [Contribution](#contribution)
 
@@ -143,6 +144,13 @@ See the [Configuration](#configuration)
 
 ### Fix workshop model hand animations
 put your `characters` folder and all folders related to it in **your server's** `./game/csgo/` folder.
+
+## Common Issues
+For custom models:
+- **You should use the compiled model (suffix `.vmdl_c`)**
+- **You should use `.vmdl` instead of `.vmdl_c` in config json**
+- If you are not using `host_workshop_map` or the model you used is not in your custom map's workshop vdf, you need to change the map once after you start the server
+
 
 ## TODOs
 1. Translation
