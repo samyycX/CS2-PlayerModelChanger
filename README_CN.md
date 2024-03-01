@@ -14,8 +14,6 @@
 - [常见问题](#常见问题)
 - [Contribution](#contribution)
 
-![preview1](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview/1.png?raw=true)
-![preview2](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview/2.png?raw=true)
 ## 用前须知
 1. 此插件仍然在开发过程中，数据库的结构可能会发生变化 **(如果改变，需要你自己修改数据库或者删除数据库)**
 2. **此插件可能导致GSLT封禁，请自行承担风险**
