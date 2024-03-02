@@ -20,19 +20,17 @@
 3. 查看 [已知问题](#已知问题)
 
 ## 已知问题
-1. Windows暂时不能使用自定义模型 (因为预加载的问题)
+1. 暂无
 
 ## 自定义模型依赖插件
 **如果你不使用自定义模型，这些插件不用被安装**
-1. [ResourcePrecacher](https://github.com/KillStr3aK/ResourcePrecacher)
-2. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
+1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## 安装指南
 从 [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases)下载最新版插件, 然后放到counterstrikesharp的plugins文件夹里
 
 ## 指令
 ### 服务器端
-- `playermodelchanger_sync_resourceprecacher` 同步ResourcePrecacher的配置
 - `playermodelchanger_enable [true/false]` 开启 / 关闭此插件
 - `playermodelchanger_resynccache` 重新同步缓存
 ### 客户端
@@ -126,17 +124,6 @@ AddonConfig
 
 ### 设置 MultiAddonManager
 在这个插件里设置你的workshop id, 请看 [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
-
-### 设置 ResourcePrecacher
-#### 自动设置
-1. 确保你已经成功安装了ResourcePrecacher并且有 `ResourcePrecacher.json` 在 `counterstrikesharp/configs/plugins/ResourcePrecacher` 文件夹里
-2. 在控制台输入 `playermodelchanger_sync_resourceprecacher`。这个指令会把你设置的所有模型追加到ResourcePrecacher的配置里。 **(注意：这个指令不会覆写以前的配置。 如果你想重新设置，请确保你先删除了 `ResourcePrecacher.json` 里所有的模型配置)**
-3. 重启服务器
-
-#### 手动设置
-1. 确保你已经成功安装了ResourcePrecacher并且有 `ResourcePrecacher.json` 在 `counterstrikesharp/configs/plugins/ResourcePrecacher` 文件夹里
-2. 把你所有的模型路径加到 `ResourcePrecacher.json` 里
-3. 重启服务器
 
 ### 设置 PlayerModelChanger
 请看 [配置](#配置) 部分

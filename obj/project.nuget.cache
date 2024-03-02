@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "gxHMSp1wJzjKCkZv15zWu0DTIHCT3LGQCotz+9MeJhNAylt64bRtA2pt9VrnGsFBfCYHhCs3Y+CEwTtyITNeRA==",
+  "dgSpecHash": "1ROomVhSBiEbD4ZX409br1bkiOxwKX8qwIvRuoLgxI1neEXjJvzKhwarKxemhblxM+jVMfzEGuoz7ISMJBn+Hg==",
   "success": true,
   "projectFilePath": "D:\\development\\PlayerModelChanger\\PlayerModelChanger.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\s1myy\\.nuget\\packages\\counterstrikesharp.api\\1.0.169\\counterstrikesharp.api.1.0.169.nupkg.sha512",
+    "C:\\Users\\s1myy\\.nuget\\packages\\counterstrikesharp.api\\1.0.179\\counterstrikesharp.api.1.0.179.nupkg.sha512",
     "C:\\Users\\s1myy\\.nuget\\packages\\dapper\\2.1.28\\dapper.2.1.28.nupkg.sha512",
     "C:\\Users\\s1myy\\.nuget\\packages\\mcmaster.netcore.plugins\\1.4.0\\mcmaster.netcore.plugins.1.4.0.nupkg.sha512",
     "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

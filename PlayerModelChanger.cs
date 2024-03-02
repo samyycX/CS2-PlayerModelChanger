@@ -10,12 +10,13 @@ using Newtonsoft.Json.Linq;
 using CounterStrikeSharp.API.Modules.Utils;
 using Service;
 using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Admin;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.0.5";
+    public override string ModuleVersion => "1.0.6";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -44,11 +45,18 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             throw new Exception("Failed to initialize storage. Please check your config");
         }
         this.Service = new ModelService(Config, Storage, Localizer);
-        RegisterListener<Listeners.OnMapStart>((map) => {
+        // RegisterListener<Listeners.OnMapStart>((map) => {
+        //     foreach (var model in Service.GetAllModels())
+        //     {
+        //         Console.WriteLine($"Precaching {model.path}");
+        //         Server.PrecacheModel(model.path);
+        //     }
+        // });
+        RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
             foreach (var model in Service.GetAllModels())
             {
-                Console.WriteLine($"Precaching {model.path}");
-                Server.PrecacheModel(model.path);
+                Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
+                manifest.AddResource(model.path);
             }
         });
 
@@ -58,7 +66,6 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         Console.WriteLine($"Player Model Changer loaded {Service.GetModelCount()} model(s) successfully.");
 
     }   
-
     public void OnConfigParsed(ModelConfig config)
     {
         var availableStorageType = new []{"sqlite", "mysql"};
@@ -93,25 +100,6 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         }
 
         Config = config;
-    }
-
-    [ConsoleCommand("playermodelchanger_sync_resourceprecacher", "Server only. Sync your resourceprecacher config. (add model paths after the original config)")]
-    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.SERVER_ONLY)]
-    public void Sync(CCSPlayerController? player, CommandInfo commandInfo) {
-
-        var ConfigPath = Path.Join(ModuleDirectory, "../../configs/plugins/ResourcePrecacher/ResourcePrecacher.json");
-        var JsonString = File.ReadAllText(ConfigPath, Encoding.UTF8);
-
-        var jobject = JObject.Parse(JsonString);
-
-        var array = (JArray)jobject["Resources"]!;
-        foreach (var model in Service.GetAllModels())
-        {
-            array.Add(model.path);
-        }
-        jobject["Resources"] = array;
-
-        File.WriteAllText(ConfigPath, jobject.ToString());
     }
 
     [ConsoleCommand("playermodelchanger_enable", "Enable/Disable the plugin.")]
