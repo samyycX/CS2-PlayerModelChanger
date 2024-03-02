@@ -67,7 +67,7 @@ public class ModelService {
     }
 
     public bool CanPlayerApplyModel(CCSPlayerController player, string side, Model model) {
-        return (model.permissions.Length == 0 || AdminManager.PlayerHasPermissions(player, model.permissions)) && // permission
+        return (model.permissions.Length == 0 || Utils.PlayerHasPermission(player, model.permissions)) && // permission
             (model.side == "ALL" || model.side == side.ToUpper()); // side
     }
 
@@ -135,7 +135,7 @@ public class ModelService {
                 return;
             }
 
-            if (model!.permissions.Length != 0 && !AdminManager.PlayerHasPermissions(player, model.permissions)) {
+            if (model!.permissions.Length != 0 && !Utils.PlayerHasPermission(player, model.permissions)) {
                 player.PrintToChat(localizer["model.nopermission", modelIndex]);
                 return;
             }

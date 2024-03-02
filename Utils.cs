@@ -1,3 +1,5 @@
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace PlayerModelChanger;
@@ -26,5 +28,20 @@ public class Utils {
                 }
                 break;
         };
+    }
+
+    public static bool PlayerHasPermission(CCSPlayerController player, string[] permissions) {
+        IEnumerable<string> source = permissions.Where((string perm) => perm.StartsWith('#'));
+        IEnumerable<string> source2 = permissions.Where((string perm) => perm.StartsWith('@'));
+        if (!AdminManager.PlayerHasPermissions(player, source2.ToArray()))
+        {
+            return false;
+        }
+
+        if (!AdminManager.PlayerInGroup(player, source.ToArray()))
+        {
+            return false;
+        }
+        return true;
     }
 }
