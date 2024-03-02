@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net7.0": {
-      "CounterStrikeSharp.API/1.0.169": {
+      "CounterStrikeSharp.API/1.0.179": {
         "type": "package",
         "dependencies": {
           "McMaster.NETCore.Plugins": "1.4.0",
@@ -1037,14 +1037,14 @@
     }
   },
   "libraries": {
-    "CounterStrikeSharp.API/1.0.169": {
-      "sha512": "qgsEi/RvWFwKQXAVPYccAvAmE1b958I4l+e7ZaT2lcJXPME5YQpzwz6Vslt1jzxVC15q93AU1LG0En/gzDtmNw==",
+    "CounterStrikeSharp.API/1.0.179": {
+      "sha512": "6A3zseiTNUp1fhafSRtvOeOGhiW1mjQNG6PWC3eKbwMfM/QatnIGZonI5umCUCqowA/TXKQy/JPnwknY4ATmHQ==",
       "type": "package",
-      "path": "counterstrikesharp.api/1.0.169",
+      "path": "counterstrikesharp.api/1.0.179",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "counterstrikesharp.api.1.0.169.nupkg.sha512",
+        "counterstrikesharp.api.1.0.179.nupkg.sha512",
         "counterstrikesharp.api.nuspec",
         "lib/net7.0/CounterStrikeSharp.API.dll",
         "lib/net7.0/CounterStrikeSharp.API.runtimeconfig.json",
@@ -2625,7 +2625,7 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
-      "CounterStrikeSharp.API >= 1.0.169",
+      "CounterStrikeSharp.API >= 1.0.179",
       "Dapper >= 2.1.28",
       "Microsoft.Data.Sqlite >= 8.0.2",
       "MySQLConnector >= 2.3.5",
@@ -2676,7 +2676,7 @@
         "dependencies": {
           "CounterStrikeSharp.API": {
             "target": "Package",
-            "version": "[1.0.169, )"
+            "version": "[1.0.179, )"
           },
           "Dapper": {
             "target": "Package",

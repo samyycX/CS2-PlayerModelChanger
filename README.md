@@ -21,19 +21,17 @@ If you like this plugin, please give a star :)
 3. See [Known issues](#known-issues)
 
 ## Known issues
-1. You can't have custom model on Windows system now (due to the precache problems)
+1. None
 
 ## Dependencies for custom model
 **If you are not using custom model, these plugins are not necessarily needed**
-1. [ResourcePrecacher](https://github.com/KillStr3aK/ResourcePrecacher)
-2. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
+1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
 
 ## Commands
 ### Server side
-- `playermodelchanger_sync_resourceprecacher` Sync with ResourcePrecacher
 - `playermodelchanger_enable [true/false]` Enable / Disable the plugin
 - `playermodelchanger_resynccache` Resync cache.
 ### Client side
@@ -125,17 +123,6 @@ AddonConfig
 
 ### Setup MultiAddonManager
 add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
-
-### Setup ResourcePrecacher
-#### Automatically
-1. Make sure you install ResourcePrecacher plugin successfully and You have `ResourcePrecacher.json` generated in `counterstrikesharp/configs/plugins/ResourcePrecacher` folder.
-2. Type `playermodelchanger_sync_resourceprecacher` in your console. This command will add all models you set in this plugin to ResourcePrecacher config. **(This command will not overwrite old configs. If you want to set again, make sure you delete all old configs in `ResourcePrecacher.json`)**
-3. Restart your server.
-
-#### Manually
-1. Make sure you install ResourcePrecacher plugin successfully and You have `ResourcePrecacher.json` generated in `counterstrikesharp/configs/plugins/ResourcePrecacher` folder.
-2. Add all your model paths into the `ResourcePrecacher.json`
-3. Restart your server.
 
 ### Config PlayerModelChanger
 See the [Configuration](#configuration)
