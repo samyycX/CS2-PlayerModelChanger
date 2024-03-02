@@ -38,6 +38,10 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 - `!model` show sender the model he is using + helper
 - `!model <@random / model name> <all/ct/t>` change sender's model (@random for random model every spawn)
 - `!models <all/ct/t>` select model
+### Admin (server + admin player)
+- `!modeladmin [steamid] reset [all/ct/t]` Reset player's model.
+- `!modeladmin [steamid] set [all/ct/t] [model index] ` Set player's model.
+- `!modeladmin [steamid] check` Check if player's model is not allowed to have, if not then reset it.
 ## Configuration
 When you install the plugin successfully, it will generate `counterstrikesharp/configs/plugins/PlayerModelChanger/PlayerModelChanger.json`.
 Config the json like this:

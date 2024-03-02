@@ -8,7 +8,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
 using Service;
 using CounterStrikeSharp.API.Modules.Menu;
-using System.Reflection.Metadata.Ecma335;
+using CounterStrikeSharp.API.Modules.Admin;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -130,6 +130,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     [ConsoleCommand("css_modeladmin", "Model admin command")]
+    [RequiresPermissions("@css/admin")]
     public void AdminModelCommand(CCSPlayerController? caller, CommandInfo commandInfo) {
         if (commandInfo.ArgCount <= 2) {
             ShowAdminCommandHelp(commandInfo);
