@@ -10,5 +10,6 @@ public interface IStorage {
     public void SetPlayerTModel(ulong SteamID, string modelName);
 
     public void SetPlayerCTModel(ulong SteamID, string modelName);
-    
+
+    public void SetPlayerAllModel(ulong SteamID, string tModel, string ctModel);
 }

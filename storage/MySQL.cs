@@ -69,4 +69,17 @@ public class MySQLStorage : IStorage {
     public void SetPlayerCTModel(ulong SteamID, string modelName) {
         SetPlayerModel(SteamID, modelName, "ct_model");
     }
+    public void SetPlayerAllModel(ulong SteamID, string tmodel, string ctmodel) {
+        var sql = $"""
+            INSERT INTO {table} (`steamid`, `t_model`, `ct_model`) VALUES ({SteamID}, @TModel, @CTModel) ON DUPLICATE key UPDATE `t_model` = @TModel, `ct_model` = @CTModel;
+            """;
+        Task.Run( async () => {
+            await conn.ExecuteAsync(sql,
+                new {
+                    TModel = tmodel,
+                    CTmodel = ctmodel
+                }
+            );
+        });
+    }
 }
