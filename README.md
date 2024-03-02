@@ -53,7 +53,8 @@ Config the json like this:
 		"name": "model name",// optional, default value is model index
 		"path": "model path",
 		"side": "side (T/CT/ALL)", // optional, default to ALL, case sensitive
-		"permissions": ["@vip/flag", "#vip/group"] // optional, permission to have this model
+		"permissions": ["@vip/flag", "#vip/group"], // optional, permission to have this model
+		"permissionsOr": ["@vip/flag", "#vip/group"] // optional, same as "permissions" but using or condition
 	},
 	"mymodel": { // example
 		"name": "",
@@ -140,8 +141,6 @@ put your `characters` folder and all folders related to it in **your server's** 
 For custom models:
 - **You should use the compiled model (suffix `.vmdl_c`)**
 - **You should use `.vmdl` instead of `.vmdl_c` in config json**
-- If you are not using `host_workshop_map` or the model you used is not in your custom map's workshop vdf, you need to change the map once after you start the server
-
 
 ## TODOs
 1. Translation

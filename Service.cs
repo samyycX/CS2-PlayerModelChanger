@@ -44,6 +44,9 @@ public class ModelService {
         if (model.permissions == null) {
             model.permissions = new string[0];
         }
+        if (model.permissionsOr == null) {
+            model.permissionsOr = new string[0];
+        }
     }
 
     public void ResyncCache() {
@@ -81,7 +84,7 @@ public class ModelService {
     }
 
     public bool CanPlayerApplyModel(CCSPlayerController player, string side, Model model) {
-        return (model.permissions.Length == 0 || Utils.PlayerHasPermission(player, model.permissions)) && // permission
+        return Utils.PlayerHasPermission(player, model.permissions, model.permissionsOr) && // permission
             (model.side == "ALL" || model.side == side.ToUpper()); // side
     }
 
@@ -149,7 +152,7 @@ public class ModelService {
                 return;
             }
 
-            if (model!.permissions.Length != 0 && !Utils.PlayerHasPermission(player, model.permissions)) {
+            if (!Utils.PlayerHasPermission(player, model.permissions, model.permissionsOr)) {
                 player.PrintToChat(localizer["model.nopermission", modelIndex]);
                 return;
             }
