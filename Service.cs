@@ -49,9 +49,23 @@ public class ModelService {
     public void ResyncCache() {
         cache = storage.GetAllPlayerModel();
     }
-
+    public void SetAllTModels(string tmodel) {
+        cache.ForEach(model => model.t_model = tmodel);
+        storage.SetAllTModel(tmodel);
+    }
+    public void SetAllCTModels(string ctmodel) {
+        cache.ForEach(model => model.ct_model = ctmodel);
+        storage.SetAllCTModel(ctmodel);
+    }
+    public void SetAllModels(string tmodel, string ctmodel) {
+        cache.ForEach(model => {model.t_model = tmodel; model.ct_model = ctmodel;});
+        storage.SetAllModel(tmodel, ctmodel);
+    }
     public int GetModelCount() {
         return config.Models.Count();
+    }
+    public List<ulong> GetAllPlayers() {
+        return cache.Select(model => model.steamid).ToList();
     }
     public List<Model> GetAllModels() {
         return config.Models.Values.ToList();
@@ -156,10 +170,8 @@ public class ModelService {
         var modelIndex = "";
         if (side.ToLower() == "t") {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
-            // modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
         } else {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
-            // modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
         }
         if (modelIndex == null || modelIndex == "") {
             return null;
@@ -187,10 +199,8 @@ public class ModelService {
         var modelIndex = "";
         if (team == CsTeam.Terrorist) {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
-            // modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
         } else {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
-            // modelIndex = storage.GetPlayerCTModel(player!.AuthorizedSteamID!.SteamId64);
         }
         if (modelIndex == null || modelIndex == "") {
             return localizer["model.none"];

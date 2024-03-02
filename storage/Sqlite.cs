@@ -22,7 +22,6 @@ public class SqliteStorage : IStorage {
             ");
         });
     }
-
     public List<ModelCache> GetAllPlayerModel() {
         return conn.Query<ModelCache>($"select * from players;").ToList();
     }
@@ -75,6 +74,37 @@ public class SqliteStorage : IStorage {
                 ON CONFLICT(`steamid`) DO UPDATE SET `t_model` = @TModel, `ct_model` = @CTModel;",
                 new {
                     SteamId = SteamID,
+                    TModel = tmodel,
+                    CTModel = ctmodel,
+                }
+            );
+        });
+    }
+    public void SetAllTModel(string tmodel) {
+        Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                UPDATE `players` SET `t_model` = @TModel",
+                new {
+                    TModel = tmodel
+                }
+            );
+        });
+    }
+    public void SetAllCTModel(string ctmodel) {
+        Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                UPDATE `players` SET `ct_model` = @CTModel",
+                new {
+                    CTModel = ctmodel
+                }
+            );
+        });
+    }
+    public void SetAllModel(string tmodel, string ctmodel) {
+        Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                UPDATE `players` SET `t_model` = @TModel, `ct_model` = @CTModel;",
+                new {
                     TModel = tmodel,
                     CTModel = ctmodel,
                 }

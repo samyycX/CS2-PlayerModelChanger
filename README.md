@@ -32,13 +32,13 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 
 ## Commands
 ### Server side
-- `playermodelchanger_enable [true/false]` Enable / Disable the plugin
-- `playermodelchanger_resynccache` Resync cache.
+- `pmc_enable [true/false]` Enable / Disable the plugin
+- `pmc_resynccache` Resync cache.
 ### Client side
 - `!model` show sender the model he is using + helper
 - `!model <@random / model name> <all/ct/t>` change sender's model (@random for random model every spawn)
 - `!models <all/ct/t>` select model
-### Admin (server + admin player)
+### Admin (Need `@pmc/admin` flag or `#pmc/admin` group)
 - `!modeladmin [steamid] reset [all/ct/t]` Reset player's model.
 - `!modeladmin [steamid] set [all/ct/t] [model index] ` Set player's model.
 - `!modeladmin [steamid] check` Check if player's model is not allowed to have, if not then reset it.
@@ -55,7 +55,7 @@ Config the json like this:
 		"side": "side (T/CT/ALL)", // optional, default to ALL, case sensitive
 		"permissions": ["@vip/flag", "#vip/group"] // optional, permission to have this model
 	},
-	"mymodel": { // 例子
+	"mymodel": { // example
 		"name": "",
 		"path": "characters/XXX/mymodel.vmdl",
 		"side": "T",
