@@ -24,7 +24,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/CounterStrikeSharp.API.dll": {
+          "lib/net7.0/_._": {
             "related": ".runtimeconfig.json;.xml"
           }
         }
@@ -54,7 +54,7 @@
           }
         },
         "runtime": {
-          "lib/netcoreapp3.1/McMaster.NETCore.Plugins.dll": {
+          "lib/netcoreapp3.1/_._": {
             "related": ".xml"
           }
         }
@@ -114,7 +114,7 @@
           }
         },
         "runtime": {
-          "lib/netstandard2.0/Microsoft.DotNet.PlatformAbstractions.dll": {
+          "lib/netstandard2.0/_._": {
             "related": ".xml"
           }
         }
@@ -131,7 +131,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -150,7 +150,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.Abstractions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -169,7 +169,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.Binder.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -189,7 +189,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.CommandLine.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -209,7 +209,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.EnvironmentVariables.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -232,7 +232,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.FileExtensions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -255,7 +255,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.Json.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -277,13 +277,12 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Configuration.UserSecrets.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
         "build": {
-          "buildTransitive/net6.0/Microsoft.Extensions.Configuration.UserSecrets.props": {},
-          "buildTransitive/net6.0/Microsoft.Extensions.Configuration.UserSecrets.targets": {}
+          "buildTransitive/net6.0/_._": {}
         }
       },
       "Microsoft.Extensions.DependencyInjection/7.0.0": {
@@ -297,7 +296,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.DependencyInjection.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -313,7 +312,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -336,7 +335,7 @@
           }
         },
         "runtime": {
-          "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.dll": {
+          "lib/netstandard2.0/_._": {
             "related": ".xml"
           }
         }
@@ -352,7 +351,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.FileProviders.Abstractions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -373,7 +372,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.FileProviders.Physical.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -389,7 +388,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.FileSystemGlobbing.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -428,7 +427,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Hosting.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -449,7 +448,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Hosting.Abstractions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -465,7 +464,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Localization.Abstractions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         }
@@ -484,7 +483,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Logging.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -526,7 +525,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Logging.Configuration.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -550,7 +549,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Logging.Console.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -571,7 +570,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Logging.Debug.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -594,7 +593,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Logging.EventLog.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -618,7 +617,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Logging.EventSource.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -638,7 +637,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Options.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -661,7 +660,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Options.ConfigurationExtensions.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -677,7 +676,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.Primitives.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -726,7 +725,7 @@
           }
         },
         "runtime": {
-          "lib/net6.0/Scrutor.dll": {
+          "lib/net6.0/_._": {
             "related": ".pdb;.xml"
           }
         }
@@ -739,7 +738,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Serilog.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         }
@@ -756,7 +755,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Serilog.Extensions.Logging.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         }
@@ -772,7 +771,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/Serilog.Sinks.Console.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         }
@@ -788,7 +787,7 @@
           }
         },
         "runtime": {
-          "lib/net5.0/Serilog.Sinks.File.dll": {
+          "lib/net5.0/_._": {
             "related": ".pdb;.xml"
           }
         }
@@ -939,7 +938,7 @@
           "ref/netstandard2.0/System.Data.DataSetExtensions.dll": {}
         },
         "runtime": {
-          "lib/netstandard2.0/System.Data.DataSetExtensions.dll": {}
+          "lib/netstandard2.0/_._": {}
         }
       },
       "System.Diagnostics.EventLog/7.0.0": {
@@ -950,7 +949,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/System.Diagnostics.EventLog.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -958,11 +957,7 @@
           "buildTransitive/net6.0/_._": {}
         },
         "runtimeTargets": {
-          "runtimes/win/lib/net7.0/System.Diagnostics.EventLog.Messages.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          },
-          "runtimes/win/lib/net7.0/System.Diagnostics.EventLog.dll": {
+          "runtimes/win/lib/net7.0/_._": {
             "assetType": "runtime",
             "rid": "win"
           }
@@ -985,7 +980,7 @@
           }
         },
         "runtime": {
-          "lib/net6.0/System.Runtime.CompilerServices.Unsafe.dll": {
+          "lib/net6.0/_._": {
             "related": ".xml"
           }
         },
@@ -1001,7 +996,7 @@
           }
         },
         "runtime": {
-          "lib/net7.0/System.Text.Encodings.Web.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
@@ -1009,7 +1004,7 @@
           "buildTransitive/net6.0/_._": {}
         },
         "runtimeTargets": {
-          "runtimes/browser/lib/net7.0/System.Text.Encodings.Web.dll": {
+          "runtimes/browser/lib/net7.0/_._": {
             "assetType": "runtime",
             "rid": "browser"
           }
@@ -1026,12 +1021,12 @@
           }
         },
         "runtime": {
-          "lib/net7.0/System.Text.Json.dll": {
+          "lib/net7.0/_._": {
             "related": ".xml"
           }
         },
         "build": {
-          "buildTransitive/net6.0/System.Text.Json.targets": {}
+          "buildTransitive/net6.0/_._": {}
         }
       }
     }
@@ -2675,6 +2670,7 @@
         "targetAlias": "net7.0",
         "dependencies": {
           "CounterStrikeSharp.API": {
+            "include": "Compile",
             "target": "Package",
             "version": "[1.0.179, )"
           },

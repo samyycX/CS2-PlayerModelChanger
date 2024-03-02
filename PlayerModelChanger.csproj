@@ -7,9 +7,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-
+  
+ 
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.179" />
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.179">
+      <IncludeAssets>compile</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="MySQLConnector" Version="2.3.5" />
   </ItemGroup>
   <ItemGroup>
@@ -20,4 +23,5 @@
   <ItemGroup>
     <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  
 </Project>

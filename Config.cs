@@ -11,6 +11,7 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("Models")] public Dictionary<string, Model> Models { get; set; } = new Dictionary<string, Model>();
     
     [JsonPropertyName("MenuType")] public string MenuType { get; set; } = "chat"; // chat or centerhtml
+    
     [JsonPropertyName("StorageType")] public string StorageType { get; set; } = "sqlite";
 
     [JsonPropertyName("MySQL_IP")] public string MySQLIP { get; set; } = "";
