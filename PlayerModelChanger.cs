@@ -8,6 +8,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
 using Service;
 using CounterStrikeSharp.API.Modules.Menu;
+using System.Reflection.Metadata.Ecma335;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -100,6 +101,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     [ConsoleCommand("playermodelchanger_enable", "Enable/Disable the plugin.")]
+    [ConsoleCommand("pmc_enable", "Enable/Disable the plugin.")]
     [CommandHelper(minArgs: 1, usage: "[true/false]", whoCanExecute: CommandUsage.SERVER_ONLY)]
     public void Switch(CCSPlayerController? player, CommandInfo commandInfo) {
         var arg = commandInfo.GetArg(1);
@@ -116,10 +118,87 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     [ConsoleCommand("playermodelchanger_resynccache", "Resync cache.")]
+    [ConsoleCommand("pmc_resynccache", "Resync cache.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.SERVER_ONLY)]
     public void ResyncCache(CCSPlayerController? player, CommandInfo commandInfo) {
         Service.ResyncCache();
         commandInfo.ReplyToCommand("Resynced.");
+    }
+
+    private void ShowAdminCommandHelp(CommandInfo commandInfo) {
+        commandInfo.ReplyToCommand(Localizer["command.modeladmin.hint"]);
+    }
+
+    [ConsoleCommand("css_modeladmin", "Model admin command")]
+    public void AdminModelCommand(CCSPlayerController? caller, CommandInfo commandInfo) {
+        if (commandInfo.ArgCount <= 2) {
+            ShowAdminCommandHelp(commandInfo);
+            return;
+        }
+
+        var steamid = ulong.Parse(commandInfo.GetArg(1));
+        var target = Utilities.GetPlayerFromSteamId(steamid);
+        if (target == null) {
+            commandInfo.ReplyToCommand(Localizer["command.modeladmin.playernotfound"]);
+            return;
+        }
+
+        var type = commandInfo.GetArg(2);
+        if (type == "reset") {
+            if (commandInfo.ArgCount <= 3) {
+                ShowAdminCommandHelp(commandInfo);
+                return;
+            }
+            var side = commandInfo.GetArg(3);
+            Service.AdminSetPlayerModel(steamid, "", side);
+            commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
+        } else if (type == "set") {
+            if (commandInfo.ArgCount <= 4) {
+                ShowAdminCommandHelp(commandInfo);
+                return;
+            }
+            var side = commandInfo.GetArg(3);
+            var modelIndex = commandInfo.GetArg(4);
+            if (Service.GetModel(modelIndex) == null) {
+                commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelIndex]);
+                return;
+            }
+            Service.AdminSetPlayerModel(steamid, modelIndex, side);
+            commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
+        } else if (type == "check") {
+            if (commandInfo.ArgCount <= 2) {
+                ShowAdminCommandHelp(commandInfo);
+                return;
+            }
+            /*
+            var modelIndex = Service.storage.GetPlayerCTModel(steamid);
+                    if (!Service.CheckModel(target, "ct", modelIndex)) {
+                        Service.AdminSetPlayerModel(steamid, "", CsTeam.CounterTerrorist);
+                        commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", modelIndex]);
+                    }
+                    */
+
+            var tModelIndex = Service.storage.GetPlayerTModel(steamid);
+            var ctModelIndex = Service.storage.GetPlayerTModel(steamid);
+            
+            var tValid = Service.CheckModel(target, "t", tModelIndex);
+            var ctValid = Service.CheckModel(target, "ct", ctModelIndex);
+            
+            if (!tValid && !ctValid) {
+                Service.AdminSetPlayerModel(steamid, "", "all");
+                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", tModelIndex]);
+                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", ctModelIndex]);
+            } else if (!tValid) {
+                Service.AdminSetPlayerModel(steamid, "", "t");
+                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", tModelIndex]);
+            } else if (!ctValid) {
+                Service.AdminSetPlayerModel(steamid, "", "ct");
+                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", ctModelIndex]);
+            }
+            commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
+        } else {
+            ShowAdminCommandHelp(commandInfo);
+        }
     }
 
     [ConsoleCommand("css_model", "Show your model.")]
@@ -151,19 +230,12 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         var side = "all";
         if (commandInfo.ArgCount == 3) {
             side = commandInfo.GetArg(2).ToLower();
+            if (side.ToLower() != "t" || side.ToLower() != "ct") {
+                commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
+                return;
+            }
         }
-
-        if (side == "all") {
-            Service.SetPlayerTModel(player, modelIndex);
-            Service.SetPlayerCTModel(player, modelIndex);
-        } else if (side == "t") {
-            Service.SetPlayerTModel(player, modelIndex);
-        } else if (side == "ct") {
-            Service.SetPlayerCTModel(player, modelIndex);
-        } else {
-            commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
-            return;
-        }
+        Service.SetPlayerModel(player, modelIndex, side);
     }
 
     [ConsoleCommand("css_models", "Select models.")]
@@ -178,12 +250,11 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         List<Model> models;
         Model? currentModel;
         if (side == "all") {
-            models = Service.GetAllSideAppliableModels();
+            models = Service.GetAllAppliableModels(player, "all");
             currentModel = Service.GetPlayerNowTeamModel(player);
         } else {
-            var team = side == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
-            models = Service.GetAllAppliableModels(player, team);
-            currentModel = Service.GetPlayerModel(player, team);
+            models = Service.GetAllAppliableModels(player, side);
+            currentModel = Service.GetPlayerModel(player, side);
         }
 
         var localizerside = Localizer[side == "all" ? (player.Team == CsTeam.Terrorist ? "side.t" : "side.ct") : $"side.{side}"];
@@ -204,17 +275,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     private void HandleModelMenu(CCSPlayerController player, string modelIndex, string side) {
-         if (side == "all") {
-            Service.SetPlayerTModel(player, modelIndex);
-            Service.SetPlayerCTModel(player, modelIndex);
-        } else if (side == "t") {
-            Service.SetPlayerTModel(player, modelIndex);
-        } else if (side == "ct") {
-            Service.SetPlayerCTModel(player, modelIndex);
-        } else {
-            player.PrintToChat(Localizer["command.unknownside", side]);
-            return;
-        }
+        Service.SetPlayerModel(player, modelIndex, side);
     }
 
 

@@ -1,9 +1,11 @@
 using Config;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Localization;
+using PlayerModelChanger;
 using Storage;
 
 namespace Service;
@@ -17,7 +19,7 @@ public class ModelCache {
 public class ModelService {
 
     private ModelConfig config;
-    private IStorage storage;
+    public IStorage storage;
 
     private IStringLocalizer localizer;
 
@@ -54,9 +56,6 @@ public class ModelService {
     public List<Model> GetAllModels() {
         return config.Models.Values.ToList();
     }
-    public List<Model> GetAllSideAppliableModels() {
-        return config.Models.Values.Where(model => model.side == "ALL").ToList();
-    }
     public bool ExistModel(string modelIndex) {
         return config.Models.ContainsKey(modelIndex);
     }
@@ -66,14 +65,17 @@ public class ModelService {
     public Model? GetModel(string modelIndex) {
         return config.Models.GetValueOrDefault(modelIndex, null);
     }
-    public List<Model> GetAllAppliableModels(CCSPlayerController player, CsTeam team) {
-        return config.Models.Values.Where(model => 
-            (model.permissions.Length == 0 || AdminManager.PlayerHasPermissions(player, model.permissions)) && // permission
-            (model.side == "ALL" || model.side == (team == CsTeam.Terrorist ? "T" : "CT")) // side
-        ).ToList();
+
+    public bool CanPlayerApplyModel(CCSPlayerController player, string side, Model model) {
+        return (model.permissions.Length == 0 || AdminManager.PlayerHasPermissions(player, model.permissions)) && // permission
+            (model.side == "ALL" || model.side == side.ToUpper()); // side
     }
 
-    private void PutInCache(ulong steamid, string modelIndex, CsTeam team) {
+    public List<Model> GetAllAppliableModels(CCSPlayerController player, string side) {
+        return config.Models.Values.Where(model => CanPlayerApplyModel(player, side, model)).ToList();
+    }
+
+    private void PutInCache(ulong steamid, string modelIndex, string side) {
         var obj = cache.Find(model => model.steamid == steamid);
 
         if (obj == null) {
@@ -82,14 +84,48 @@ public class ModelService {
             cache.Add(modelcache);
             obj = modelcache;
         }
-        if (team == CsTeam.Terrorist) {
-            obj.t_model = modelIndex;
-        } else {
-            obj.ct_model = modelIndex;
-        }
+        Utils.ExecuteSide(side,
+            null,
+            () => obj.t_model = modelIndex,
+            () => obj.ct_model = modelIndex
+        );
+       
     }
 
-    public void SetPlayerModel(CCSPlayerController player, string modelIndex, CsTeam team) {
+    public bool CheckModel(CCSPlayerController player, string side, string modelIndex) {
+        if (modelIndex == "" || modelIndex == "@random") {
+            return true;
+        }
+        var model = GetModel(modelIndex);
+        if (model == null) {
+            return false;
+        }
+        CsTeam team = side.ToLower() == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
+        return CanPlayerApplyModel(player, side, model);
+    }
+
+    public void AdminSetPlayerModel(ulong steamid, string modelIndex, string side) {
+        var team = side.ToLower() == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
+
+        PutInCache(steamid, modelIndex, side);
+        Utils.ExecuteSide(side,
+            () => {
+                storage.SetPlayerAllModel(steamid, modelIndex, modelIndex);
+            },
+            () => {
+                storage.SetPlayerTModel(steamid, modelIndex);
+            },
+            () => {
+                storage.SetPlayerCTModel(steamid, modelIndex);
+            }
+        );
+    }
+    public void AdminSetPlayerModel(ulong steamid, string modelIndex, CsTeam team) {
+        var side = team == CsTeam.Terrorist ? "t" : "ct";
+        AdminSetPlayerModel(steamid, modelIndex, side);
+    }
+
+    public void SetPlayerModel(CCSPlayerController player, string modelIndex, string side) {
         var isSpecial = modelIndex == "" || modelIndex == "@random";
 
         var model = GetModel(modelIndex);
@@ -104,7 +140,7 @@ public class ModelService {
                 return;
             }
 
-            if (!GetAllAppliableModels(player, team).Contains(model)) {
+            if (!GetAllAppliableModels(player, side).Contains(model)) {
                 player.PrintToChat(localizer["model.wrongteam", modelIndex]);
                 return;
             }
@@ -112,26 +148,13 @@ public class ModelService {
         }
        
         var steamid = player!.AuthorizedSteamID!.SteamId64;
-        PutInCache(steamid, modelIndex, team);
-        if (team == CsTeam.Terrorist) { 
-            storage.SetPlayerTModel(steamid, modelIndex);
-        } else {
-            storage.SetPlayerCTModel(steamid, modelIndex);
-        }
-
-        var side = team == CsTeam.Terrorist ? "side.t" : "side.ct";
-        player.PrintToChat(localizer["command.model.success", localizer[side]]);
+        AdminSetPlayerModel(steamid, modelIndex, side);
+        player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
         
     }
-    public void SetPlayerTModel(CCSPlayerController? player, string modelIndex) {
-        SetPlayerModel(player, modelIndex, CsTeam.Terrorist);
-    }
-    public void SetPlayerCTModel(CCSPlayerController? player, string modelIndex) {
-        SetPlayerModel(player, modelIndex, CsTeam.CounterTerrorist);
-    }
-    public Model? GetPlayerModel(CCSPlayerController? player, CsTeam team) {
+    public Model? GetPlayerModel(CCSPlayerController? player, string side) {
         var modelIndex = "";
-        if (team == CsTeam.Terrorist) {
+        if (side.ToLower() == "t") {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
             // modelIndex = storage.GetPlayerTModel(player!.AuthorizedSteamID!.SteamId64);
         } else {
@@ -142,7 +165,7 @@ public class ModelService {
             return null;
         }
         if (modelIndex == "@random") {
-            var models = GetAllAppliableModels(player, team);
+            var models = GetAllAppliableModels(player, side);
             if (models.Count() == 0) {
                 return null;
             }
@@ -153,7 +176,11 @@ public class ModelService {
     }
     public Model? GetPlayerNowTeamModel(CCSPlayerController? player) {
         var team = (CsTeam)player.TeamNum;
-        return GetPlayerModel(player, team);
+        if (team == CsTeam.Spectator || team == CsTeam.None) {
+            return null;
+        }
+        var side = team == CsTeam.Terrorist ? "t" : "ct";
+        return GetPlayerModel(player, side);
     }
     public string GetPlayerModelName(CCSPlayerController? player, CsTeam team) {
         

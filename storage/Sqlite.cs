@@ -68,4 +68,17 @@ public class SqliteStorage : IStorage {
     public void SetPlayerCTModel(ulong SteamID, string model) {
         SetPlayerModel(SteamID, model, "ct_model");
     }
+    public void SetPlayerAllModel(ulong SteamID, string tmodel, string ctmodel) {
+         Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                INSERT INTO `players` (`steamid`, `t_model`, `ct_model`) VALUES (@SteamId, @TModel, @CTModel)
+                ON CONFLICT(`steamid`) DO UPDATE SET `t_model` = @TModel, `ct_model` = @CTModel;",
+                new {
+                    SteamId = SteamID,
+                    TModel = tmodel,
+                    CTModel = ctmodel,
+                }
+            );
+        });
+    }
 }
