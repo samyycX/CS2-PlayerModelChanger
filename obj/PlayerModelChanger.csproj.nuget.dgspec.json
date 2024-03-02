@@ -44,6 +44,7 @@
           "targetAlias": "net7.0",
           "dependencies": {
             "CounterStrikeSharp.API": {
+              "include": "Compile",
               "target": "Package",
               "version": "[1.0.179, )"
             },
