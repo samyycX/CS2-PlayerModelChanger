@@ -7,5 +7,6 @@ public class Model {
     public required string path { get; set; }
     
     public string[] permissions { get; set; }
+    public string[] permissionsOr { get; set; }
     public string side { get; set; }
 }

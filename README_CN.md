@@ -52,7 +52,8 @@
 		"name": "model name",// 可选, 默认值就是model index
 		"path": "model path",
 		"side": "side (T/CT/ALL)", // 可选 默认是ALL 大小写敏感
-		"permissions": ["@vip/flag", "#vip/group"] // 可选 此模型需要的权限
+		"permissions": ["@vip/flag", "#vip/group"], // 可选 此模型需要的权限
+		"permissionsOr": ["@vip/flag", "#vip/group"] // 可选，和"permissions"一样，但是使用或条件判断
 	},
 	"mymodel": { // 例子
 		"name": "",
@@ -142,8 +143,6 @@ AddonConfig
 对于自定义模型
 - **你应该使用编译后的模型 (后缀为 `.vmdl_c`)**
 - **在配置文件内，你应该使用 `.vmdl` 而不是 `.vmdl_c` 作为后缀**
-- 如果你没有使用`host_workshop_map`或使用的自定义地图和模型不在一个创意工坊物品内, 你需要在服务器开始后切换一次地图
-
 
 ## Contribution
 构建插件请使用 `dotnet build`.
