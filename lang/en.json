@@ -13,7 +13,7 @@
     "command.model.success": "{green}Your model on {0} will be set after next spawn.",
     "command.resetmodel.success": "{green}Your model will be reseted from next spawn.",
     "command.models": "{green}Available models ({0}): {default}",
-    "command.modeladmin.hint": "{green}!modeladmin [steamid] reset [all/ct/t] {default}Reset player's model.\u2029{green}!modeladmin [steamid] set [all/ct/t] [model index] {default}Set player's model.\u2029{green}!modeladmin [steamid] check {default}Check if player's model is not allowed to have, if not then reset it.",
+    "command.modeladmin.hint": "{green}!modeladmin [all/steamid] reset [all/ct/t] {default}Reset player's model.\u2029{green}!modeladmin [all/steamid] set [all/ct/t] [model index] {default}Set player's model.\u2029{green}!modeladmin [steamid] check {default}Check if player's model is not allowed to have, if not then reset it.",
     "command.modeladmin.playernotfound": "{red}steamid not found.",
     "command.modeladmin.success": "{green}Executed successfully.",
     "command.modeladmin.checkedinvalid": "{red}Removed invalid model: {default}{0}",

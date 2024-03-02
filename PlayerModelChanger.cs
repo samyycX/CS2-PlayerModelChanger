@@ -130,19 +130,13 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     [ConsoleCommand("css_modeladmin", "Model admin command")]
-    [RequiresPermissions("@css/admin")]
+    [RequiresPermissionsOr("@pmc/admin","#pmc/admin")]
     public void AdminModelCommand(CCSPlayerController? caller, CommandInfo commandInfo) {
         if (commandInfo.ArgCount <= 2) {
             ShowAdminCommandHelp(commandInfo);
             return;
         }
 
-        var steamid = ulong.Parse(commandInfo.GetArg(1));
-        var target = Utilities.GetPlayerFromSteamId(steamid);
-        if (target == null) {
-            commandInfo.ReplyToCommand(Localizer["command.modeladmin.playernotfound"]);
-            return;
-        }
 
         var type = commandInfo.GetArg(2);
         if (type == "reset") {
@@ -151,7 +145,18 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 return;
             }
             var side = commandInfo.GetArg(3);
-            Service.AdminSetPlayerModel(steamid, "", side);
+
+            var target = commandInfo.GetArg(1);
+            if (target == "all") {  
+                Utils.ExecuteSide(side,
+                    () => Service.SetAllModels("", ""),
+                    () => Service.SetAllTModels(""),
+                    () => Service.SetAllCTModels("")
+                );
+            } else {
+                var steamid = ulong.Parse(target);
+                Service.AdminSetPlayerModel(steamid, "", side);
+            }
             commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
         } else if (type == "set") {
             if (commandInfo.ArgCount <= 4) {
@@ -164,21 +169,31 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelIndex]);
                 return;
             }
-            Service.AdminSetPlayerModel(steamid, modelIndex, side);
+            var target = commandInfo.GetArg(1);
+            if (target == "all") {  
+                var steamids = Service.GetAllPlayers();
+                Utils.ExecuteSide(side,
+                    () => Service.SetAllModels(modelIndex, modelIndex),
+                    () => Service.SetAllTModels(modelIndex),
+                    () => Service.SetAllCTModels(modelIndex)
+                );
+            } else {
+                var steamid = ulong.Parse(target);
+                Service.AdminSetPlayerModel(steamid, modelIndex, side);
+            }
             commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
         } else if (type == "check") {
             if (commandInfo.ArgCount <= 2) {
                 ShowAdminCommandHelp(commandInfo);
                 return;
             }
-            /*
-            var modelIndex = Service.storage.GetPlayerCTModel(steamid);
-                    if (!Service.CheckModel(target, "ct", modelIndex)) {
-                        Service.AdminSetPlayerModel(steamid, "", CsTeam.CounterTerrorist);
-                        commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", modelIndex]);
-                    }
-                    */
-
+            
+            var steamid = ulong.Parse(commandInfo.GetArg(1));
+            var target = Utilities.GetPlayerFromSteamId(steamid);
+            if (target == null) {
+                commandInfo.ReplyToCommand(Localizer["command.modeladmin.playernotfound"]);
+                return;
+            }
             var tModelIndex = Service.storage.GetPlayerTModel(steamid);
             var ctModelIndex = Service.storage.GetPlayerTModel(steamid);
             

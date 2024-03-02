@@ -11,7 +11,7 @@
     "command.model.hint2": "输入 {green}!models <all/ct/t> {default} 选择模型。",
     "command.model.notfound": "{red}模型名 {default}{0} {red}不存在.",
     "command.model.success": "{green}您在{0}的模型会在下一次重生后生效。",
-    "command.modeladmin.hint": "{green}!modeladmin [steamid] reset [all/ct/t] {default}重置玩家的模型\u2029{green}!modeladmin [steamid] set [all/ct/t] [model index] {default}设置玩家的模型\u2029{green}!modeladmin [steamid] check {default}检查玩家是否可以使用当前使用的模型，如果不可以则重置.",
+    "command.modeladmin.hint": "{green}!modeladmin [all/steamid] reset [all/ct/t] {default}重置玩家的模型\u2029{green}!modeladmin [all/steamid] set [all/ct/t] [model index] {default}设置玩家的模型\u2029{green}!modeladmin [steamid] check {default}检查玩家是否可以使用当前使用的模型，如果不可以则重置.",
     "command.modeladmin.playernotfound": "{red}steamid not found.",
     "command.modeladmin.success": "{green}Executed successfully.",
     "command.modeladmin.checkedinvalid": "{red}Removed invalid model: {default}{0}",

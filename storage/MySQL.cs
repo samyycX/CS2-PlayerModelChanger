@@ -82,4 +82,35 @@ public class MySQLStorage : IStorage {
             );
         });
     }
+    public void SetAllTModel(string tmodel) {
+        Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                UPDATE `{table}` SET `t_model` = @TModel",
+                new {
+                    TModel = tmodel
+                }
+            );
+        });
+    }
+    public void SetAllCTModel(string ctmodel) {
+        Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                UPDATE `{table}` SET `ct_model` = @CTModel",
+                new {
+                    CTModel = ctmodel
+                }
+            );
+        });
+    }
+    public void SetAllModel(string tmodel, string ctmodel) {
+        Task.Run( async () => {
+            await conn.ExecuteAsync(@$"
+                UPDATE `{table}` SET `t_model` = @TModel, `ct_model` = @CTModel;",
+                new {
+                    TModel = tmodel,
+                    CTModel = ctmodel,
+                }
+            );
+        });
+    }
 }
