@@ -19,5 +19,6 @@
     "modelmenu.unset": "Unset",
     "modelmenu.random": "Random",
     "model.wrongteam": "{red}You can't apply {default} {0}{red} model to this side.",
-    "model.none": "{red}None"
+    "model.none": "{red}None",
+    "model.nopermission": "{red}You don't have the permission for this model."
 }

@@ -1,5 +1,6 @@
 using Config;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Localization;
@@ -38,6 +39,9 @@ public class ModelService {
         if (model.side == null) {
             model.side = "ALL";
         }
+        if (model.permissions == null) {
+            model.permissions = new string[0];
+        }
     }
 
     public void ResyncCache() {
@@ -62,8 +66,11 @@ public class ModelService {
     public Model? GetModel(string modelIndex) {
         return config.Models.GetValueOrDefault(modelIndex, null);
     }
-    public List<Model> GetAllAppliableModels(CsTeam team) {
-        return config.Models.Values.Where(model => model.side == "ALL" || model.side == (team == CsTeam.Terrorist ? "T" : "CT")).ToList();
+    public List<Model> GetAllAppliableModels(CCSPlayerController player, CsTeam team) {
+        return config.Models.Values.Where(model => 
+            (model.permissions.Length == 0 || AdminManager.PlayerHasPermissions(player, model.permissions)) && // permission
+            (model.side == "ALL" || model.side == (team == CsTeam.Terrorist ? "T" : "CT")) // side
+        ).ToList();
     }
 
     private void PutInCache(ulong steamid, string modelIndex, CsTeam team) {
@@ -82,26 +89,34 @@ public class ModelService {
         }
     }
 
-    public void SetPlayerModel(CCSPlayerController? player, string modelIndex, CsTeam team) {
+    public void SetPlayerModel(CCSPlayerController player, string modelIndex, CsTeam team) {
         var isSpecial = modelIndex == "" || modelIndex == "@random";
-        
+
         var model = GetModel(modelIndex);
-        if (model == null && !isSpecial) {
-            player.PrintToChat(localizer["command.model.notfound", modelIndex]);
-            return;
-        }
-        if (isSpecial || GetAllAppliableModels(team).Contains(model)) {
-            var steamid = player!.AuthorizedSteamID!.SteamId64;
-            PutInCache(steamid, modelIndex, team);
-            if (team == CsTeam.Terrorist) { 
-                storage.SetPlayerTModel(steamid, modelIndex);
-            } else {
-                storage.SetPlayerCTModel(steamid, modelIndex);
+        if (!isSpecial) {
+            if (model == null) {
+                player.PrintToChat(localizer["command.model.notfound", modelIndex]);
+                return;
             }
-            
+
+            if (model!.permissions.Length != 0 && !AdminManager.PlayerHasPermissions(player, model.permissions)) {
+                player.PrintToChat(localizer["model.nopermission", modelIndex]);
+                return;
+            }
+
+            if (!GetAllAppliableModels(player, team).Contains(model)) {
+                player.PrintToChat(localizer["model.wrongteam", modelIndex]);
+                return;
+            }
+
+        }
+       
+        var steamid = player!.AuthorizedSteamID!.SteamId64;
+        PutInCache(steamid, modelIndex, team);
+        if (team == CsTeam.Terrorist) { 
+            storage.SetPlayerTModel(steamid, modelIndex);
         } else {
-            player.PrintToChat(localizer["model.wrongteam", modelIndex]);
-            return;
+            storage.SetPlayerCTModel(steamid, modelIndex);
         }
 
         var side = team == CsTeam.Terrorist ? "side.t" : "side.ct";
@@ -127,7 +142,10 @@ public class ModelService {
             return null;
         }
         if (modelIndex == "@random") {
-            var models = GetAllAppliableModels(team);
+            var models = GetAllAppliableModels(player, team);
+            if (models.Count() == 0) {
+                return null;
+            }
             var index = Random.Shared.Next(models.Count());
             return models[index];
         }

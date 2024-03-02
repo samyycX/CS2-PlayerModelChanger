@@ -182,7 +182,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             currentModel = Service.GetPlayerNowTeamModel(player);
         } else {
             var team = side == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
-            models = Service.GetAllAppliableModels(team);
+            models = Service.GetAllAppliableModels(player, team);
             currentModel = Service.GetPlayerModel(player, team);
         }
 
