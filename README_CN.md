@@ -51,12 +51,14 @@
 	"model_index": {
 		"name": "model name",// 可选, 默认值就是model index
 		"path": "model path",
-		"side": "side (T/CT/ALL)" // 可选 默认是ALL 大小写敏感
+		"side": "side (T/CT/ALL)", // 可选 默认是ALL 大小写敏感
+		"permissions": ["@vip/flag", "#vip/group"] // 可选 此模型需要的权限
 	},
-	"keqing": { // 例子
-		"name": "keqing",
-		"path": "characters/maoling/genshin_impact/keqing/normal/keqing.vmdl",
-		"side": "T"
+	"mymodel": { // 例子
+		"name": "",
+		"path": "characters/XXX/mymodel.vmdl",
+		"side": "T",
+		"permissions": ["@vip/flag"]
 	} 
   },
   "MenuType": "chat", // 菜单类型, "chat" 或者 "centerhtml", 默认 "chat"

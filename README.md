@@ -52,13 +52,15 @@ Config the json like this:
 	"model_index": {
 		"name": "model name",// optional, default value is model index
 		"path": "model path",
-		"side": "side (T/CT/ALL)" // optional, default to ALL, case sensitive
+		"side": "side (T/CT/ALL)", // optional, default to ALL, case sensitive
+		"permissions": ["@vip/flag", "#vip/group"] // optional, permission to have this model
 	},
-	"keqing": { // for example
-		"name": "keqing",
-		"path": "characters/maoling/genshin_impact/keqing/normal/keqing.vmdl",
-		"side": "T"
-	} 
+	"mymodel": { // 例子
+		"name": "",
+		"path": "characters/XXX/mymodel.vmdl",
+		"side": "T",
+		"permissions": ["@vip/flag"]
+	}
  },
   "MenuType": "chat", // "chat" or "centerhtml", default "chat"
   "StorageType": "sqlite", // sqlite or mysql
