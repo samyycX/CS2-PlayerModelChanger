@@ -85,7 +85,7 @@ public class ModelService {
 
     public bool CanPlayerApplyModel(CCSPlayerController player, string side, Model model) {
         return Utils.PlayerHasPermission(player, model.permissions, model.permissionsOr) && // permission
-            (model.side == "ALL" || model.side == side.ToUpper()); // side
+            (model.side.ToUpper() == "ALL" || model.side.ToUpper() == side.ToUpper()); // side
     }
 
     public List<Model> GetAllAppliableModels(CCSPlayerController player, string side) {
