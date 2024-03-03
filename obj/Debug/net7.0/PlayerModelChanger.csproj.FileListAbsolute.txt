@@ -40,3 +40,4 @@ D:\development\PlayerModelChanger\bin\Debug\net7.0\runtimes\win-arm64\native\e_s
 D:\development\PlayerModelChanger\bin\Debug\net7.0\runtimes\win-x64\native\e_sqlite3.dll
 D:\development\PlayerModelChanger\bin\Debug\net7.0\runtimes\win-x86\native\e_sqlite3.dll
 D:\development\PlayerModelChanger\obj\Debug\net7.0\PlayerMo.6D2893EA.Up2Date
+D:\development\PlayerModelChanger\bin\Debug\net7.0\lang\ru.json

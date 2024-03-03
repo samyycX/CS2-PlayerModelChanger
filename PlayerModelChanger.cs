@@ -9,6 +9,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using Service;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Extensions;
+using CounterStrikeSharp.API.Modules.Entities;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -57,7 +59,6 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 manifest.AddResource(model.path);
             }
         });
-
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
 
@@ -255,7 +256,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     }
 
     [ConsoleCommand("css_models", "Select models.")]
-    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
         
         var side = player.Team == CsTeam.Terrorist ? "t" : "ct";
