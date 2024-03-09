@@ -54,13 +54,13 @@ Config the json like this:
 		"path": "model path",
 		"side": "side (T/CT/ALL)", // optional, default to ALL, case sensitive
 		"permissions": ["@vip/flag", "#vip/group"], // optional, permission to have this model
-		"permissionsOr": ["@vip/flag", "#vip/group"] // optional, same as "permissions" but using or condition
+		"permissionsOr": ["@vip/flag", "#vip/group"], // optional, same as "permissions" but using or condition
+		"disableleg": true // optional, hide firstperson leg model if it is set to true, default is false
 	},
 	"mymodel": { // example
 		"name": "",
 		"path": "characters/XXX/mymodel.vmdl",
-		"side": "T",
-		"permissions": ["@vip/flag"]
+		"side": "T"
 	}
  },
   "MenuType": "chat", // "chat" or "centerhtml", default "chat"
@@ -133,9 +133,6 @@ add your workshop id to this plugin, follow [MultiAddonManager](https://github.c
 
 ### Config PlayerModelChanger
 See the [Configuration](#configuration)
-
-### Fix workshop model hand animations
-put your `characters` folder and all folders related to it in **your server's** `./game/csgo/` folder.
 
 ## Common Issues
 For custom models:

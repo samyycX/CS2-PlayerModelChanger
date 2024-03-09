@@ -53,13 +53,13 @@
 		"path": "model path",
 		"side": "side (T/CT/ALL)", // 可选 默认是ALL 大小写敏感
 		"permissions": ["@vip/flag", "#vip/group"], // 可选 此模型需要的权限
-		"permissionsOr": ["@vip/flag", "#vip/group"] // 可选，和"permissions"一样，但是使用或条件判断
+		"permissionsOr": ["@vip/flag", "#vip/group"], // 可选，和"permissions"一样，但是使用或条件判断
+		"disableleg": true // 可选，设置为true则第一人称不显示腿部模型，默认为false
 	},
 	"mymodel": { // 例子
-		"name": "",
+		"name": "模型名",
 		"path": "characters/XXX/mymodel.vmdl",
-		"side": "T",
-		"permissions": ["@vip/flag"]
+		"side": "T"
 	} 
   },
   "MenuType": "chat", // 菜单类型, "chat" 或者 "centerhtml", 默认 "chat"
@@ -134,8 +134,6 @@ AddonConfig
 ### 设置 PlayerModelChanger
 请看 [配置](#配置) 部分
 
-### 修复自定义模型手部动画
-把 `characters` 文件夹和所有相关文件夹放进**服务器的** `./game/csgo/` 文件夹内。
 ## TODOs
 1. 翻译
 

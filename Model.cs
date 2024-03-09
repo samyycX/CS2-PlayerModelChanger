@@ -9,4 +9,5 @@ public class Model {
     public string[] permissions { get; set; }
     public string[] permissionsOr { get; set; }
     public string side { get; set; }
+    public bool disableleg { get; set; }
 }

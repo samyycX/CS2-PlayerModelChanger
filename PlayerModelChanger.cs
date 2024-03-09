@@ -11,6 +11,7 @@ using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Extensions;
 using CounterStrikeSharp.API.Modules.Entities;
+using System.Drawing;
 namespace PlayerModelChanger;
 
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -90,9 +91,10 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             }
         }
 
-        if (config.MenuType != "chat" && config.MenuType != "centerhtml") {
+        if (config.MenuType.ToLower() != "chat" && config.MenuType.ToLower() != "centerhtml") {
             throw new Exception($"Unknown menu type: {config.MenuType}");
         }
+        config.MenuType = config.MenuType.ToLower();
         foreach (var entry in config.Models)
         {
             ModelService.InitializeModel(entry.Key, entry.Value);
@@ -210,7 +212,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", tModelIndex]);
             } else if (!ctValid) {
                 Service.AdminSetPlayerModel(steamid, "", "ct");
-                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", ctModelIndex]);
+                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", ctModelIndex]);   
             }
             commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
         } else {
@@ -333,7 +335,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             }
             var model = Service.GetPlayerNowTeamModel(player);
             if (model != null) {
-                SetModelNextServerFrame(player.PlayerPawn.Value, model.path);
+                SetModelNextServerFrame(player.PlayerPawn.Value, model.path, model.disableleg);
             }
         }
         catch (Exception ex)
@@ -344,11 +346,16 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return HookResult.Continue;
     }
 
-    public static void SetModelNextServerFrame(CCSPlayerPawn playerPawn, string model)
+    public static void SetModelNextServerFrame(CCSPlayerPawn playerPawn, string model, bool disableleg)
     {
         Server.NextFrame(() =>
         {
             playerPawn.SetModel(model);
+            if (disableleg) {
+                playerPawn.Render = Color.FromArgb(254, 255, 255, 255);
+            } else {
+                playerPawn.Render = Color.FromArgb(255, 255, 255, 255);
+            }
         });
     }
 }
