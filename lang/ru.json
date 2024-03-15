@@ -24,5 +24,7 @@
     "modelmenu.random": "Рандом",
     "model.wrongteam": "{red}Вы не можете сделать {default} {0}{red} модель с этой стороны.",
     "model.none": "{red}Нету",
-    "model.nopermission": "{red}У вас нет разрешения на эту модель."
+    "model.nopermission": "{red}У вас нет разрешения на эту модель.",
+    "model.invalidreseted": "{red}Ваша модель для {0} недействительна, и она была сброшена.",
+    "model.nochangepermission": "{red}У вас нет разрешения на изменение модели.."
 }
