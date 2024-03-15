@@ -288,7 +288,10 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         menu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, "", side));
         menu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, "@random", side));
         foreach (var model in models)
-        {
+        {   
+            if (model.hideinmenu) {
+                continue;
+            }
             menu.AddMenuOption($"{model.name}", (player, option) => HandleModelMenu(player, model.index, side));
         }
 

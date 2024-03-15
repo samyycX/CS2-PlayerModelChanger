@@ -10,4 +10,6 @@ public class Model {
     public string[] permissionsOr { get; set; }
     public string side { get; set; }
     public bool disableleg { get; set; }
+
+    public bool hideinmenu { get; set; }
 }
