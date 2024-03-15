@@ -32,19 +32,19 @@ public class SqliteStorage : IStorage {
         return result;
     }
 
-    public string GetPlayerTModel(ulong SteamID) {
+    public string? GetPlayerTModel(ulong SteamID) {
         var result = GetPlayerModel(SteamID, "t_model");
         if (result == null) {
-            return "";
+            return null;
         }
-        return result?.t_model ?? "";
+        return result!.t_model;
     }
-    public string GetPlayerCTModel(ulong SteamID) {
+    public string? GetPlayerCTModel(ulong SteamID) {
         var result = GetPlayerModel(SteamID, "ct_model");
         if (result == null) {
-            return "";
+            return null;
         }
-        return result?.ct_model ?? "";
+        return result!.ct_model;
     }
 
     public void SetPlayerModel(ulong SteamID, string model, string modelfield) {

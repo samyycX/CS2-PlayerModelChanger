@@ -24,5 +24,7 @@
     "modelmenu.random": "Random",
     "model.wrongteam": "{red}You can't apply {default} {0}{red} model to this side.",
     "model.none": "{red}None",
-    "model.nopermission": "{red}You don't have the permission for this model."
+    "model.nopermission": "{red}You don't have the permission for this model.",
+    "model.invalidreseted": "{red}Your model for {0} is invalid and it have been reseted.",
+    "model.nochangepermission": "{red}You don't have the permission to change your model."
 }

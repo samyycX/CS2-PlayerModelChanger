@@ -23,5 +23,6 @@
     "modelmenu.random": "随机",
     "model.wrongteam": "{red}你不能将{default} {0}{red} 模型应用到此阵营。",
     "model.none": "{red}无",
-    "model.nopermission": "{red}你没有使用该模型的权限。"
+    "model.nopermission": "{red}你没有使用该模型的权限。",
+    "model.invalidreseted": "{red}您在{0}使用的模型无效，已被重置。"
 }
