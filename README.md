@@ -135,7 +135,6 @@ add your workshop id to this plugin, follow [MultiAddonManager](https://github.c
 See the [Configuration](#configuration)
 
 ## Common Issues
-For custom models:
 - **You should use the compiled model (suffix `.vmdl_c`)**
 - **You should use `.vmdl` instead of `.vmdl_c` in config json**
 

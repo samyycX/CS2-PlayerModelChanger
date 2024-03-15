@@ -334,6 +334,25 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 return HookResult.Continue;
             }
             var model = Service.GetPlayerNowTeamModel(player);
+
+            var steamid = player.AuthorizedSteamID.SteamId64;
+            var tModelIndex = Service.storage.GetPlayerTModel(steamid);
+            var ctModelIndex = Service.storage.GetPlayerTModel(steamid);
+            
+            var tValid = Service.CheckModel(player, "t", tModelIndex);
+            var ctValid = Service.CheckModel(player, "ct", ctModelIndex);
+
+            if (!tValid && !ctValid) {
+                Service.AdminSetPlayerModel(steamid, "", "all");
+                player.PrintToChat(Localizer["model.invalidreseted", Localizer["side.all"]]);
+            } else if (tValid) {
+                Service.AdminSetPlayerModel(steamid, "", "t");
+                player.PrintToChat(Localizer["model.invalidreseted", Localizer["side.t"]]);
+            } else if (ctValid) {
+                Service.AdminSetPlayerModel(steamid, "", "ct");
+                player.PrintToChat(Localizer["model.invalidreseted", Localizer["side.ct"]]);
+            }
+
             if (model != null) {
                 SetModelNextServerFrame(player.PlayerPawn.Value, model.path, model.disableleg);
             }
@@ -351,10 +370,11 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         Server.NextFrame(() =>
         {
             playerPawn.SetModel(model);
+            var originalRender = playerPawn.Render;
             if (disableleg) {
-                playerPawn.Render = Color.FromArgb(254, 255, 255, 255);
+                playerPawn.Render = Color.FromArgb(254, originalRender.R, originalRender.G, originalRender.B);
             } else {
-                playerPawn.Render = Color.FromArgb(255, 255, 255, 255);
+                playerPawn.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
             }
         });
     }
