@@ -23,6 +23,8 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     public required ModelConfig Config { get; set; }
     public required ModelService Service { get; set; }
 
+    public required DefaultModelManager DefaultModelManager { get;set; }
+
     public bool Enable = true;
     public override void Load(bool hotReload)
     {
@@ -45,7 +47,8 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         if (Storage == null) {
             throw new Exception("Failed to initialize storage. Please check your config");
         }
-        this.Service = new ModelService(Config, Storage, Localizer);
+        DefaultModelManager = new DefaultModelManager(ModuleDirectory);
+        this.Service = new ModelService(Config, Storage, Localizer, DefaultModelManager);
         // RegisterListener<Listeners.OnMapStart>((map) => {
         //     foreach (var model in Service.GetAllModels())
         //     {
@@ -197,21 +200,14 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 commandInfo.ReplyToCommand(Localizer["command.modeladmin.playernotfound"]);
                 return;
             }
+            var result = Service.CheckAndReplaceModel(target);
+            
             var tModelIndex = Service.storage.GetPlayerTModel(steamid);
-            var ctModelIndex = Service.storage.GetPlayerTModel(steamid);
-            
-            var tValid = Service.CheckModel(target, "t", tModelIndex);
-            var ctValid = Service.CheckModel(target, "ct", ctModelIndex);
-            
-            if (!tValid && !ctValid) {
-                Service.AdminSetPlayerModel(steamid, "", "all");
+            var ctModelIndex = Service.storage.GetPlayerCTModel(steamid);
+            if (result.Item1) {
                 commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", tModelIndex]);
-                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", ctModelIndex]);
-            } else if (!tValid) {
-                Service.AdminSetPlayerModel(steamid, "", "t");
-                commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", tModelIndex]);
-            } else if (!ctValid) {
-                Service.AdminSetPlayerModel(steamid, "", "ct");
+            }
+            if (result.Item2) {
                 commandInfo.ReplyToCommand(Localizer["command.modeladmin.checkedinvalid", ctModelIndex]);   
             }
             commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
@@ -231,6 +227,11 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             commandInfo.ReplyToCommand(Localizer["player.currentmodel", Localizer["side.ct"], CTModel]);
             commandInfo.ReplyToCommand(Localizer["command.model.hint1"]);
             commandInfo.ReplyToCommand(Localizer["command.model.hint2"]);
+            return;
+        }
+
+        if (!DefaultModelManager.CanPlayerChangeModel(player!)) {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
             return;
         }
 
@@ -261,6 +262,10 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
         
+        if (!DefaultModelManager.CanPlayerChangeModel(player!)) {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
+        }
         var side = player.Team == CsTeam.Terrorist ? "t" : "ct";
         if (commandInfo.ArgCount == 2) {
             side = commandInfo.GetArg(1).ToLower();
@@ -333,28 +338,25 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             if (team != CsTeam.Terrorist && team != CsTeam.CounterTerrorist) {
                 return HookResult.Continue;
             }
-            var model = Service.GetPlayerNowTeamModel(player);
-
-            var steamid = player.AuthorizedSteamID.SteamId64;
-            var tModelIndex = Service.storage.GetPlayerTModel(steamid);
-            var ctModelIndex = Service.storage.GetPlayerTModel(steamid);
+            var result = Service.CheckAndReplaceModel(player);
             
-            var tValid = Service.CheckModel(player, "t", tModelIndex);
-            var ctValid = Service.CheckModel(player, "ct", ctModelIndex);
-
-            if (!tValid && !ctValid) {
-                Service.AdminSetPlayerModel(steamid, "", "all");
+            if (result.Item1 && result.Item2) {
                 player.PrintToChat(Localizer["model.invalidreseted", Localizer["side.all"]]);
-            } else if (tValid) {
-                Service.AdminSetPlayerModel(steamid, "", "t");
+            } else if (result.Item1) {
                 player.PrintToChat(Localizer["model.invalidreseted", Localizer["side.t"]]);
-            } else if (ctValid) {
-                Service.AdminSetPlayerModel(steamid, "", "ct");
+            } else if (result.Item2) {
                 player.PrintToChat(Localizer["model.invalidreseted", Localizer["side.ct"]]);
             }
 
+            var model = Service.GetPlayerNowTeamModel(player);
+            
             if (model != null) {
                 SetModelNextServerFrame(player.PlayerPawn.Value, model.path, model.disableleg);
+            } else {
+                Server.NextFrame(() => {
+                    var originalRender = player.PlayerPawn.Value.Render;
+                    player.PlayerPawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
+                });
             }
         }
         catch (Exception ex)

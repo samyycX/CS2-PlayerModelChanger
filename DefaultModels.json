@@ -1,0 +1,8 @@
+{
+    "DefaultModels": {
+        "all": {
+            "*": "furina"
+        }
+    },
+    "WhoCanChangeModel": ["*"]
+}

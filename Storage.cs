@@ -3,8 +3,8 @@ using Service;
 namespace Storage;
 
 public interface IStorage {
-    public string GetPlayerTModel(ulong SteamID);
-    public string GetPlayerCTModel(ulong SteamID);
+    public string? GetPlayerTModel(ulong SteamID);
+    public string? GetPlayerCTModel(ulong SteamID);
     public List<ModelCache> GetAllPlayerModel();
     public void SetPlayerTModel(ulong SteamID, string modelName);
 
