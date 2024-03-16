@@ -75,6 +75,9 @@ Config the json like this:
 }
 ```
 
+### Default Model Configuration
+See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki/Default-Model-Configuration-(Optional))
+
 ## How to add your own model
 
 ### Pack your model in a VDF and upload it to steam workshop
