@@ -230,11 +230,6 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             return;
         }
 
-        if (!DefaultModelManager.CanPlayerChangeModel(player!)) {
-            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
-            return;
-        }
-
         var modelIndex = commandInfo.GetArg(1);
 
         if (modelIndex != "@random" && !Service.ExistModel(modelIndex)) {
@@ -255,6 +250,12 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 return;
             }
         }
+      
+        if (!DefaultModelManager.CanPlayerChangeModel(player!, side)) {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
+        }
+        
         Service.SetPlayerModel(player, modelIndex, side);
     }
 
@@ -262,13 +263,15 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
         
-        if (!DefaultModelManager.CanPlayerChangeModel(player!)) {
-            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
-            return;
-        }
+       
         var side = player.Team == CsTeam.Terrorist ? "t" : "ct";
+        
         if (commandInfo.ArgCount == 2) {
             side = commandInfo.GetArg(1).ToLower();
+        }
+        if (!DefaultModelManager.CanPlayerChangeModel(player!, side)) {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
         }
 
         List<Model> models;

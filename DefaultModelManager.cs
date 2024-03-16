@@ -95,15 +95,24 @@ class ConfigDefaultModelsTemplate {
     [JsonProperty("ct")] public Dictionary<string, string>? ctModels;
     
 }
+class WhoCanChangeModelTemplate {
+    [JsonProperty("all")] public List<string>? all;
+    [JsonProperty("t")] public List<string>? t;
+    [JsonProperty("ct")] public List<string>? ct;
+}
+class AllowedModelChanger {
+    public List<EntryKey> tAllowed = new List<EntryKey>();
+    public List<EntryKey> ctAllowed = new List<EntryKey>();
+}
 class ConfigTemplate {
     [JsonProperty("DefaultModels")] public ConfigDefaultModelsTemplate models;
-    [JsonProperty("WhoCanChangeModel")] public List<string> whoCanChangeModel;
+    [JsonProperty("WhoCanChangeModel")] public WhoCanChangeModelTemplate whoCanChangeModel;
 }
 
 public class DefaultModelManager {
 
     private List<DefaultModelEntry> DefaultModels = new List<DefaultModelEntry>();
-    private List<EntryKey> WhoCanChangeModel = new List<EntryKey>();
+    private AllowedModelChanger WhoCanChangeModel = new AllowedModelChanger();
 
     public DefaultModelManager(string ModuleDirectory) {
         var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
@@ -113,7 +122,20 @@ public class DefaultModelManager {
             ConfigTemplate config = JsonConvert.DeserializeObject<ConfigTemplate>(content)!;
 
             DefaultModels = ParseModelConfig(config.models);
-            WhoCanChangeModel = config.whoCanChangeModel.Select(ParseKey).ToList();
+            
+            var allAllowed = config.whoCanChangeModel.all?.Select(ParseKey).ToList();
+            if (allAllowed != null) {
+                WhoCanChangeModel.tAllowed = allAllowed;
+                WhoCanChangeModel.ctAllowed = allAllowed;
+            }
+            var tAllowed = config.whoCanChangeModel.t?.Select(ParseKey).ToList();
+            var ctAllowed = config.whoCanChangeModel.ct?.Select(ParseKey).ToList();
+            if (tAllowed != null) {
+                WhoCanChangeModel.tAllowed = tAllowed;
+            }
+            if (ctAllowed != null) {
+                WhoCanChangeModel.ctAllowed = ctAllowed;
+            }
         } else {
             Console.WriteLine("'DefaultModels.json' not found. Disabling default models feature.");
         }
@@ -191,8 +213,29 @@ public class DefaultModelManager {
         }
         return result.item;
     }
-    public bool CanPlayerChangeModel(CCSPlayerController player) {
-        foreach (var key in WhoCanChangeModel)
+    public bool CanPlayerChangeModel(CCSPlayerController player, string side) {
+        
+        if (side == "all") {
+            var flag1 = false;
+            var flag2 = false;
+            foreach (var key in WhoCanChangeModel.tAllowed)
+            {
+                if (key.Fits(player)) {
+                    flag1 = true;
+                    break;
+                }
+            }
+            foreach (var key in WhoCanChangeModel.ctAllowed)
+            {
+                if (key.Fits(player)) {
+                    flag2 = true;
+                    break;
+                }
+            }
+            return flag1 && flag2;
+        }
+        var list = side == "t" ? WhoCanChangeModel.tAllowed : WhoCanChangeModel.ctAllowed;
+        foreach (var key in list)
         {
             if (key.Fits(player)) {
                 return true;
