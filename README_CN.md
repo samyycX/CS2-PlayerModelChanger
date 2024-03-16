@@ -74,6 +74,9 @@
 }
 ```
 
+### 默认模型配置
+见 [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki/Default-Model-Configuration-(Optional))
+
 
 ## 如何添加自定义模型
 
