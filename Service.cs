@@ -140,7 +140,7 @@ public class ModelService {
         if (modelIndex == null) {
             return false;
         }
-        if (!defaultModelManager.CanPlayerChangeModel(player)) {
+        if (!defaultModelManager.CanPlayerChangeModel(player, side)) {
             if (defaultModel == null) defaultModel = "";
             if (modelIndex != defaultModel) {
                 return false;
@@ -219,20 +219,19 @@ public class ModelService {
         } else {
             modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
         }
-        if (modelIndex == null) { // new player?
-            var defaultModel = defaultModelManager.GetPlayerDefaultModel(player, side);
-            if (defaultModel != null) {
-                PutInCache(player.AuthorizedSteamID!.SteamId64, defaultModel, side);
-                PutInCache(player.AuthorizedSteamID!.SteamId64, defaultModel, side);
-                if (side == "t") {
-                    storage.SetPlayerTModel(player.AuthorizedSteamID!.SteamId64, defaultModel);
-                } else { 
-                    storage.SetPlayerCTModel(player.AuthorizedSteamID!.SteamId64, defaultModel);
-                }
-                Console.WriteLine(defaultModel);
-                return GetModel(defaultModel);
-            }
-        }
+        // if (modelIndex == null) { // new player?
+        //     var defaultModel = defaultModelManager.GetPlayerDefaultModel(player, side);
+        //     if (defaultModel != null) {
+        //         PutInCache(player.AuthorizedSteamID!.SteamId64, defaultModel, side);
+        //         PutInCache(player.AuthorizedSteamID!.SteamId64, defaultModel, side);
+        //         if (side == "t") {
+        //             storage.SetPlayerTModel(player.AuthorizedSteamID!.SteamId64, defaultModel);
+        //         } else { 
+        //             storage.SetPlayerCTModel(player.AuthorizedSteamID!.SteamId64, defaultModel);
+        //         }
+        //         return GetModel(defaultModel);
+        //     }
+        // }
         if (modelIndex == "") {
             return null;
         }
