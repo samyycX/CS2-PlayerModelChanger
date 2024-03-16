@@ -250,8 +250,8 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 return;
             }
         }
-      
-        if (!DefaultModelManager.CanPlayerChangeModel(player!, side)) {
+        var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player!, side);
+        if (defaultModel != null && defaultModel.force) {
             commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
             return;
         }
@@ -269,7 +269,8 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         if (commandInfo.ArgCount == 2) {
             side = commandInfo.GetArg(1).ToLower();
         }
-        if (!DefaultModelManager.CanPlayerChangeModel(player!, side)) {
+        var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player!, side);
+        if (defaultModel != null && defaultModel.force) {
             commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
             return;
         }
