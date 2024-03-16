@@ -78,10 +78,10 @@ class AllKey : EntryKey {
 
 class DefaultModelEntry {
     public EntryKey key;
-    public string item; // model index
+    public DefaultModel item; // model index
     public string side;
 
-    public DefaultModelEntry(EntryKey key, string item, string side)
+    public DefaultModelEntry(EntryKey key, DefaultModel item, string side)
     {
         this.key = key;
         this.item = item;
@@ -89,30 +89,24 @@ class DefaultModelEntry {
     }
 }
 
+public class DefaultModel {
+    public required string index;
+    public bool force;
+}
+
 class ConfigDefaultModelsTemplate {
-    [JsonProperty("all")] public Dictionary<string, string>? allModels;
-    [JsonProperty("t")] public Dictionary<string, string>? tModels;
-    [JsonProperty("ct")] public Dictionary<string, string>? ctModels;
+    [JsonProperty("all")] public Dictionary<string, DefaultModel>? allModels;
+    [JsonProperty("t")] public Dictionary<string, DefaultModel>? tModels;
+    [JsonProperty("ct")] public Dictionary<string, DefaultModel>? ctModels;
     
-}
-class WhoCanChangeModelTemplate {
-    [JsonProperty("all")] public List<string>? all;
-    [JsonProperty("t")] public List<string>? t;
-    [JsonProperty("ct")] public List<string>? ct;
-}
-class AllowedModelChanger {
-    public List<EntryKey> tAllowed = new List<EntryKey>();
-    public List<EntryKey> ctAllowed = new List<EntryKey>();
 }
 class ConfigTemplate {
     [JsonProperty("DefaultModels")] public ConfigDefaultModelsTemplate models;
-    [JsonProperty("WhoCanChangeModel")] public WhoCanChangeModelTemplate whoCanChangeModel;
 }
 
 public class DefaultModelManager {
 
     private List<DefaultModelEntry> DefaultModels = new List<DefaultModelEntry>();
-    private AllowedModelChanger WhoCanChangeModel = new AllowedModelChanger();
 
     public DefaultModelManager(string ModuleDirectory) {
         var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
@@ -122,20 +116,6 @@ public class DefaultModelManager {
             ConfigTemplate config = JsonConvert.DeserializeObject<ConfigTemplate>(content)!;
 
             DefaultModels = ParseModelConfig(config.models);
-            
-            var allAllowed = config.whoCanChangeModel.all?.Select(ParseKey).ToList();
-            if (allAllowed != null) {
-                WhoCanChangeModel.tAllowed = allAllowed;
-                WhoCanChangeModel.ctAllowed = allAllowed;
-            }
-            var tAllowed = config.whoCanChangeModel.t?.Select(ParseKey).ToList();
-            var ctAllowed = config.whoCanChangeModel.ct?.Select(ParseKey).ToList();
-            if (tAllowed != null) {
-                WhoCanChangeModel.tAllowed = tAllowed;
-            }
-            if (ctAllowed != null) {
-                WhoCanChangeModel.ctAllowed = ctAllowed;
-            }
         } else {
             Console.WriteLine("'DefaultModels.json' not found. Disabling default models feature.");
         }
@@ -199,7 +179,7 @@ public class DefaultModelManager {
         result = entries.Find(entry => entry.key is AllKey);
         return result;
     }
-    public string? GetPlayerDefaultModel(CCSPlayerController player, string side) {;
+    public DefaultModel? GetPlayerDefaultModel(CCSPlayerController player, string side) {;
         var filter1 = DefaultModels.Where(entry => entry.side == side && entry.key.Fits(player)).ToList();
         if (filter1 == null) {
             return null;
@@ -208,39 +188,9 @@ public class DefaultModelManager {
         if (result == null) {
             return null;
         }
-        if (result.item == "") {
+        if (result.item == null || result.item.index == "") {
             return null;
         }
         return result.item;
-    }
-    public bool CanPlayerChangeModel(CCSPlayerController player, string side) {
-        
-        if (side == "all") {
-            var flag1 = false;
-            var flag2 = false;
-            foreach (var key in WhoCanChangeModel.tAllowed)
-            {
-                if (key.Fits(player)) {
-                    flag1 = true;
-                    break;
-                }
-            }
-            foreach (var key in WhoCanChangeModel.ctAllowed)
-            {
-                if (key.Fits(player)) {
-                    flag2 = true;
-                    break;
-                }
-            }
-            return flag1 && flag2;
-        }
-        var list = side == "t" ? WhoCanChangeModel.tAllowed : WhoCanChangeModel.ctAllowed;
-        foreach (var key in list)
-        {
-            if (key.Fits(player)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

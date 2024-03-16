@@ -123,26 +123,25 @@ public class ModelService {
         var ctValid = CheckModel(player, "ct", ctModelIndex, defaultCTModel);
         
         if (!tValid && !ctValid) {
-            AdminSetPlayerAllModel(steamid, defaultTModel != null ? defaultTModel : "", defaultCTModel != null ? defaultCTModel : "", "all");
+            AdminSetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, "all");
             return new Tuple<bool, bool>(true, true);
         } else if (!tValid) {
-            AdminSetPlayerModel(steamid, defaultTModel != null ? defaultTModel : "", "t");
+            AdminSetPlayerModel(steamid, defaultTModel?.index, "t");
             return new Tuple<bool, bool>(true, false);
         } else if (!ctValid) {
-            AdminSetPlayerModel(steamid, defaultCTModel != null ? defaultCTModel : "", "ct");
+            AdminSetPlayerModel(steamid, defaultCTModel?.index, "ct");
             return new Tuple<bool, bool>(false, true);
         }
         return new Tuple<bool, bool>(false, false);
     }
 
     // pass in defaultModel to reduce search times
-    public bool CheckModel(CCSPlayerController player, string side, string? modelIndex, string? defaultModel) {
+    public bool CheckModel(CCSPlayerController player, string side, string? modelIndex, DefaultModel? defaultModel) {
         if (modelIndex == null) {
             return false;
         }
-        if (!defaultModelManager.CanPlayerChangeModel(player, side)) {
-            if (defaultModel == null) defaultModel = "";
-            if (modelIndex != defaultModel) {
+        if (defaultModel != null && defaultModel.force) {
+            if (modelIndex != defaultModel.index) {
                 return false;
             }
         }
@@ -159,7 +158,8 @@ public class ModelService {
         return CanPlayerApplyModel(player, side, model);
     }
 
-    public void AdminSetPlayerModel(ulong steamid, string modelIndex, string side) {
+    public void AdminSetPlayerModel(ulong steamid, string? modelIndex, string side) {
+        modelIndex = modelIndex != null ? modelIndex : "";
         PutInCache(steamid, modelIndex, side);
         Utils.ExecuteSide(side,
             () => {
@@ -174,14 +174,16 @@ public class ModelService {
         );
     }
     // an ugly implementation
-    public void AdminSetPlayerAllModel(ulong steamid, string tModel, string ctModel, string side) {
+    public void AdminSetPlayerAllModel(ulong steamid, string? tModel, string? ctModel, string side) {
+        tModel = tModel != null ? tModel : "";
+        ctModel = ctModel != null ? ctModel : "";
         PutInCache(steamid, tModel, "t");
         PutInCache(steamid, ctModel, "ct");
-        storage.SetPlayerAllModel(steamid, tModel, ctModel);
+        storage.SetPlayerAllModel(steamid, tModel , ctModel);
     }
-    public void AdminSetPlayerModel(ulong steamid, string modelIndex, CsTeam team) {
+    public void AdminSetPlayerModel(ulong steamid, string? modelIndex, CsTeam team) {
         var side = team == CsTeam.Terrorist ? "t" : "ct";
-        AdminSetPlayerModel(steamid, modelIndex, side);
+        AdminSetPlayerModel(steamid, modelIndex != null ? modelIndex : "", side);
     }
 
     public void SetPlayerModel(CCSPlayerController player, string modelIndex, string side) {
