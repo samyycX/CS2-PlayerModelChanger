@@ -8,7 +8,7 @@
     "player.currentmodel": "Ваша текущая модель {0}: {green}{1}",
     "command.unknownside": "{red}Неизвестная сторона: {default}{0}",
     "command.model.hint1": "Используйте {green}!model {default}Чтобы посмотреть информацию действующей модели.",
-    "command.model.hint2": "Используйте {green}!models {default}Для выбора модели или выбрать рандомно!.",
+    "command.model.hint2": "Используйте {green}!md {default}/ {green}!models {default}Для выбора модели или выбрать рандомно!.",
     "command.model.notfound": "{red}Имя модели {default}{0} {red}было не найдено.",
     "command.model.success": "{green}Ваша модель включена {0} будет установлен после следующего появления.",
     "command.resetmodel.success": "{green}Ваша модель будет сброшена при следующем появлении.",

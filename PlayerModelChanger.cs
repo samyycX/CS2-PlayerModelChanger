@@ -258,7 +258,8 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         
         Service.SetPlayerModel(player, modelIndex, side);
     }
-
+    
+    [ConsoleCommand("css_md", "Select models.")]
     [ConsoleCommand("css_models", "Select models.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {

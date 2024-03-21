@@ -37,7 +37,7 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 ### Client side
 - `!model` show sender the model he is using + helper
 - `!model <@random / model name> <all/ct/t>` change sender's model (@random for random model every spawn)
-- `!models <all/ct/t>` select model
+- `!md / !models <all/ct/t>` select model
 ### Admin (Need `@pmc/admin` flag or `#pmc/admin` group)
 - `!modeladmin [all/steamid] reset [all/ct/t]` Reset player's model.
 - `!modeladmin [all/steamid] set [all/ct/t] [model index] ` Set player's model.

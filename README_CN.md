@@ -36,7 +36,7 @@
 ### 客户端
 - `!model` 显示玩家当前用的模型 + 帮助
 - `!model <@random / model name> <all/ct/t>` 改变玩家的模型 (@random 代表随机模型)
-- `!models <all/ct/t>` 选择模型
+- `!md / !models <all/ct/t>` 选择模型
 ### Admin (需要 `@pmc/admin` flag 或 `#pmc/admin` 组)
 - `!modeladmin [all/steamid] reset [all/ct/t]` 重置玩家的模型
 - `!modeladmin [all/steamid] set [all/ct/t] [model index] ` 设置玩家的模型
