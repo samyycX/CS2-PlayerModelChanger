@@ -137,6 +137,9 @@ AddonConfig
 ### 设置 PlayerModelChanger
 请看 [配置](#配置) 部分
 
+## 感谢
+- 替换模型的方法: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins), 作者 ChallengerMode
+
 ## TODOs
 1. 翻译
 

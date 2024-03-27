@@ -120,13 +120,13 @@ public class ModelService {
 
     public Tuple<bool, bool> CheckAndReplaceModel(CCSPlayerController player) {
         var steamid = player.AuthorizedSteamID!.SteamId64!;
-        var tModelIndex = GetPlayerModel(player, "t");
-        var ctModelIndex = GetPlayerModel(player, "ct");
-        
+        var tModel = GetPlayerModel(player, "t");
+        var ctModel = GetPlayerModel(player, "ct");
+
         var defaultTModel = defaultModelManager.GetPlayerDefaultModel(player, "t");
         var defaultCTModel = defaultModelManager.GetPlayerDefaultModel(player, "ct");
-        var tValid = CheckModel(player, "t", tModelIndex, defaultTModel);
-        var ctValid = CheckModel(player, "ct", ctModelIndex, defaultCTModel);
+        var tValid = CheckModel(player, "t", tModel, defaultTModel);
+        var ctValid = CheckModel(player, "ct", ctModel, defaultCTModel);
         
         if (!tValid && !ctValid) {
             AdminSetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, "all");
