@@ -56,13 +56,13 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         //         Server.PrecacheModel(model.path);
         //     }
         // });
-        RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
-            foreach (var model in Service.GetAllModels())
-            {
-                Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
-                manifest.AddResource(model.path);
-            }
-        });
+        // RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
+        //     foreach (var model in Service.GetAllModels())
+        //     {
+        //         Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
+        //         manifest.AddResource(model.path);
+        //     }
+        // });
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
 
@@ -258,7 +258,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         
         Service.SetPlayerModel(player, modelIndex, side);
     }
-    
+
     [ConsoleCommand("css_md", "Select models.")]
     [ConsoleCommand("css_models", "Select models.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]

@@ -12,6 +12,7 @@ If you like this plugin, please give a star :)
 - [Configuration](#configuration)
 - [How to add your own model](#how-to-add-your-own-model)
 - [Common Issues](#common-issues)
+- [Credits](#credits)
 - [TODOs](#todos)
 - [Contribution](#contribution)
 
@@ -140,6 +141,9 @@ See the [Configuration](#configuration)
 ## Common Issues
 - **You should use the compiled model (suffix `.vmdl_c`)**
 - **You should use `.vmdl` instead of `.vmdl_c` in config json**
+
+## Credits
+- Method to change model: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
 
 ## TODOs
 1. Translation
