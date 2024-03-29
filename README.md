@@ -10,7 +10,8 @@ If you like this plugin, please give a star :)
 - [Installation Guide](#installation-guide)
 - [Commands](#commands)
 - [Configuration](#configuration)
-- [How to add your own model](#how-to-add-your-own-model)
+- [How to add default or workshop model](#how-to-add-default-or-workshop-model)
+- [How to pack a model into steam workshop item](#how-to-pack-a-model-into-steam-workshop-item)
 - [Common Issues](#common-issues)
 - [Credits](#credits)
 - [TODOs](#todos)
@@ -79,10 +80,22 @@ Config the json like this:
 ### Default Model Configuration
 See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki/Default-Model-Configuration-(Optional))
 
-## How to add your own model
+## How to add default or workshop model
 
-### Pack your model in a VDF and upload it to steam workshop
-**If you already find a workshop item which contains the models you need, you can skip this part**
+### Find the model path
+Use `Source2Viewer` or `GCFScape` to open the workshop vpk (or pak01 vpk), then find the `.vmdl_c` file, copy the path out
+
+the path should be like this: `characters/.../xxx.vmdl` (if it is in characters folder)
+
+**Important: replace `.vmdl_c` in the path with `.vmdl`**
+
+### Setup MultiAddonManager
+add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
+
+### Config PlayerModelChanger
+See the [Configuration](#configuration)
+
+## How to pack a model into steam workshop item
 
 Requirements:
 - Your own model
@@ -131,12 +144,6 @@ AddonConfig
 **Step 5.** Click `New` button in the `Counter-Strike 2 Workshop Manager`, fill in all the information, and publish it.
 
 **Step 6.** After verification, you should be able to use the workshop item.
-
-### Setup MultiAddonManager
-add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
-
-### Config PlayerModelChanger
-See the [Configuration](#configuration)
 
 ## Common Issues
 - **You should use the compiled model (suffix `.vmdl_c`)**
