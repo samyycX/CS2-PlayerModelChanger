@@ -9,7 +9,8 @@
 - [安装指南](#安装指南)
 - [命令](#命令)
 - [配置](#配置)
-- [如何添加自定义模型](#如何添加自定义模型)
+- [如何添加原版或创意工坊模型](#如何添加原版或创意工坊模型)
+- [如何把你的模型打包并上传到创意工坊](#如何把你的模型打包并上传到创意工坊)
 - [TODOs](#todos)
 - [常见问题](#常见问题)
 - [Contribution](#contribution)
@@ -78,11 +79,25 @@
 见 [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki/Default-Model-Configuration-(Optional))
 
 
-## 如何添加自定义模型
+## 如何添加原版或创意工坊模型
 
-### 把你的模型打包并上传到创意工坊
-**如果你已经找到了一个含有你想要的模型的创意工坊, 可以跳过这部分**
+### 找到模型路径
+用 `Source2Viewer` 或 `GCFScape` 打开创意工坊vpk (或者原版的pak01 vpk)
 
+找到你想要的模型 (`.vmdl_c`文件)，复制出他的路径
+路径应该是这样的: `characters/.../xxx.vmdl` (如果在characters文件夹里)
+
+**注意: 路径里的文件格式`.vmdl_c`应该被替换成`.vmdl`**
+
+
+### 设置 MultiAddonManager
+在这个插件里设置你的workshop id, 请看 [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
+
+### 设置 PlayerModelChanger
+请看 [配置](#配置) 部分
+
+
+## 如何把你的模型打包并上传到创意工坊
 前置:
 - 你自己的模型
 - Counter-Strike 2 Workshop Tools (可以在 `Steam客户端 -> cs2 -> 属性 -> DLC`里安装)
@@ -130,12 +145,6 @@ AddonConfig
 **Step 5.** 点击 `Counter-Strike 2 Workshop Manager` 里的 `New` 按钮, 把所有信息都填上，然后发布。
 
 **Step 6.** 等待Steam审核。
-
-### 设置 MultiAddonManager
-在这个插件里设置你的workshop id, 请看 [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
-
-### 设置 PlayerModelChanger
-请看 [配置](#配置) 部分
 
 ## 感谢
 - 替换模型的方法: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins), 作者 ChallengerMode
