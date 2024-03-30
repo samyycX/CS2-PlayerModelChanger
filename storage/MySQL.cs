@@ -10,7 +10,7 @@ public class MySQLStorage : IStorage {
 
     private string table;
     public MySQLStorage(string ip, string port, string user, string password, string database, string table) {
-        string connectStr = $"server={ip};port={port};user={user};password={password};database={database};Pooling=true;MinimumPoolSize=0;MaximumPoolsize=640;ConnectionIdleTimeout=30";
+        string connectStr = $"server={ip};port={port};user={user};password={password};database={database};Pooling=true;MinimumPoolSize=0;MaximumPoolsize=640;ConnectionIdleTimeout=30;";
         this.table = table;
         conn = new MySqlConnection(connectStr);
         conn.Execute($"""
