@@ -23,7 +23,7 @@ If you like this plugin, please give a star :)
 3. See [Known issues](#known-issues)
 
 ## Known issues
-1. None
+1. Some server will crash when map change, in this case, set `DisablePrecache` in config to `true` and use ResourcePrecacher plugin V1.0.4 
 
 ## Dependencies for custom model
 **If you are not using custom model, these plugins are not necessarily needed**
@@ -73,6 +73,7 @@ Config the json like this:
   "MySQL_Password": "",
   "MySQL_Database": "",
   "MySQL_Table": "playermodelchanger",
+  "DisablePrecache": false, // optional, for those who will crash: set it to true and use ResourcePrecacher V1.0.4
   "ConfigVersion": 1
 }
 ```
