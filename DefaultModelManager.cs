@@ -4,13 +4,6 @@ using Newtonsoft.Json;
 
 namespace Service;
 
-
-enum KeyType {
-    STEAMID,
-    PERMISSIONFLAG,
-    PERMISSIONGROUP,
-    ALL
-}
 abstract class EntryKey {
     public string content {get;set;}
 
