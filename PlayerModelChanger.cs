@@ -56,13 +56,13 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         //         Server.PrecacheModel(model.path);
         //     }
         // });
-        // RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
-        //     foreach (var model in Service.GetAllModels())
-        //     {
-        //         Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
-        //         manifest.AddResource(model.path);
-        //     }
-        // });
+        RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
+            foreach (var model in Service.GetAllModels())
+            {
+                Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
+                manifest.AddResource(model.path);
+            }
+        });
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
 
@@ -292,6 +292,7 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
         menu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleModelMenu(player, "", side));
         menu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleModelMenu(player, "@random", side));
+        menu.AddMenuOption(Localizer["modelmenu.default"], (player, option) => HandleModelMenu(player, "@default", side));
         foreach (var model in models)
         {   
             if (model.hideinmenu) {

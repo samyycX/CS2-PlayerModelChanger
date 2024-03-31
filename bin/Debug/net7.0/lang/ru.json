@@ -22,6 +22,7 @@
     "modelmenu.nomodel": "{red}Нет доступной модели.",
     "modelmenu.unset": "Не установлен",
     "modelmenu.random": "Рандом",
+    "modelmenu.default": "умолчанию",
     "model.wrongteam": "{red}Вы не можете сделать {default} {0}{red} модель с этой стороны.",
     "model.none": "{red}Нету",
     "model.nopermission": "{red}У вас нет разрешения на эту модель.",

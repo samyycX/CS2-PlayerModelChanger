@@ -21,6 +21,7 @@
     "modelmenu.nomodel": "{red}没有可用的模型。",
     "modelmenu.unset": "重置",
     "modelmenu.random": "随机",
+    "modelmenu.default": "默认",
     "model.wrongteam": "{red}你不能将{default} {0}{red} 模型应用到此阵营。",
     "model.none": "{red}无",
     "model.nopermission": "{red}你没有使用该模型的权限。",

@@ -120,8 +120,8 @@ public class ModelService {
 
     public Tuple<bool, bool> CheckAndReplaceModel(CCSPlayerController player) {
         var steamid = player.AuthorizedSteamID!.SteamId64!;
-        var tModel = GetPlayerModel(player, "t");
-        var ctModel = GetPlayerModel(player, "ct");
+        var tModel = GetPlayerModelIndex(player, "t");
+        var ctModel = GetPlayerModelIndex(player, "ct");
 
         var defaultTModel = defaultModelManager.GetPlayerDefaultModel(player, "t");
         var defaultCTModel = defaultModelManager.GetPlayerDefaultModel(player, "ct");
@@ -129,7 +129,7 @@ public class ModelService {
         var ctValid = CheckModel(player, "ct", ctModel, defaultCTModel);
         
         if (!tValid && !ctValid) {
-            AdminSetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, "all");
+            AdminSetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index);
             return new Tuple<bool, bool>(true, true);
         } else if (!tValid) {
             AdminSetPlayerModel(steamid, defaultTModel?.index, "t");
@@ -142,11 +142,7 @@ public class ModelService {
     }
 
     // pass in defaultModel to reduce search times
-    public bool CheckModel(CCSPlayerController player, string side, Model? model, DefaultModel? defaultModel) {
-        if (model == null) {
-            return false;
-        }
-        var modelIndex = model.index;
+    public bool CheckModel(CCSPlayerController player, string side, string? modelIndex, DefaultModel? defaultModel) {
         if (modelIndex == null) {
             return false;
         }
@@ -160,7 +156,10 @@ public class ModelService {
         }
         CsTeam team = side.ToLower() == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
 
-
+        var model = GetModel(modelIndex);
+        if (model == null) {
+            return false;
+        }
         return CanPlayerApplyModel(player, side, model);
     }
 
@@ -180,7 +179,7 @@ public class ModelService {
         );
     }
     // an ugly implementation
-    public void AdminSetPlayerAllModel(ulong steamid, string? tModel, string? ctModel, string side) {
+    public void AdminSetPlayerAllModel(ulong steamid, string? tModel, string? ctModel) {
         tModel = tModel != null ? tModel : "";
         ctModel = ctModel != null ? ctModel : "";
         PutInCache(steamid, tModel, "t");
@@ -194,6 +193,18 @@ public class ModelService {
 
     public void SetPlayerModel(CCSPlayerController player, string modelIndex, string side) {
         var isSpecial = modelIndex == "" || modelIndex == "@random";
+
+        if (modelIndex == "@default") {
+            var tDefault = defaultModelManager.GetPlayerDefaultModel(player, "t");
+            var ctDefault = defaultModelManager.GetPlayerDefaultModel(player, "ct");
+            Utils.ExecuteSide(side,
+                () => AdminSetPlayerAllModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, ctDefault == null ? "" : ctDefault.index),
+                () => AdminSetPlayerModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, side),
+                () => AdminSetPlayerModel(player!.AuthorizedSteamID!.SteamId64, ctDefault == null ? "" : ctDefault.index, side)
+            );
+            player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
+            return;
+        }
 
         var model = GetModel(modelIndex);
         if (!isSpecial) {
@@ -220,13 +231,7 @@ public class ModelService {
         
     }
     public Model? GetPlayerModel(CCSPlayerController player, string side) {
-        var modelIndex = "";
-        side = side.ToLower();
-        if (side == "t") {
-            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
-        } else {
-            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
-        }
+        var modelIndex = GetPlayerModelIndex(player, side);
         if (modelIndex == null || modelIndex == "") {
             return null;
         }
@@ -239,6 +244,16 @@ public class ModelService {
             return models[index];
         }
         return GetModel(modelIndex);
+    }
+    public string? GetPlayerModelIndex(CCSPlayerController player, string side) {
+        var modelIndex = "";
+        side = side.ToLower();
+        if (side == "t") {
+            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.t_model;
+        } else {
+            modelIndex = cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64)?.ct_model;
+        }
+        return modelIndex;
     }
     public Model? GetPlayerNowTeamModel(CCSPlayerController player) {
         var team = (CsTeam)player.TeamNum;
