@@ -17,7 +17,7 @@ namespace PlayerModelChanger;
 public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.2.1";
+    public override string ModuleVersion => "1.2.3";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -56,13 +56,15 @@ public class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         //         Server.PrecacheModel(model.path);
         //     }
         // });
-        RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
-            foreach (var model in Service.GetAllModels())
-            {
-                Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
-                manifest.AddResource(model.path);
-            }
-        });
+        if (!Config.DisablePrecache) {
+            RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
+                foreach (var model in Service.GetAllModels())
+                {
+                    Console.WriteLine($"[PlayerModelChanger] Precaching {model.path}");
+                    manifest.AddResource(model.path);
+                }
+            });
+        }
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
 

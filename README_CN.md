@@ -21,7 +21,7 @@
 3. 查看 [已知问题](#已知问题)
 
 ## 已知问题
-1. 暂无
+1. 有些服务器在切换地图时会崩溃，解决方法是把 `DisablePrecache` 设置为 `true`，然后配合ResourcePrecacher插件 v1.0.4版本使用
 
 ## 自定义模型依赖插件
 **如果你不使用自定义模型，这些插件不用被安装**
@@ -71,6 +71,7 @@
   "MySQL_Password": "",
   "MySQL_Database": "",
   "MySQL_Table": "playermodelchanger",
+  "DisablePrecache": false, // 可选，和ResourcePrecacher v1.0.4配合使用
   "ConfigVersion": 1
 }
 ```

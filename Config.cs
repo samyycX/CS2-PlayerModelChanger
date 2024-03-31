@@ -20,4 +20,6 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("MySQL_Password")] public string MySQLPassword { get; set; } = "";
     [JsonPropertyName("MySQL_Database")] public string MySQLDatabase { get; set; } = "";
     [JsonPropertyName("MySQL_Table")] public string MySQLTable { get; set; } = "playermodelchanger";
+
+    [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; }
 }
