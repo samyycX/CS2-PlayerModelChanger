@@ -83,6 +83,7 @@
   "MySQL_Database": "",
   "MySQL_Table": "playermodelchanger",
   "DisablePrecache": false, // 可选，和ResourcePrecacher v1.0.4配合使用
+  "DisableRandomModel": false, // 可选，关闭@random功能，默认为false
   "DisableAutoCheck": false, // 可选，关闭自动权限检查（如果你的权限插件有些问题，正常情况请勿关闭）
   "ConfigVersion": 1
 }

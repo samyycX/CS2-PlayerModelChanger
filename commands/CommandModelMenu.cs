@@ -41,7 +41,9 @@ public partial class PlayerModelChanger {
         List<Model> models = Service.GetAllAppliableModels(player, side);
 
         menu.AddMenuOption(Localizer["modelmenu.unset"], (player, option) => HandleSelectModelMenu(player, "", side));
-        menu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleSelectModelMenu(player, "@random", side));
+        if (!Config.DisableRandomModel) {
+            menu.AddMenuOption(Localizer["modelmenu.random"], (player, option) => HandleSelectModelMenu(player, "@random", side));
+        }        
         menu.AddMenuOption(Localizer["modelmenu.default"], (player, option) => HandleSelectModelMenu(player, "@default", side));
         foreach (var model in models)
         {   

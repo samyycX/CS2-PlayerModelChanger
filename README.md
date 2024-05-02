@@ -83,6 +83,7 @@ Config the json like this:
   "MySQL_Database": "",
   "MySQL_Table": "playermodelchanger",
   "DisablePrecache": false, // optional, for those who will crash: set it to true and use ResourcePrecacher V1.0.4
+  "DisableRandomModel": false, // optional, disable the @random feature, default is false
   "DisableAutoCheck": false, // optional, disable auto permission check for player models (enable it if your permission plugin have some problem)
   "ConfigVersion": 1
 }
