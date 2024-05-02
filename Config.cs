@@ -10,7 +10,7 @@ public class ModelConfig : BasePluginConfig
 {
     [JsonPropertyName("Models")] public Dictionary<string, Model> Models { get; set; } = new Dictionary<string, Model>();
     
-    [JsonPropertyName("MenuType")] public string MenuType { get; set; } = "chat"; // chat or centerhtml
+    [JsonPropertyName("MenuType")] public string MenuType { get; set; } = "centerhtml"; // chat or centerhtml
     
     [JsonPropertyName("StorageType")] public string StorageType { get; set; } = "sqlite";
 
@@ -21,5 +21,8 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("MySQL_Database")] public string MySQLDatabase { get; set; } = "";
     [JsonPropertyName("MySQL_Table")] public string MySQLTable { get; set; } = "playermodelchanger";
 
-    [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; }
+    
+    [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
+    [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
+    [JsonPropertyName("DisableAutoCheck")] public bool DisableAutoCheck { get; set; } = false;
 }

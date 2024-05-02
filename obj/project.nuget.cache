@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "BwVbWqag78lLCZxvdf9hjcEDdgg71FgeLIxjJLJaqavUN6wcq8Q1jckw9UdkULEawrVYps0okuI4gSNgn4Lvag==",
+  "dgSpecHash": "Jit7N0dGpUGEP0LiBdIfWuOl6k9kV6U5hR4JipRIQDVFgRRJpgkIfFvg6YJ5hnC0vFYFwQ0VfM6YLoJ1JNzf+g==",
   "success": true,
   "projectFilePath": "D:\\development\\PlayerModelChanger\\PlayerModelChanger.csproj",
   "expectedPackageFiles": [
@@ -57,9 +57,9 @@
     "C:\\Users\\s1myy\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
     "C:\\Users\\s1myy\\.nuget\\packages\\system.text.encodings.web\\7.0.0\\system.text.encodings.web.7.0.0.nupkg.sha512",
     "C:\\Users\\s1myy\\.nuget\\packages\\system.text.json\\7.0.0\\system.text.json.7.0.0.nupkg.sha512",
-    "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.16\\microsoft.netcore.app.ref.7.0.16.nupkg.sha512",
-    "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.16\\microsoft.windowsdesktop.app.ref.7.0.16.nupkg.sha512",
-    "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.16\\microsoft.aspnetcore.app.ref.7.0.16.nupkg.sha512"
+    "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.17\\microsoft.netcore.app.ref.7.0.17.nupkg.sha512",
+    "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.17\\microsoft.windowsdesktop.app.ref.7.0.17.nupkg.sha512",
+    "C:\\Users\\s1myy\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.17\\microsoft.aspnetcore.app.ref.7.0.17.nupkg.sha512"
   ],
   "logs": []
 }
