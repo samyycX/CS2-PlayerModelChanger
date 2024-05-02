@@ -8,7 +8,7 @@
     "player.currentmodel": "Your current model on {0}: {green}{1}",
     "command.unknownside": "{red}Unknown side: {default}{0}",
     "command.model.hint1": "Type {green}!model <@random/model name> <all/ct/t> {default}to change your model. (@random for random models, recommend using {green}!models{default})",
-    "command.model.hint2": "Type {green}!md {default}or {green}!models <all/ct/t> {default}to select model.",
+    "command.model.hint2": "Type {green}!md {default}or {green}!models {default}to select model.",
     "command.model.notfound": "{red}Model name {default}{0} {red}not found.",
     "command.model.success": "{green}Your model on {0} will be set after next spawn.",
     "command.resetmodel.success": "{green}Your model will be reseted from next spawn.",
