@@ -6,7 +6,6 @@ If you like this plugin, please give a star :)
 [中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
 - [Known issues](#known-issues)
-- [Dependencies for custom model](#dependencies-for-custom-model)
 - [Installation Guide](#installation-guide)
 - [Commands](#commands)
 - [Configuration](#configuration)
@@ -14,9 +13,10 @@ If you like this plugin, please give a star :)
 - [Credits](#credits)
 - [TODOs](#todos)
 - [Contribution](#contribution)
+- [How to add default or workshop model](#how-to-add-default-or-workshop-model)
 
 Custom model parts:
-- [How to add default or workshop model](#how-to-add-default-or-workshop-model)
+- [Dependencies for custom model](#dependencies-for-custom-model)
 - [How to pack a model into steam workshop item](#how-to-pack-a-model-into-steam-workshop-item)
 
 ## Before you use
@@ -26,10 +26,6 @@ Custom model parts:
 
 ## Known issues
 1. Some server will crash when map change, in this case, check the permission of your workshop item and try to set `DisablePrecache` in config to `true` and use ResourcePrecacher plugin V1.0.4
-
-## Dependencies for custom model
-**If you are not using custom model, these plugins are not necessarily needed**
-1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
@@ -92,6 +88,7 @@ Config the json like this:
 ### Default Model Configuration
 See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki/Default-Model-Configuration-(Optional))
 
+
 ## How to add default or workshop model
 
 ### Find the model path
@@ -121,6 +118,10 @@ See the [Configuration](#configuration)
 To build this plugin, run `dotnet build`.
 
 Feel free to create Pull Requests or issues.
+
+## Dependencies for custom model
+**If you are not using custom model, these plugins are not necessarily needed**
+1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## How to pack a model into steam workshop item
 
