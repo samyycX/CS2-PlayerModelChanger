@@ -94,7 +94,7 @@ class ConfigDefaultModelsTemplate {
     
 }
 class ConfigTemplate {
-    [JsonProperty("DefaultModels")] public ConfigDefaultModelsTemplate models;
+    [JsonProperty("DefaultModels")] public required ConfigDefaultModelsTemplate models;
 }
 
 public class DefaultModelManager {
@@ -102,6 +102,12 @@ public class DefaultModelManager {
     private List<DefaultModelEntry> DefaultModels = new List<DefaultModelEntry>();
 
     public DefaultModelManager(string ModuleDirectory) {
+        
+        ReloadConfig(ModuleDirectory);
+       
+    }
+
+    public void ReloadConfig(string ModuleDirectory) {
         var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
         if (File.Exists(filePath)) {
             StreamReader reader = File.OpenText(filePath);

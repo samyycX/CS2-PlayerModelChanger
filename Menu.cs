@@ -1,14 +1,14 @@
 using Config;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Localization;
 
 namespace PlayerModelChanger;
 
 public class ModelMenu {
 
     private BaseMenu menu;
-
-    private ModelConfig config;
 
     public ModelMenu(ModelConfig config, string title) {
         if (config.MenuType == "chat") {
@@ -29,4 +29,7 @@ public class ModelMenu {
             MenuManager.OpenCenterHtmlMenu(plugin, player, (CenterHtmlMenu) menu);
         }
     }
+
+    
 }
+

@@ -11,16 +11,24 @@ public class SqliteStorage : IStorage {
         conn = new SqliteConnection($"Data Source={Path.Join(ModuleDirectory, "data.db")}");
         conn.Open();
 
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@"
-                CREATE TABLE IF NOT EXISTS `players` (
-                    `steamid` UNSIGNED BIG INT NOT NULL,
-                    `t_model` TEXT,
-                    `ct_model` TEXT,
-                    PRIMARY KEY (`steamid`));
-                )
-            ");
-        });
+        conn.ExecuteAsync(@"
+            CREATE TABLE IF NOT EXISTS `players` (
+                `steamid` UNSIGNED BIG INT NOT NULL,
+                `t_model` TEXT,
+                `ct_model` TEXT,
+                `t_permission_bypass` BOOLEAN,
+                `ct_permission_bypass` BOOLEAN,
+                PRIMARY KEY (`steamid`));
+            )
+        ");      
+        IEnumerable<dynamic> tPermissionBypassResult = conn.Query("select * from sqlite_master where name='players' and sql like '%t_permission_bypass%'");
+        if (tPermissionBypassResult.Count() == 0) {
+            conn.Execute("ALTER TABLE players ADD COLUMN `t_permission_bypass` BOOLEAN;");
+        }
+        IEnumerable<dynamic> ctPermissionBypassResult = conn.Query("select * from sqlite_master where name='players' and sql like '%ct_permission_bypass%'");
+        if (ctPermissionBypassResult.Count() == 0) {
+            conn.Execute("ALTER TABLE players ADD COLUMN `ct_permission_bypass` BOOLEAN;");
+        }
     }
     public List<ModelCache> GetAllPlayerModel() {
         return conn.Query<ModelCache>($"select * from players;").ToList();
@@ -47,68 +55,40 @@ public class SqliteStorage : IStorage {
         return result!.ct_model;
     }
 
-    public void SetPlayerModel(ulong SteamID, string model, string modelfield) {
+    public async Task<int> SetPlayerModel(ulong SteamId, string model, string modelfield, bool permissionBypass, string side) {
 
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                INSERT INTO `players` (`steamid`, `{modelfield}`) VALUES (@SteamId, @Model)
-                ON CONFLICT(`steamid`) DO UPDATE SET `{modelfield}` = @Model;",
-                new {
-                    SteamId = SteamID,
-                    Model = model
-                }
-            );
-        });
+        return await conn.ExecuteAsync(@$"
+            INSERT INTO `players` (`steamid`, `{modelfield}`, `{side}_permission_bypass`) VALUES (@SteamId, @model, @permissionBypass)
+            ON CONFLICT(`steamid`) DO UPDATE SET `{modelfield}` = @model, `{side}_permission_bypass`=@permissionBypass;",
+            new {
+                SteamId,
+                model,
+                permissionBypass
+            }
+        );
         
     }
-    public void SetPlayerTModel(ulong SteamID, string model) {
-        SetPlayerModel(SteamID, model, "t_model");
+    public async Task<int> SetPlayerTModel(ulong SteamID, string model, bool permissionBypass) {
+        return await SetPlayerModel(SteamID, model, "t_model", permissionBypass, "t");
     }
-    public void SetPlayerCTModel(ulong SteamID, string model) {
-        SetPlayerModel(SteamID, model, "ct_model");
+    public async Task<int> SetPlayerCTModel(ulong SteamID, string model, bool permissionBypass) {
+        return await SetPlayerModel(SteamID, model, "ct_model", permissionBypass, "ct");
     }
-    public void SetPlayerAllModel(ulong SteamID, string tmodel, string ctmodel) {
-         Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                INSERT INTO `players` (`steamid`, `t_model`, `ct_model`) VALUES (@SteamId, @TModel, @CTModel)
-                ON CONFLICT(`steamid`) DO UPDATE SET `t_model` = @TModel, `ct_model` = @CTModel;",
-                new {
-                    SteamId = SteamID,
-                    TModel = tmodel,
-                    CTModel = ctmodel,
-                }
-            );
-        });
+    public async Task<int> SetAllTModel(string tmodel, bool permissionBypass) {
+        return await conn.ExecuteAsync(@$"
+            UPDATE `players` SET `t_model` = @tmodel, `t_permission_bypass`=@permissionBypass;",
+            new {
+                tmodel, permissionBypass
+            }
+        );
     }
-    public void SetAllTModel(string tmodel) {
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                UPDATE `players` SET `t_model` = @TModel",
-                new {
-                    TModel = tmodel
-                }
-            );
-        });
-    }
-    public void SetAllCTModel(string ctmodel) {
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                UPDATE `players` SET `ct_model` = @CTModel",
-                new {
-                    CTModel = ctmodel
-                }
-            );
-        });
-    }
-    public void SetAllModel(string tmodel, string ctmodel) {
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                UPDATE `players` SET `t_model` = @TModel, `ct_model` = @CTModel;",
-                new {
-                    TModel = tmodel,
-                    CTModel = ctmodel,
-                }
-            );
-        });
+    public async Task<int> SetAllCTModel(string ctmodel, bool permissionBypass) {
+        return await conn.ExecuteAsync(@$"
+            UPDATE `players` SET `ct_model` = @ctmodel, `ct_permission_bypass`=@permissionBypass;",
+            new {
+                ctmodel,
+                permissionBypass
+            }
+        );
     }
 }

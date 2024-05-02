@@ -10,7 +10,7 @@ public class MySQLStorage : IStorage {
 
     private string table;
     public MySQLStorage(string ip, string port, string user, string password, string database, string table) {
-        string connectStr = $"server={ip};port={port};user={user};password={password};database={database};Pooling=true;MinimumPoolSize=0;MaximumPoolsize=640;ConnectionIdleTimeout=30;";
+        string connectStr = $"server={ip};port={port};user={user};password={password};database={database};Pooling=true;MinimumPoolSize=0;MaximumPoolsize=640;ConnectionIdleTimeout=30;AllowUserVariables=true";
         this.table = table;
         conn = new MySqlConnection(connectStr);
         conn.Execute($"""
@@ -19,6 +19,42 @@ public class MySQLStorage : IStorage {
                 `t_model` TEXT,
                 `ct_model` TEXT
             );
+        """);
+        // UPDATE #1
+        conn.Execute($"""
+            SET @dbname = DATABASE();
+            SET @tablename = "{table}";
+            SET @columnname = "t_permission_bypass";
+            SET @columnname2 = "ct_permission_bypass";
+            SET @preparedStatement = (SELECT IF(
+            (
+                SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE
+                (table_name = @tablename)
+                AND (table_schema = @dbname)
+                AND (column_name = @columnname)
+            ) > 0,
+            "SELECT 1",
+            CONCAT("ALTER TABLE ", @tablename, " ADD ", @columnname, " BOOLEAN;")
+            ));
+            SET @preparedStatement2 = (SELECT IF(
+            (
+                SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE
+                (table_name = @tablename)
+                AND (table_schema = @dbname)
+                AND (column_name = @columnname2)
+            ) > 0,
+            "SELECT 1",
+            CONCAT("ALTER TABLE ", @tablename, " ADD ", @columnname2, " BOOLEAN;")
+            ));
+            PREPARE alterIfNotExists FROM @preparedStatement;
+            PREPARE alterIfNotExists2 FROM @preparedStatement2;
+            EXECUTE alterIfNotExists;
+            EXECUTE alterIfNotExists2;
+            DEALLOCATE PREPARE alterIfNotExists;
+            DEALLOCATE PREPARE alterIfNotExists2;
+            
         """);
     }
     public List<ModelCache> GetAllPlayerModel() {
@@ -48,69 +84,41 @@ public class MySQLStorage : IStorage {
         return result!.ct_model;
     }
 
-    public void SetPlayerModel(ulong SteamID, string modelName, string modelfield)
+    public async Task<int> SetPlayerModel(ulong SteamID, string modelName, string modelfield, bool permissionBypass, string side)
     {
         
         var sql = $"""
-            INSERT INTO {table} (`steamid`, `{modelfield}`) VALUES ({SteamID}, @Model) ON DUPLICATE key UPDATE `{modelfield}` = @Model;
+            INSERT INTO {table} (`steamid`, `{modelfield}`, `{side}_permission_bypass`) VALUES ({SteamID}, @model, @permissionBypass) ON DUPLICATE key UPDATE `{modelfield}` = @model, `{side}_permission_bypass`=@permissionBypass;
             """;
-        Task.Run( async () => {
-            await conn.ExecuteAsync(sql,
-                new {
-                    Model = modelName
-                }
-            );
-        });
+        return await conn.ExecuteAsync(sql,
+            new {
+                model = modelName, permissionBypass
+            }
+        );
        
     }
-    public void SetPlayerTModel(ulong SteamID, string modelName) {
-        SetPlayerModel(SteamID, modelName, "t_model");
+    public async Task<int> SetPlayerTModel(ulong SteamID, string modelName, bool permissionBypass) {
+        return await SetPlayerModel(SteamID, modelName, "t_model", permissionBypass, "t");
     }
-    public void SetPlayerCTModel(ulong SteamID, string modelName) {
-        SetPlayerModel(SteamID, modelName, "ct_model");
+    public async Task<int> SetPlayerCTModel(ulong SteamID, string modelName, bool permissionBypass) {
+        return await SetPlayerModel(SteamID, modelName, "ct_model", permissionBypass, "ct");
     }
-    public void SetPlayerAllModel(ulong SteamID, string tmodel, string ctmodel) {
-        var sql = $"""
-            INSERT INTO {table} (`steamid`, `t_model`, `ct_model`) VALUES ({SteamID}, @TModel, @CTModel) ON DUPLICATE key UPDATE `t_model` = @TModel, `ct_model` = @CTModel;
-            """;
-        Task.Run( async () => {
-            await conn.ExecuteAsync(sql,
+    public async Task<int> SetAllTModel(string tmodel, bool permissionBypass) {
+        return await conn.ExecuteAsync(@$"
+                UPDATE `{table}` SET `t_model` = @tmodel, `t_permission_bypass`=@permissionBypass",
                 new {
-                    TModel = tmodel,
-                    CTmodel = ctmodel
+                    tmodel,
+                    permissionBypass
                 }
-            );
-        });
+        );
     }
-    public void SetAllTModel(string tmodel) {
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                UPDATE `{table}` SET `t_model` = @TModel",
-                new {
-                    TModel = tmodel
-                }
-            );
-        });
-    }
-    public void SetAllCTModel(string ctmodel) {
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                UPDATE `{table}` SET `ct_model` = @CTModel",
-                new {
-                    CTModel = ctmodel
-                }
-            );
-        });
-    }
-    public void SetAllModel(string tmodel, string ctmodel) {
-        Task.Run( async () => {
-            await conn.ExecuteAsync(@$"
-                UPDATE `{table}` SET `t_model` = @TModel, `ct_model` = @CTModel;",
-                new {
-                    TModel = tmodel,
-                    CTModel = ctmodel,
-                }
-            );
-        });
+    public async Task<int> SetAllCTModel(string ctmodel, bool permissionBypass) {
+        return await conn.ExecuteAsync(@$"
+            UPDATE `{table}` SET `ct_model` = @ctmodel, `ct_permission_bypass`=@permissionBypass",
+            new {
+                ctmodel,
+                permissionBypass
+            }
+        );
     }
 }
