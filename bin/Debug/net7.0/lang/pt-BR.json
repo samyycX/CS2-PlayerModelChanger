@@ -8,7 +8,7 @@
     "player.currentmodel": "Seu modelo atual em {0}: {green}{1}",
     "command.unknownside": "{red}Lado desconhecido: {default}{0}",
     "command.model.hint1": "Digite {green}!model <@aleatório/nome do modelo> <todos/ct/t> {default}para mudar seu modelo. (@aleatório para modelos aleatórios, recomendamos usar {green}!models{default})",
-    "command.model.hint2": "Digite {green}!md {default}ou {green}!models <todos/ct/t> {default}para selecionar modelo.",
+    "command.model.hint2": "Digite {green}!md {default}ou {green}!models {default}para selecionar modelo.",
     "command.model.notfound": "{red}Nome do modelo {default}{0} {red}não encontrado.",
     "command.model.success": "{green}Seu modelo em {0} será definido após o próximo spawn.",
     "command.resetmodel.success": "{green}Seu modelo será redefinido a partir do próximo spawn.",
