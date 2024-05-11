@@ -17,7 +17,7 @@ public partial class PlayerModelChanger {
 
         string tSelection = playerTModel != null ? $"{Localizer["side.t"]}: {playerTModel.name}" :  $"{Localizer["side.t"]}";
         string ctSelection = playerCTModel != null ? $"{Localizer["side.ct"]}: {playerCTModel.name}" :  $"{Localizer["side.ct"]}";
-        string allSelection = playerAllModel != null ? $"{Localizer["side.all"]}: <font color='#00FF00'>{playerAllModel.name}</font>" :  $"{Localizer["side.all"]}";
+        string allSelection = playerAllModel != null ? $"{Localizer["side.all"]}: {playerAllModel.name}" :  $"{Localizer["side.all"]}";
         menu.AddMenuOption(tSelection, (player, option) => HandleSelectSideMenu(player, option, "t", playerTModel));
         menu.AddMenuOption(ctSelection, (player, option) => HandleSelectSideMenu(player, option, "ct", playerCTModel));
         menu.AddMenuOption(allSelection, (player, option) => HandleSelectSideMenu(player, option, "all", playerAllModel));

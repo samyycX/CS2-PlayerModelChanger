@@ -32,12 +32,12 @@ public class Utils {
     public static bool PlayerHasPermission(CCSPlayerController player, string[] permissions, string[] permissionsOr) {
         
         foreach (string perm in permissions) {
-          if (perm.StartsWith("#")) {
+          if (perm.StartsWith("@")) {
             if (!AdminManager.PlayerHasPermissions(player, new string[]{perm})) {
               return false;
             }
           }
-          else if (perm.StartsWith("@")) {
+          else if (perm.StartsWith("#")) {
             if (!AdminManager.PlayerInGroup(player, new string[]{perm})) {
               return false;
             }
@@ -57,12 +57,12 @@ public class Utils {
         }
 
         foreach (string perm in permissionsOr) {
-            if (perm.StartsWith("#")) {
+            if (perm.StartsWith("@")) {
               if (AdminManager.PlayerHasPermissions(player, perm)) {
                 return true;
               }
             }
-            else if (perm.StartsWith("@")) {
+            else if (perm.StartsWith("#")) {
               if (AdminManager.PlayerInGroup(player, perm)) {
                 return true;
               }
