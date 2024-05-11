@@ -6,6 +6,13 @@ using Service;
 
 namespace Config;
 
+public class BotsConfig
+{
+  public string CT { get; set; } = "";
+  public string T { get; set; } = "";
+
+}
+
 public class ModelConfig : BasePluginConfig
 {
     [JsonPropertyName("Models")] public Dictionary<string, Model> Models { get; set; } = new Dictionary<string, Model>();
@@ -21,8 +28,10 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("MySQL_Database")] public string MySQLDatabase { get; set; } = "";
     [JsonPropertyName("MySQL_Table")] public string MySQLTable { get; set; } = "playermodelchanger";
 
-    
+    [JsonPropertyName("ModelForBots")] public BotsConfig ModelForBots { get; set; } = new BotsConfig();
+
     [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
     [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
     [JsonPropertyName("DisableAutoCheck")] public bool DisableAutoCheck { get; set; } = false;
+    [JsonPropertyName("AutoResyncCache")] public bool AutoResyncCache { get; set; } = false;
 }

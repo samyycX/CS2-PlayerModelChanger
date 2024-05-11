@@ -56,8 +56,17 @@ public partial class PlayerModelChanger {
     [ConsoleCommand("css_models", "Select models.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
+        
+        if (commandInfo.ArgCount == 1) {
+          OpenSelectSideMenu(player);
+          return;
+        }
 
-        OpenSelectSideMenu(player);    
+        string side = commandInfo.GetArg(1);
+        OpenSelectModelMenu(player, side, Service.GetPlayerModel(player, side));
+
+
+          
 
        
     }

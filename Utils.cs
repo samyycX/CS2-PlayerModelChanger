@@ -30,28 +30,57 @@ public class Utils {
     }
 
     public static bool PlayerHasPermission(CCSPlayerController player, string[] permissions, string[] permissionsOr) {
-        IEnumerable<string> source = permissions.Where((string perm) => perm.StartsWith('#'));
-        IEnumerable<string> source2 = permissions.Where((string perm) => perm.StartsWith('@'));
-        if (source2.Count() != 0 && !AdminManager.PlayerHasPermissions(player, source2.ToArray()))
-        {
-            return false;
-        }
-
-        if (source.Count() != 0 && !AdminManager.PlayerInGroup(player, source.ToArray()))
-        {
-            return false;
-        }
-
-        var flag = permissionsOr.Count() == 0;
-        foreach (var perm in permissionsOr) {
-            if (perm.StartsWith("#") && AdminManager.PlayerHasPermissions(player, perm)) {
-                flag = true;
+        
+        foreach (string perm in permissions) {
+          if (perm.StartsWith("#")) {
+            if (!AdminManager.PlayerHasPermissions(player, new string[]{perm})) {
+              return false;
             }
-            if (perm.StartsWith("@") && AdminManager.PlayerInGroup(player, perm)) {
-                flag = true;
+          }
+          else if (perm.StartsWith("@")) {
+            if (!AdminManager.PlayerInGroup(player, new string[]{perm})) {
+              return false;
             }
+          }
+          else {
+            ulong steamId;
+            if (!ulong.TryParse(perm, out steamId)) {
+              throw new FormatException($"Unknown SteamID64 format: {perm}");
+            } else {
+              if (player.SteamID != steamId) {
+                return false;
+              }
+            }
+            
+          }
+
         }
 
-        return flag;
+        foreach (string perm in permissionsOr) {
+            if (perm.StartsWith("#")) {
+              if (AdminManager.PlayerHasPermissions(player, perm)) {
+                return true;
+              }
+            }
+            else if (perm.StartsWith("@")) {
+              if (AdminManager.PlayerInGroup(player, perm)) {
+                return true;
+              }
+            } else {
+            ulong steamId;
+            if (!ulong.TryParse(perm, out steamId)) {
+              throw new FormatException($"Unknown SteamID64 format: {perm}");
+            } else {
+              if (player.SteamID == steamId) {
+                return true;
+              }
+            }
+            
+          }
+
+
+        }
+
+        return true;
     }
 }
