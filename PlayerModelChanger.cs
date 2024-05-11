@@ -8,13 +8,12 @@ using CounterStrikeSharp.API.Modules.Utils;
 using Service;
 using System.Drawing;
 using CounterStrikeSharp.API.Modules.Config;
-using System.Security.Cryptography.X509Certificates;
 namespace PlayerModelChanger;
 
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.3.0";
+    public override string ModuleVersion => "1.4.0";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -59,6 +58,8 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
     public override void Unload(bool hotReload)
     {
+      RemoveListener("OnServerPrecacheResources", PrecacheResource);
+      DeregisterEventHandler("EventPlayerSpawn", OnPlayerSpawnEvent, false);
     }
 
     public void ReloadConfig() {
@@ -67,6 +68,8 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                     .MakeGenericMethod(typeof(ModelConfig))
                     .Invoke(null, new object[] { Path.GetFileName(ModuleDirectory) }) as IBasePluginConfig;
         OnConfigParsed((config as ModelConfig)!);
+        Unload(true);
+        Load(false);
         Service.ReloadConfig(ModuleDirectory, Config);
     }
     public void OnConfigParsed(ModelConfig config)
@@ -92,6 +95,10 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             if (config.MySQLDatabase == "") {
                 throw new Exception("You must fill in the MySQL_Database");
             }
+        }
+
+        if (config.ModelForBots == null) {
+          config.ModelForBots = new BotsConfig();
         }
 
         if (config.MenuType.ToLower() != "chat" && config.MenuType.ToLower() != "centerhtml") {
@@ -122,24 +129,49 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         CCSPlayerController player = @event.Userid;
 
         if (player == null
-            || !player.IsValid
-            || player.PlayerPawn == null
-            || !player.PlayerPawn.IsValid
-            || player.PlayerPawn.Value == null
-            || !player.PlayerPawn.Value.IsValid)
+            || !player.IsValid)
         {
             return HookResult.Continue;
         }
         try
         {    
             CsTeam team = (CsTeam)player.TeamNum;
-
-            if (player.AuthorizedSteamID == null) {
-                // bot?
-                return HookResult.Continue;
-            }
+              
             if (team != CsTeam.Terrorist && team != CsTeam.CounterTerrorist) {
                 return HookResult.Continue;
+            }
+
+            if (player.IsBot) {
+              string modelindex = team == CsTeam.Terrorist ? Config.ModelForBots.T : Config.ModelForBots.CT;
+              if (modelindex == "") {
+                return HookResult.Continue;
+              }
+              var botmodel = Service.GetModel(modelindex);
+              if (botmodel != null) {
+                 SetModelNextServerFrame(player.Pawn.Value, botmodel.path, botmodel.disableleg);
+              } else {
+                  Server.NextFrame(() => {
+                      var originalRender = player.Pawn.Value.Render;
+                      player.Pawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
+                  });
+              }
+            }
+
+            if (player.AuthorizedSteamID == null) {
+                return HookResult.Continue;
+            }
+
+            if (
+            player.PlayerPawn == null
+            || !player.PlayerPawn.IsValid
+            || player.PlayerPawn.Value == null
+            || !player.PlayerPawn.Value.IsValid
+            ) {
+              return HookResult.Continue;
+            }
+            
+            if (Config.AutoResyncCache) {
+              Service.ResyncCache();
             }
 
             if (!Config.DisableAutoCheck) {
@@ -174,13 +206,13 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return HookResult.Continue;
     }
 
-    public static void SetModelNextServerFrame(CCSPlayerPawn playerPawn, string model, bool disableleg)
+    public static void SetModelNextServerFrame(CBasePlayerPawn pawn, string model, bool disableleg)
     {
         Server.NextFrame(() =>
         {
-            playerPawn.SetModel(model);
-            var originalRender = playerPawn.Render;
-            playerPawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+            pawn.SetModel(model);
+            var originalRender = pawn.Render;
+            pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
         });
     }
 }

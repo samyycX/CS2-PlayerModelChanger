@@ -2,6 +2,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Utils;
 using Service;
+using System.Text;
 
 namespace PlayerModelChanger;
 
@@ -12,18 +13,16 @@ public partial class PlayerModelChanger {
 
         var playerTModel = Service.GetPlayerModel(player, "t");
         var playerCTModel = Service.GetPlayerModel(player, "ct");
-        var playerAllModel = playerTModel?.index == playerCTModel?.index ? playerCTModel : null;
-        
-        var tSelection = playerTModel != null ? $"{Localizer["side.t"]}: {playerTModel.name}" :  $"{Localizer["side.t"]}";
-        var ctSelection = playerCTModel != null ? $"{Localizer["side.ct"]}: {playerCTModel.name}" :  $"{Localizer["side.ct"]}";
-        var allSelection = playerAllModel != null ? $"{Localizer["side.all"]}: {playerAllModel.name}" :  $"{Localizer["side.all"]}"
-        ;
+        var playerAllModel = Service.GetPlayerModel(player, "all");
+
+        string tSelection = playerTModel != null ? $"{Localizer["side.t"]}: {playerTModel.name}" :  $"{Localizer["side.t"]}";
+        string ctSelection = playerCTModel != null ? $"{Localizer["side.ct"]}: {playerCTModel.name}" :  $"{Localizer["side.ct"]}";
+        string allSelection = playerAllModel != null ? $"{Localizer["side.all"]}: <font color='#00FF00'>{playerAllModel.name}</font>" :  $"{Localizer["side.all"]}";
         menu.AddMenuOption(tSelection, (player, option) => HandleSelectSideMenu(player, option, "t", playerTModel));
         menu.AddMenuOption(ctSelection, (player, option) => HandleSelectSideMenu(player, option, "ct", playerCTModel));
         menu.AddMenuOption(allSelection, (player, option) => HandleSelectSideMenu(player, option, "all", playerAllModel));
 
         menu.PostSelectAction = PostSelectAction.Close;
-        
         sideMenu.OpenMenu(this, player);
     }
 

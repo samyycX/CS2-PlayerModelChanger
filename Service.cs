@@ -225,6 +225,11 @@ public class ModelService {
         
     }
     public Model? GetPlayerModel(CCSPlayerController player, string side) {
+        if (side == "all") {
+          var tModel = GetPlayerModel(player, "t");
+          var ctModel = GetPlayerModel(player, "ct");
+          return tModel?.index == ctModel?.index ? tModel : null;
+        }
         var modelCache = cacheManager.GetPlayerModelCache(player);
         var modelIndex = side == "t" ? modelCache?.t_model : modelCache?.ct_model;
         if (modelIndex == null || modelIndex == "") {
