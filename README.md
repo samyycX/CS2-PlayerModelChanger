@@ -25,7 +25,7 @@ Custom model parts:
 3. See [Known issues](#known-issues)
 
 ## Known issues
-1. Some server will crash when map change, in this case, check the permission of your workshop item and try to set `DisablePrecache` in config to `true` and use ResourcePrecacher plugin V1.0.4
+1. Some server will crash when map change, it may be caused by a plugin conflict, you can wait for fix or find out and remove the conflict plugin
 
 ## Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
@@ -59,6 +59,7 @@ the path should be like this: `characters/.../xxx.vmdl` (if it is in characters 
 
 ### Setup MultiAddonManager
 add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
+after added, switch the map once to make multiaddonmanager download the addon
 
 ### Config PlayerModelChanger
 See the [Configuration](#configuration)
@@ -66,6 +67,7 @@ See the [Configuration](#configuration)
 ## Common Issues
 - **You should use the compiled model (suffix `.vmdl_c`)**
 - **You should use `.vmdl` instead of `.vmdl_c` in config json**
+- If your model don't have animation, try to switch the map once (to make multiaddonmanager download the model)
 
 ## Credits
 - Method to change model: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
