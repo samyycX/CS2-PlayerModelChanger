@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -9,7 +9,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.179">
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.246">
       <IncludeAssets>compile</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MySQLConnector" Version="2.3.5" />
@@ -22,5 +22,9 @@
   <ItemGroup>
     <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+  <ItemGroup>
+    <Reference Include="Menu">
+      <HintPath>lib\WASDSharedAPI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

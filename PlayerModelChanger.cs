@@ -13,7 +13,7 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.4.1";
+    public override string ModuleVersion => "1.5.0";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -101,7 +101,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
           config.ModelForBots = new BotsConfig();
         }
 
-        if (config.MenuType.ToLower() != "chat" && config.MenuType.ToLower() != "centerhtml") {
+        if (!new string[]{"chat", "centerhtml", "interactive"}.Contains(config.MenuType.ToLower())) {
             throw new Exception($"Unknown menu type: {config.MenuType}");
         }
         config.MenuType = config.MenuType.ToLower();

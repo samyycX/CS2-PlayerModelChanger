@@ -5,8 +5,8 @@ If you like this plugin, please give a star :)
 ### This plugin can cause a GSLT ban, please use at your own risk.
 [中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
-- [Known issues](#known-issues)
 - [Installation Guide](#installation-guide)
+- [Optional Dependencies](#optional-dependencies)
 - [Commands](#commands)
 - [Configuration](#configuration)
 - [Common Issues](#common-issues)
@@ -16,19 +16,17 @@ If you like this plugin, please give a star :)
 - [How to add default or workshop model](#how-to-add-default-or-workshop-model)
 
 Custom model parts:
-- [Dependencies for custom model](#dependencies-for-custom-model)
 - [How to pack a model into steam workshop item](#how-to-pack-a-model-into-steam-workshop-item)
 
 ## Before you use
-1. This plugin is still in development, which means the player's data database structure may be changed **(If changed, the database need to be reseted or be modified by your own)**
-2. **this plugin can cause a GSLT ban, use at your own risk**
-3. See [Known issues](#known-issues)
-
-## Known issues
-1. Some server will crash when map change, it may be caused by a plugin conflict, you can wait for fix or find out and remove the conflict plugin
+1. **this plugin can cause a GSLT ban, use at your own risk**
 
 ## Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
+
+## Optional Dependencies
+1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager) (for workshop model)
+2. [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) (for wasd interactive menu)
 
 ## Commands
 ### Server side
@@ -46,7 +44,7 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 ## Configuration
 When you install the plugin successfully, it will generate `counterstrikesharp/configs/plugins/PlayerModelChanger/PlayerModelChanger.json`.
 
-See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki)
+See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki) to config it.
 
 ## How to add default or workshop model
 
@@ -57,7 +55,7 @@ the path should be like this: `characters/.../xxx.vmdl` (if it is in characters 
 
 **Important: replace `.vmdl_c` in the path with `.vmdl`**
 
-### Setup MultiAddonManager
+### Setup MultiAddonManager ( for workshop model )
 add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 after added, switch the map once to make multiaddonmanager download the addon
 
@@ -76,13 +74,9 @@ See the [Configuration](#configuration)
 1. Translation
 
 ## Contribution
-To build this plugin, run `dotnet build`.
+To build this plugin, run `build.bat`.
 
 Feel free to create Pull Requests or issues.
-
-## Dependencies for custom model
-**If you are not using custom model, these plugins are not necessarily needed**
-1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
 ## How to pack a model into steam workshop item
 
