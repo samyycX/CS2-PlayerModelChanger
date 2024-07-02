@@ -4,7 +4,6 @@
 如果你喜欢这个插件请给个Star :)
 ### 此插件可能导致GSLT封禁，请自行承担风险
 - **[用前须知](#用前须知)**
-- [已知问题](#k已知问题)
 - [自定义模型依赖插件](#自定义模型依赖插件)
 - [安装指南](#安装指南)
 - [命令](#命令)
@@ -20,12 +19,7 @@
 
 
 ## 用前须知
-1. 此插件仍然在开发过程中，数据库的结构可能会发生变化 **(如果改变，需要你自己修改数据库或者删除数据库)**
-2. **此插件可能导致GSLT封禁，请自行承担风险**
-3. 查看 [已知问题](#已知问题)
-
-## 已知问题
-1. 有些服务器在切换地图时会崩溃，解决方法是把 `DisablePrecache` 设置为 `true`，然后配合ResourcePrecacher插件 v1.0.4版本使用
+1. **此插件可能导致GSLT封禁，请自行承担风险**
 
 ## 自定义模型依赖插件
 **如果你不使用自定义模型，不用安装这些插件**
@@ -33,6 +27,10 @@
 
 ## 安装指南
 从 [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases)下载最新版插件, 然后放到counterstrikesharp的plugins文件夹里
+
+## 可选依赖
+1. 使用创意工坊模型请安装：[MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager) 
+2. 使用交互式菜单请安装：[WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI)
 
 ## 指令
 ### 服务器端
@@ -49,7 +47,7 @@
 - `!modeladmin reload` 重载配置文件
 ## 配置
 如果你正确的安装了此插件，`counterstrikesharp/configs/plugins/PlayerModelChanger/PlayerModelChanger.json`文件会被生成。
-```
+
 
 见 [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki)
 
@@ -82,7 +80,7 @@
 - **在配置文件内，你应该使用 `.vmdl` 而不是 `.vmdl_c` 作为后缀**
 
 ## Contribution
-构建插件请使用 `dotnet build`.
+构建插件请使用 `build.bat`.
 
 欢迎一切 Issues / Pull Requests
 
