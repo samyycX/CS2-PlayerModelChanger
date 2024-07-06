@@ -21,13 +21,11 @@ public class WasdMenuManager {
 
     public void OpenSelectSideMenu(CCSPlayerController player, TeamMenuData teamMenuData, ModelMenuData modelMenuData) {
         IWasdMenu menu = wasdMenuManager.CreateMenu(teamMenuData.title);
-
+        
         foreach(KeyValuePair<string, string> kv in teamMenuData.selection) {
-            menu.Add(kv.Key, (player, option) => {
-                wasdMenuManager.CloseMenu(player);
-                plugin.AddTimer(0.1f, () => {
-                    OpenSelectModelMenu(player, kv.Value, modelMenuData);
-                });
+            var subMenu = GetSelectModelMenu(player, kv.Value, modelMenuData);
+            subMenu.Prev = menu.Add(kv.Key, (player, option) => {
+                wasdMenuManager.OpenSubMenu(player, subMenu);
             });
         }
 
@@ -35,9 +33,16 @@ public class WasdMenuManager {
     }
 
     public void OpenSelectModelMenu(CCSPlayerController player, string side, ModelMenuData modelMenuData) {
-        SingleModelMenuData data = modelMenuData.data[side];
-        IWasdMenu menu = wasdMenuManager.CreateMenu(data.title);
+        
+        
+        wasdMenuManager.OpenMainMenu(player, GetSelectModelMenu(player, side, modelMenuData));
 
+    }
+
+    public IWasdMenu GetSelectModelMenu(CCSPlayerController player, string side, ModelMenuData modelMenuData) {
+        SingleModelMenuData data = modelMenuData.data[side];
+        
+        IWasdMenu menu = wasdMenuManager.CreateMenu(data.title);
         foreach(KeyValuePair<string, string> kv in data.specialModelSelection) {
             menu.Add(kv.Key, (player, option) => {
                 plugin.Service.SetPlayerModelWithCheck(player, kv.Value, side);
@@ -48,8 +53,6 @@ public class WasdMenuManager {
                 plugin.Service.SetPlayerModelWithCheck(player, kv.Value, side);
             });
         }
-
-        wasdMenuManager.OpenMainMenu(player, menu);
-
+        return menu;
     }
 }

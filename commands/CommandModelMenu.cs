@@ -65,7 +65,7 @@ public partial class PlayerModelChanger {
     public void OpenSelectSideMenu(CCSPlayerController player) {
         var modelData = GenerateModelMenuData(player);
         var teamData = GenerateTeamMenuData(player);
-        if (Config.MenuType == "interactive") {
+        if (Config.MenuType == "interactive" || Config.MenuType == "wasd") {
             GetWasdMenuManager().OpenSelectSideMenu(player, teamData, modelData);
         } else {
             GetSimpleMenuManager().OpenSelectSideMenu(player, teamData, modelData);
@@ -74,7 +74,7 @@ public partial class PlayerModelChanger {
 
     public void OpenSelectModelMenu(CCSPlayerController player, string side, Model? model) {
         var modelData = GenerateModelMenuData(player);
-        if (Config.MenuType == "dynamic") {
+        if (Config.MenuType == "interactive" || Config.MenuType == "wasd") {
             GetWasdMenuManager().OpenSelectModelMenu(player, side, modelData);
         } else {
             GetSimpleMenuManager().OpenSelectModelMenu(player, side, modelData);

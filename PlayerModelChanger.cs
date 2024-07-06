@@ -101,7 +101,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
           config.ModelForBots = new BotsConfig();
         }
 
-        if (!new string[]{"chat", "centerhtml", "interactive"}.Contains(config.MenuType.ToLower())) {
+        if (!new string[]{"chat", "centerhtml", "wasd", "interactive"}.Contains(config.MenuType.ToLower())) {
             throw new Exception($"Unknown menu type: {config.MenuType}");
         }
         config.MenuType = config.MenuType.ToLower();
