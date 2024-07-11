@@ -13,7 +13,7 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.5.1";
+    public override string ModuleVersion => "1.6.0";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -58,8 +58,8 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
     public override void Unload(bool hotReload)
     {
-      RemoveListener("OnServerPrecacheResources", PrecacheResource);
-      DeregisterEventHandler("EventPlayerSpawn", OnPlayerSpawnEvent, false);
+      RemoveListener<Listeners.OnServerPrecacheResources>(PrecacheResource);
+      DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
     }
 
     public void ReloadConfig() {
