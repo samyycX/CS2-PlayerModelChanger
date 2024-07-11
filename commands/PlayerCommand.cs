@@ -23,6 +23,10 @@ public partial class PlayerModelChanger {
             return;
         }
 
+        if (Config.DisablePlayerSelection) {
+            return;
+        }
+
         var modelIndex = commandInfo.GetArg(1);
 
         if (modelIndex != "@random" && !Service.ExistModel(modelIndex)) {
@@ -57,6 +61,10 @@ public partial class PlayerModelChanger {
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
         
+        if (Config.DisablePlayerSelection) {
+            return;
+        }
+
         if (commandInfo.ArgCount == 1) {
           OpenSelectSideMenu(player);
           return;

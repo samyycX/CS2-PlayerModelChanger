@@ -33,5 +33,6 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
     [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
     [JsonPropertyName("DisableAutoCheck")] public bool DisableAutoCheck { get; set; } = false;
+    [JsonPropertyName("DisablePlayerSelection")] public bool DisablePlayerSelection { get; set; } = false;
     [JsonPropertyName("AutoResyncCache")] public bool AutoResyncCache { get; set; } = false;
 }
