@@ -42,7 +42,7 @@ public partial class PlayerModelChanger {
         var side = "all";
         if (commandInfo.ArgCount == 3) {
             side = commandInfo.GetArg(2).ToLower();
-            if (side.ToLower() != "t" || side.ToLower() != "ct") {
+            if (side.ToLower() != "t" && side.ToLower() != "ct") {
                 commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
                 return;
             }
