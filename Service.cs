@@ -90,7 +90,7 @@ public class ModelService {
                 storage.SetPlayerCTModel(steamid, modelIndex, permissionBypass);
             }
         );
-        if (!config.DisableInstantUpdate) {
+        if (!config.DisableInstantChange) {
             var player = Utilities.GetPlayerFromSteamId(steamid);
             if (Utils.isUpdatingSameTeam(player, side)) {
                 Utils.RespawnPlayer(player, config.DisableThirdPersonPreview);
@@ -106,7 +106,7 @@ public class ModelService {
         storage.SetPlayerTModel(steamid, tModel, permissionBypass).ContinueWith((_) => {
             storage.SetPlayerCTModel(steamid, ctModel, permissionBypass);
         });
-        if (!config.DisableInstantUpdate) {
+        if (!config.DisableInstantChange) {
             var player = Utilities.GetPlayerFromSteamId(steamid);
             Utils.RespawnPlayer(player, config.DisableThirdPersonPreview);
         }
@@ -218,7 +218,7 @@ public class ModelService {
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, side, false),
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, ctDefault == null ? "" : ctDefault.index, side, false)
             );
-            if (config.DisableInstantUpdate || !Utils.isUpdatingSameTeam(player, side)) {
+            if (config.DisableInstantChange || !Utils.isUpdatingSameTeam(player, side)) {
                 player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
             }
             return;
@@ -246,7 +246,7 @@ public class ModelService {
         var steamid = player!.AuthorizedSteamID!.SteamId64;
         SetPlayerModel(steamid, modelIndex, side, false);
         ModelChangeCooldown[steamid] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        if (config.DisableInstantUpdate || !Utils.isUpdatingSameTeam(player, side)) {
+        if (config.DisableInstantChange || !Utils.isUpdatingSameTeam(player, side)) {
             player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
         }
         

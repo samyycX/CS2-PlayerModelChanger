@@ -31,7 +31,7 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("ModelForBots")] public BotsConfig ModelForBots { get; set; } = new BotsConfig();
     [JsonPropertyName("ModelChangeCooldownSecond")] public float ModelChangeCooldownSecond { get; set; } = 0f;
 
-    [JsonPropertyName("DisableInstantUpdate")] public bool DisableInstantUpdate { get; set; } = false;
+    [JsonPropertyName("DisableInstantChange")] public bool DisableInstantChange { get; set; } = false;
     [JsonPropertyName("DisableThirdPersonPreview")] public bool DisableThirdPersonPreview { get; set; } = false;
     [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
     [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
