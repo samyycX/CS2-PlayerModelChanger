@@ -22,7 +22,10 @@ public class ModelCacheManager {
         this.storage = storage; 
     }
     public void ResyncCache() {
-        cache = storage.GetAllPlayerModel();
+        var data = storage.GetAllPlayerModel();
+        if (data != null) {
+            cache = data;
+        }
     }
 
     public void SetAllTModels(string tmodel, bool permissionBypass) {

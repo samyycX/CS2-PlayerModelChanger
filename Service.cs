@@ -1,3 +1,5 @@
+using System.Drawing;
+using System.Net.Http.Headers;
 using Config;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -20,6 +22,9 @@ public class ModelService {
     private IStringLocalizer localizer;
 
     private ModelCacheManager cacheManager;
+
+
+    private Dictionary<ulong, long> ModelChangeCooldown = new Dictionary<ulong, long>();
 
     public ModelService(ModelConfig Config, IStorage storage, IStringLocalizer localizer, DefaultModelManager defaultModelManager) {
         this.config = Config;
@@ -85,6 +90,12 @@ public class ModelService {
                 storage.SetPlayerCTModel(steamid, modelIndex, permissionBypass);
             }
         );
+        if (!config.DisableInstantUpdate) {
+            var player = Utilities.GetPlayerFromSteamId(steamid);
+            if (Utils.isUpdatingSameTeam(player, side)) {
+                Utils.RespawnPlayer(player, config.DisableThirdPersonPreview);
+            }
+        }
     }
     
     public void SetPlayerAllModel(ulong steamid, string? tModel, string? ctModel, bool permissionBypass) {
@@ -95,6 +106,10 @@ public class ModelService {
         storage.SetPlayerTModel(steamid, tModel, permissionBypass).ContinueWith((_) => {
             storage.SetPlayerCTModel(steamid, ctModel, permissionBypass);
         });
+        if (!config.DisableInstantUpdate) {
+            var player = Utilities.GetPlayerFromSteamId(steamid);
+            Utils.RespawnPlayer(player, config.DisableThirdPersonPreview);
+        }
     }
     public void SetPlayerModel(ulong steamid, string? modelIndex, CsTeam team, bool permissionBypass) {
         var side = team == CsTeam.Terrorist ? "t" : "ct";
@@ -176,7 +191,6 @@ public class ModelService {
         if (modelIndex == "" || modelIndex == "@random") {
             return true;
         }
-        CsTeam team = side.ToLower() == "t" ? CsTeam.Terrorist : CsTeam.CounterTerrorist;
 
         var model = GetModel(modelIndex!);
         if (model == null) {
@@ -186,6 +200,14 @@ public class ModelService {
     }
 
     public void SetPlayerModelWithCheck(CCSPlayerController player, string modelIndex, string side) {
+        if (ModelChangeCooldown.ContainsKey(player.SteamID)) {
+            var lastTime = ModelChangeCooldown[player.SteamID];
+            if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastTime < (config.ModelChangeCooldownSecond*1000)) {
+                player.PrintToChat(localizer["command.model.cooldown"]);
+                return;
+            }
+        }
+
         var isSpecial = modelIndex == "" || modelIndex == "@random";
 
         if (modelIndex == "@default") {
@@ -196,7 +218,9 @@ public class ModelService {
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, side, false),
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, ctDefault == null ? "" : ctDefault.index, side, false)
             );
-            player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
+            if (config.DisableInstantUpdate || !Utils.isUpdatingSameTeam(player, side)) {
+                player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
+            }
             return;
         }
 
@@ -221,7 +245,10 @@ public class ModelService {
        
         var steamid = player!.AuthorizedSteamID!.SteamId64;
         SetPlayerModel(steamid, modelIndex, side, false);
-        player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
+        ModelChangeCooldown[steamid] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        if (config.DisableInstantUpdate || !Utils.isUpdatingSameTeam(player, side)) {
+            player.PrintToChat(localizer["command.model.success", localizer["side."+side]]);
+        }
         
     }
     public Model? GetPlayerModel(CCSPlayerController player, string side) {

@@ -1,6 +1,10 @@
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Utils;
 using Service;
@@ -64,18 +68,12 @@ public partial class PlayerModelChanger {
         if (Config.DisablePlayerSelection) {
             return;
         }
-
         if (commandInfo.ArgCount == 1) {
           OpenSelectSideMenu(player);
           return;
         }
-
         string side = commandInfo.GetArg(1);
         OpenSelectModelMenu(player, side, Service.GetPlayerModel(player, side));
-
-
-          
-
        
     }
 

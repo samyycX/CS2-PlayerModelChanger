@@ -57,8 +57,13 @@ public class MySQLStorage : IStorage {
             
         """);
     }
-    public List<ModelCache> GetAllPlayerModel() {
-        return conn.Query<ModelCache>($"select * from {table};").ToList();
+    public List<ModelCache>? GetAllPlayerModel() {
+        try {   
+            return conn.Query<ModelCache>($"select * from {table};").ToList();
+        } catch (InvalidOperationException e) {
+            
+        }
+        return null;
     }
 
     public dynamic? GetPlayerModel(ulong SteamID, string modelfield)

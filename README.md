@@ -5,6 +5,7 @@ If you like this plugin, please give a star :)
 ### This plugin can cause a GSLT ban, please use at your own risk.
 [中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
+- [Feature](#feature)
 - [Installation Guide](#installation-guide)
 - [Optional Dependencies](#optional-dependencies)
 - [Commands](#commands)
@@ -20,6 +21,16 @@ Custom model parts:
 
 ## Before you use
 1. **this plugin can cause a GSLT ban, use at your own risk**
+
+## Feature
+- a model select menu (support wasd menu)
+- can set different model for T and CT
+- random model
+- update model after change instantly
+- thirdperson preview
+- can set default model
+- can provide special models for specified permission or player
+- can disable the display of leg model
 
 ## Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
@@ -69,6 +80,7 @@ See the [Configuration](#configuration)
 
 ## Credits
 - Method to change model: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
+- Thirdperson preview code: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
 
 ## TODOs
 1. Translation

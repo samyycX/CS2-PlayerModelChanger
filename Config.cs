@@ -29,10 +29,14 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("MySQL_Table")] public string MySQLTable { get; set; } = "playermodelchanger";
 
     [JsonPropertyName("ModelForBots")] public BotsConfig ModelForBots { get; set; } = new BotsConfig();
+    [JsonPropertyName("ModelChangeCooldownSecond")] public float ModelChangeCooldownSecond { get; set; } = 0f;
 
+    [JsonPropertyName("DisableInstantUpdate")] public bool DisableInstantUpdate { get; set; } = false;
+    [JsonPropertyName("DisableThirdPersonPreview")] public bool DisableThirdPersonPreview { get; set; } = false;
     [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
     [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
     [JsonPropertyName("DisableAutoCheck")] public bool DisableAutoCheck { get; set; } = false;
     [JsonPropertyName("DisablePlayerSelection")] public bool DisablePlayerSelection { get; set; } = false;
     [JsonPropertyName("AutoResyncCache")] public bool AutoResyncCache { get; set; } = false;
+    [JsonPropertyName("ConfigVersion")] public override int Version { get; set; } = 1;
 }

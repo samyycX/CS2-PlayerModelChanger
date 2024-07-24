@@ -4,6 +4,7 @@
 如果你喜欢这个插件请给个Star :)
 ### 此插件可能导致GSLT封禁，请自行承担风险
 - **[用前须知](#用前须知)**
+- [功能](#功能)
 - [自定义模型依赖插件](#自定义模型依赖插件)
 - [安装指南](#安装指南)
 - [命令](#命令)
@@ -17,9 +18,18 @@
 - [如何添加原版或创意工坊模型](#如何添加原版或创意工坊模型)
 - [如何把你的模型打包并上传到创意工坊](#如何把你的模型打包并上传到创意工坊)
 
-
 ## 用前须知
 1. **此插件可能导致GSLT封禁，请自行承担风险**
+
+## 功能
+- 菜单式选择模型 (支持wasd菜单)
+- 可为T/CT阵营设置不同模型
+- 随机模型
+- 选择后可立刻更新
+- 第三人称预览
+- 可设置默认模型
+- 可按照权限和玩家设置特殊模型
+- 可禁用腿部模型
 
 ## 自定义模型依赖插件
 **如果你不使用自定义模型，不用安装这些插件**
@@ -70,7 +80,8 @@
 请看 [配置](#配置) 部分
 
 ## 感谢
-- 替换模型的方法: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins), 作者 ChallengerMode
+- 替换模型的方法: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
+- 第三人称预览代码: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
 
 ## TODOs
 1. 翻译
