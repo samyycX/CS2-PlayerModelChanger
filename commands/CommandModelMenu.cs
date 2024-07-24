@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using Service;
 
 namespace PlayerModelChanger;
@@ -37,10 +38,27 @@ public partial class PlayerModelChanger {
         return data;
     }
 
-    private TeamMenuData GenerateTeamMenuData(CCSPlayerController player) {
+    private TeamMenuData? GenerateTeamMenuData(CCSPlayerController player) {
         TeamMenuData data = new();
         data.title = Localizer["modelmenu.selectside"];
-        foreach(var side in new string[]{"t", "ct", "all"}) {
+        var sides = new List<String>();
+
+        var tDefault = DefaultModelManager.GetPlayerDefaultModel(player, "t");
+        var ctDefault = DefaultModelManager.GetPlayerDefaultModel(player, "ct");
+        if (tDefault == null || !tDefault.force) {
+            sides.Add("t");
+        }
+        if (ctDefault == null || !ctDefault.force) {
+            sides.Add("ct");
+        }
+        if (sides.Count == 2) {
+            sides.Append("all");
+        }
+        if (sides.Count == 0) {
+            return null;
+        }
+
+        foreach(var side in sides) {
             var playerModel = Service.GetPlayerModel(player, side);
 
             string selection = playerModel != null ? $"{Localizer["side."+side]}: {playerModel.name}" :  $"{Localizer["side."+side]}";
@@ -65,6 +83,10 @@ public partial class PlayerModelChanger {
     public void OpenSelectSideMenu(CCSPlayerController player) {
         var modelData = GenerateModelMenuData(player);
         var teamData = GenerateTeamMenuData(player);
+        if (teamData == null) {
+            player.PrintToChat(Localizer["modelmenu.forced"]);
+            return;
+        }
         if (Config.MenuType == "interactive" || Config.MenuType == "wasd") {
             GetWasdMenuManager().OpenSelectSideMenu(player, teamData, modelData);
         } else {
@@ -74,6 +96,11 @@ public partial class PlayerModelChanger {
 
     public void OpenSelectModelMenu(CCSPlayerController player, string side, Model? model) {
         var modelData = GenerateModelMenuData(player);
+        var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player, side);
+        if (defaultModel != null && defaultModel.force) {
+            player.PrintToChat(Localizer["modelmenu.forced"]);
+            return;
+        }
         if (Config.MenuType == "interactive" || Config.MenuType == "wasd") {
             GetWasdMenuManager().OpenSelectModelMenu(player, side, modelData);
         } else {

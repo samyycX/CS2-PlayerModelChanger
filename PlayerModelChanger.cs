@@ -8,12 +8,14 @@ using CounterStrikeSharp.API.Modules.Utils;
 using Service;
 using System.Drawing;
 using CounterStrikeSharp.API.Modules.Config;
+using System.Reflection;
+using System.Text.Json;
 namespace PlayerModelChanger;
 
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.6.1";
+    public override string ModuleVersion => "1.7.0";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -21,10 +23,13 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
     public required DefaultModelManager DefaultModelManager { get;set; }
 
+    public static PlayerModelChanger? INSTANCE;
+
     public bool Enable = true;
 
     public override void Load(bool hotReload)
     {
+        INSTANCE = this;
         IStorage? Storage = null;
         switch (Config.StorageType) {
             case "sqlite":
@@ -43,7 +48,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             RegisterListener<Listeners.OnServerPrecacheResources>(PrecacheResource);
         }
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
-        RegisterListener<Listeners.OnMapEnd>(() => Unload(true));
+        RegisterListener<Listeners.OnTick>(OnTick);
 
         Console.WriteLine($"Player Model Changer loaded {Service.GetModelCount()} model(s) successfully.");
     }
@@ -56,10 +61,12 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         }
     }
 
-    public override void Unload(bool hotReload)
-    {
-      RemoveListener<Listeners.OnServerPrecacheResources>(PrecacheResource);
-      DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
+    public override void Unload(bool hotReload) {
+        INSTANCE = null;
+        RemoveListener<Listeners.OnServerPrecacheResources>(PrecacheResource);
+        RemoveListener<Listeners.OnTick>(OnTick);
+        DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
+        Console.WriteLine("Player Model Changer unloaded successfully.");
     }
 
     public void ReloadConfig() {
@@ -113,10 +120,13 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         Config = config;
     }
 
+    public void OnTick() {
+        ThirdPerson.UpdateCamera();
+    }
+
     // from https://github.com/Challengermode/cm-cs2-defaultskins/
     [GameEventHandler]
     public HookResult OnPlayerSpawnEvent(EventPlayerSpawn @event, GameEventInfo info) {
-        
         if (!Enable) {
             return HookResult.Continue;
         }
@@ -148,7 +158,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
               }
               var botmodel = Service.GetModel(modelindex);
               if (botmodel != null) {
-                 SetModelNextServerFrame(player.Pawn.Value, botmodel.path, botmodel.disableleg);
+                 SetModelNextServerFrame(player, botmodel.path, botmodel.disableleg);
               } else {
                   Server.NextFrame(() => {
                       var originalRender = player.Pawn.Value.Render;
@@ -190,7 +200,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             var model = Service.GetPlayerNowTeamModel(player);
             
             if (model != null) {
-                SetModelNextServerFrame(player.PlayerPawn.Value, model.path, model.disableleg);
+                SetModelNextServerFrame(player, model.path, model.disableleg);
             } else {
                 Server.NextFrame(() => {
                     var originalRender = player.PlayerPawn.Value.Render;
@@ -206,10 +216,10 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return HookResult.Continue;
     }
 
-    public static void SetModelNextServerFrame(CBasePlayerPawn pawn, string model, bool disableleg)
+    public void SetModelNextServerFrame(CCSPlayerController player, string model, bool disableleg)
     {
-        Server.NextFrame(() =>
-        {
+        Server.NextFrame(() => {   
+            var pawn = player.Pawn.Value!;
             pawn.SetModel(model);
             var originalRender = pawn.Render;
             pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
