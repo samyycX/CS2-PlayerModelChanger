@@ -1,9 +1,14 @@
+using System.Collections.Concurrent;
+using System.Globalization;
+using System.Reflection;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
+using Service;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
@@ -87,6 +92,9 @@ public class Utils {
     }
 
     public static bool isUpdatingSameTeam(CCSPlayerController player, string side) {
+        if (player.Team == CsTeam.None || player.Team == CsTeam.Spectator) {
+            return false;
+        }
         side = side.ToLower();
         if (side == "all") {
             return true;
@@ -94,7 +102,7 @@ public class Utils {
         return (side == "t" && player.Team == CsTeam.Terrorist) || (side == "ct" && player.Team == CsTeam.CounterTerrorist);
     }
 
-    public static void RespawnPlayer(CCSPlayerController player, bool disableThirdPersonPreview) {
+    public static void RespawnPlayer(CCSPlayerController player, bool enableThirdPersonPreview) {
         Server.NextFrame(() => {
             var playerPawn = player.PlayerPawn.Value!;
             var absOrigin = new Vector(playerPawn.AbsOrigin?.X, playerPawn.AbsOrigin?.Y, playerPawn.AbsOrigin?.Z);
@@ -113,9 +121,35 @@ public class Utils {
             services.HasHelmet = armorHelmet;
             services.HasDefuser = defuser;
             Utilities.SetStateChanged(playerPawn, "CBasePlayerPawn", "m_pItemServices");
-            if (!disableThirdPersonPreview) {
-                ThirdPerson.ThirdPersonPreviewForPlayer(player);
+            if (enableThirdPersonPreview) {
+                var model = PlayerModelChanger.INSTANCE!.Service.GetPlayerNowTeamModel(player);
+                var path = "";
+                if (model == null || model.path == "") {
+                    path = playerPawn.CBodyComponent?.SceneNode?.GetSkeletonInstance().ModelState.ModelName;
+                } else {
+                    path = model.path;
+                }
+                if (path != null) {
+                    Inspection.InspectModelForPlayer(player, path);
+                } 
             }
+            player.PrintToChat(PlayerModelChanger.INSTANCE!.Localizer["command.model.instantsuccess"]);
         });
+    }
+
+    public static void InitializeLangPrefix() {
+        var Localizer = PlayerModelChanger.INSTANCE!.Localizer;
+        var localizerField = Localizer.GetType().GetField("_localizer", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var internalLocalizer = localizerField.GetValue(Localizer);
+        var jsonResourceManagerField = internalLocalizer.GetType().GetField("_resourceManager", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        JsonResourceManager jsonResourceManager = (JsonResourceManager) jsonResourceManagerField.GetValue(internalLocalizer)!;
+        var resourcesCacheField = jsonResourceManager.GetType().GetField("_resourcesCache", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        jsonResourceManager.GetString("command.model.success"); // make it initialize
+        ConcurrentDictionary<string, ConcurrentDictionary<string, string>> resourcesCache = (ConcurrentDictionary<string, ConcurrentDictionary<string, string>>) resourcesCacheField.GetValue(jsonResourceManager)!;
+        foreach (var caches in resourcesCache) {
+            foreach(var key in caches.Value.Keys) {
+                caches.Value[key] = caches.Value[key].Replace("%pmc_prefix%", "[{green}PlayerModelChanger{default}] ");
+            }
+        }
     }
 }

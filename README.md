@@ -27,7 +27,7 @@ Custom model parts:
 - can set different model for T and CT
 - random model
 - update model after change instantly
-- thirdperson preview
+- thirdperson inspection
 - can set default model
 - can provide special models for specified permission or player
 - can disable the display of leg model
@@ -80,7 +80,7 @@ See the [Configuration](#configuration)
 
 ## Credits
 - Method to change model: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
-- Thirdperson preview code: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
+- Thirdperson inspection code: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
 
 ## TODOs
 1. Translation

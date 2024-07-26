@@ -4,27 +4,38 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <BaseOutputPath>build\</BaseOutputPath>
+		<OutputPath>$(BaseOutputPath)Release\PlayerModelChanger</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="CounterStrikeSharp.API" Version="1.0.246">
       <IncludeAssets>compile</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MySQLConnector" Version="2.3.5" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.28" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
+    <PackageReference Include="MySQLConnector" Version="2.3.7" />
+    <PackageReference Include="Dapper" Version="2.1.44" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Menu">
       <HintPath>lib\WASDSharedAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <LangFiles Include="lang/*.*" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="Build">
+		<Copy SourceFiles="@(LangFiles)" DestinationFolder="$(OutputPath)\lang" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\dapper\2.1.28\lib\net7.0\Dapper.dll" DestinationFolder="$(OutputPath)" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\microsoft.data.sqlite.core\8.0.7\lib\net8.0\Microsoft.Data.Sqlite.dll" DestinationFolder="$(OutputPath)" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\mysqlconnector\2.3.7\lib\net8.0\MySqlConnector.dll" DestinationFolder="$(OutputPath)" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\newtonsoft.json\13.0.3\lib\net6.0\Newtonsoft.Json.dll" DestinationFolder="$(OutputPath)" />
+    <Delete Files="$(OutputPath)\PlayerModelChanger.pdb" />
+    <Delete Files="$(OutputPath)\WASDSharedAPI.dll" />
+	</Target>
 </Project>
