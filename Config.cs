@@ -1,20 +1,21 @@
 using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Utils;
-using Serilog.Debugging;
 using Service;
 
 namespace Config;
 
-public class BotsConfig
-{
+public class BotsConfig {
   public string CT { get; set; } = "";
   public string T { get; set; } = "";
 
 }
 
-public class ModelConfig : BasePluginConfig
-{
+public class InspectionConfig {
+  public bool Enable { get; set; } = true;
+  public string Mode { get; set; } = "rotation";
+}
+
+public class ModelConfig : BasePluginConfig {
     [JsonPropertyName("Models")] public Dictionary<string, Model> Models { get; set; } = new Dictionary<string, Model>();
     
     [JsonPropertyName("MenuType")] public string MenuType { get; set; } = "centerhtml"; // chat or centerhtml
@@ -30,9 +31,9 @@ public class ModelConfig : BasePluginConfig
 
     [JsonPropertyName("ModelForBots")] public BotsConfig ModelForBots { get; set; } = new BotsConfig();
     [JsonPropertyName("ModelChangeCooldownSecond")] public float ModelChangeCooldownSecond { get; set; } = 0f;
+    [JsonPropertyName("Inspection")] public InspectionConfig Inspection { get; set; } = new InspectionConfig();
 
     [JsonPropertyName("DisableInstantChange")] public bool DisableInstantChange { get; set; } = false;
-    [JsonPropertyName("DisableThirdPersonPreview")] public bool DisableThirdPersonPreview { get; set; } = false;
     [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
     [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
     [JsonPropertyName("DisableAutoCheck")] public bool DisableAutoCheck { get; set; } = false;

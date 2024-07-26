@@ -4,6 +4,7 @@ using Config;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Localization;
@@ -53,8 +54,8 @@ public class ModelService {
     }
 
     public void ReloadConfig(string ModuleDirectory, ModelConfig config) {
-        defaultModelManager.ReloadConfig(ModuleDirectory);
         this.config = config;
+        defaultModelManager.ReloadConfig(ModuleDirectory, this);
     }
     public void ResyncCache() {
         cacheManager.ResyncCache();
@@ -93,7 +94,7 @@ public class ModelService {
         if (!config.DisableInstantChange) {
             var player = Utilities.GetPlayerFromSteamId(steamid);
             if (Utils.isUpdatingSameTeam(player, side)) {
-                Utils.RespawnPlayer(player, config.DisableThirdPersonPreview);
+                Utils.RespawnPlayer(player, config.Inspection.Enable || modelIndex == "@random");
             }
         }
     }
@@ -108,7 +109,10 @@ public class ModelService {
         });
         if (!config.DisableInstantChange) {
             var player = Utilities.GetPlayerFromSteamId(steamid);
-            Utils.RespawnPlayer(player, config.DisableThirdPersonPreview);
+            if (Utils.isUpdatingSameTeam(player, "all")) {
+                var index = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel)?.index;
+                Utils.RespawnPlayer(player, config.Inspection.Enable || index == "@random");
+            }
         }
     }
     public void SetPlayerModel(ulong steamid, string? modelIndex, CsTeam team, bool permissionBypass) {

@@ -101,22 +101,17 @@ public class DefaultModelManager {
 
     private List<DefaultModelEntry> DefaultModels = new List<DefaultModelEntry>();
 
-    public DefaultModelManager(string ModuleDirectory) {
-        
-        ReloadConfig(ModuleDirectory);
-       
-    }
 
-    public void ReloadConfig(string ModuleDirectory) {
+    public void ReloadConfig(string ModuleDirectory, ModelService service) {
         var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
         if (File.Exists(filePath)) {
             StreamReader reader = File.OpenText(filePath);
             string content = reader.ReadToEnd();
             ConfigTemplate config = JsonConvert.DeserializeObject<ConfigTemplate>(content)!;
 
-            DefaultModels = ParseModelConfig(config.models);
+            DefaultModels = ParseModelConfig(config.models, service);
         } else {
-            Console.WriteLine("'DefaultModels.json' not found. Disabling default models feature.");
+            Console.WriteLine("[PlayerModelChanger] 'DefaultModels.json' not found. Disabling default models feature.");
         }
     }
 
@@ -133,7 +128,7 @@ public class DefaultModelManager {
         }
         return entryKey;
     }
-    private static List<DefaultModelEntry> ParseModelConfig(ConfigDefaultModelsTemplate config) {
+    private static List<DefaultModelEntry> ParseModelConfig(ConfigDefaultModelsTemplate config, ModelService service) {
         List<DefaultModelEntry> defaultModels = new List<DefaultModelEntry>();
 
         if (config.allModels != null) {
@@ -158,6 +153,13 @@ public class DefaultModelManager {
                 var key = ParseKey(model.Key);
                 defaultModels.RemoveAll(entry => entry.key.Equals(key) && entry.side == "ct");
                 defaultModels.Add(new DefaultModelEntry(key, model.Value, "ct"));
+            }
+        }
+        for (var i = 0; i < defaultModels.Count; i++) {
+            
+            if (service.GetModel(defaultModels[i].item.index) == null) {
+                Console.WriteLine($"[PlayerModelChanger] model '${defaultModels[i].item.index}' defined in DefaultModels.json does not exist. Skipped.");
+                defaultModels.RemoveAt(i);
             }
         }
         return defaultModels;

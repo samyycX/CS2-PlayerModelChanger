@@ -52,7 +52,7 @@ public partial class PlayerModelChanger {
             sides.Add("ct");
         }
         if (sides.Count == 2) {
-            sides.Append("all");
+            sides.Insert(0, "all");
         }
         if (sides.Count == 0) {
             return null;

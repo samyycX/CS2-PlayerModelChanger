@@ -10,12 +10,15 @@ using System.Drawing;
 using CounterStrikeSharp.API.Modules.Config;
 using System.Reflection;
 using System.Text.Json;
+using CounterStrikeSharp.API.Core.Translations;
+using Microsoft.Extensions.Localization;
+using System.Collections.Concurrent;
 namespace PlayerModelChanger;
 
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.7.0";
+    public override string ModuleVersion => "1.7.1";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -40,17 +43,22 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 break;
         };
         if (Storage == null) {
-            throw new Exception("Failed to initialize storage. Please check your config");
+            throw new Exception("[PlayerModelChanger] Failed to initialize storage. Please check your config");
         }
-        DefaultModelManager = new DefaultModelManager(ModuleDirectory);
+        DefaultModelManager = new DefaultModelManager();
         this.Service = new ModelService(Config, Storage, Localizer, DefaultModelManager);
+        DefaultModelManager.ReloadConfig(ModuleDirectory, Service);
         if (!Config.DisablePrecache) {
             RegisterListener<Listeners.OnServerPrecacheResources>(PrecacheResource);
         }
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnTick>(OnTick);
+        
+        Utils.InitializeLangPrefix();
+        
+        Console.WriteLine(Localizer["command.model.success"]);
 
-        Console.WriteLine($"Player Model Changer loaded {Service.GetModelCount()} model(s) successfully.");
+        Console.WriteLine($"[PlayerModelChanger] Loaded {Service.GetModelCount()} model(s) successfully.");
     }
 
     private void PrecacheResource(ResourceManifest manifest) {
@@ -66,7 +74,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         RemoveListener<Listeners.OnServerPrecacheResources>(PrecacheResource);
         RemoveListener<Listeners.OnTick>(OnTick);
         DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
-        Console.WriteLine("Player Model Changer unloaded successfully.");
+        Console.WriteLine("[PlayerModelChanger] Unloaded successfully.");
     }
 
     public void ReloadConfig() {
@@ -83,24 +91,24 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     {
         var availableStorageType = new []{"sqlite", "mysql"};
         if (!availableStorageType.Contains(config.StorageType)) {
-            throw new Exception($"Unknown storage type: {Config.StorageType}, available types: {string.Join(",", availableStorageType)}");
+            throw new Exception($"[PlayerModelChanger] Unknown storage type: {Config.StorageType}, available types: {string.Join(",", availableStorageType)}");
         }
 
         if (config.StorageType == "mysql") {
             if (config.MySQLIP == "") {
-                throw new Exception("You must fill in the MySQL_IP");
+                throw new Exception("[PlayerModelChanger] You must fill in the MySQL_IP");
             }
             if (config.MySQLPort == "") {
-                throw new Exception("You must fill in the MYSQL_Port");
+                throw new Exception("[PlayerModelChanger] You must fill in the MYSQL_Port");
             }
             if (config.MySQLUser == "") {
-                throw new Exception("You must fill in the MYSQL_User");
+                throw new Exception("[PlayerModelChanger] You must fill in the MYSQL_User");
             }
             if (config.MySQLPassword == "") {
-                throw new Exception("You must fill in the MYSQL_Password");
+                throw new Exception("[PlayerModelChanger] You must fill in the MYSQL_Password");
             }
             if (config.MySQLDatabase == "") {
-                throw new Exception("You must fill in the MySQL_Database");
+                throw new Exception("[PlayerModelChanger] You must fill in the MySQL_Database");
             }
         }
 
@@ -109,19 +117,22 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         }
 
         if (!new string[]{"chat", "centerhtml", "wasd", "interactive"}.Contains(config.MenuType.ToLower())) {
-            throw new Exception($"Unknown menu type: {config.MenuType}");
+            throw new Exception($"[PlayerModelChanger] Unknown menu type: {config.MenuType}");
         } 
         config.MenuType = config.MenuType.ToLower();
-        foreach (var entry in config.Models)
-        {
+        for (int i = 0; i < config.Models.Count; i++) {
+            var entry = config.Models.ElementAt(i);
             ModelService.InitializeModel(entry.Key, entry.Value);
+            if (config.Models.Where(m => m.Value.name == entry.Value.name).Count() > 1) {
+                throw new Exception($"[PlayerModelChanger] Found duplicated model name: {entry.Value.name}");
+            }
         }
 
         Config = config;
     }
 
     public void OnTick() {
-        ThirdPerson.UpdateCamera();
+        Inspection.UpdateCamera();
     }
 
     // from https://github.com/Challengermode/cm-cs2-defaultskins/
@@ -210,7 +221,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Could not set player model: {0}", ex);
+            Console.WriteLine("[PlayerModelChanger] Could not set player model: {0}", ex);
         }
         
         return HookResult.Continue;
