@@ -1,109 +1,131 @@
-using System.Runtime.CompilerServices;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
-using Service;
 
 namespace PlayerModelChanger;
 
 
 
-public partial class PlayerModelChanger {
+public partial class PlayerModelChanger
+{
 
     private SimpleMenuManager? simpleMenuManager;
     private WasdMenuManager? wasdMenuManager;
 
-    private ModelMenuData GenerateModelMenuData(CCSPlayerController player) {
+    private ModelMenuData GenerateModelMenuData(CCSPlayerController player)
+    {
         ModelMenuData data = new();
-        foreach(var side in new string[]{"t", "ct", "all"}) {
+        foreach (var side in new string[] { "t", "ct", "all" })
+        {
             SingleModelMenuData singleData = new SingleModelMenuData();
             var currentModel = Service.GetPlayerModel(player, side);
             List<Model> models = Service.GetAllAppliableModels(player, side);
-            singleData.title = Localizer["modelmenu.title", Localizer[$"side.{side}"], currentModel == null ? Localizer["model.none"] : currentModel.name];
-            singleData.specialModelSelection.Add(Localizer["modelmenu.unset"], "");
-            if (!Config.DisableRandomModel) {
-                singleData.specialModelSelection.Add(Localizer["modelmenu.random"], "@random");
+            singleData.Title = Localizer["modelmenu.title", Localizer[$"side.{side}"], currentModel == null ? Localizer["model.none"] : currentModel.Name];
+            singleData.SpecialModelSelections.Add(Localizer["modelmenu.unset"], "");
+            if (!Config.DisableRandomModel)
+            {
+                singleData.SpecialModelSelections.Add(Localizer["modelmenu.random"], "@random");
             }
-            singleData.specialModelSelection.Add(Localizer["modelmenu.default"], "@default");
+            singleData.SpecialModelSelections.Add(Localizer["modelmenu.default"], "@default");
 
             foreach (var model in models)
-            {   
-                if (model.hideinmenu) {
+            {
+                if (model.Hideinmenu)
+                {
                     continue;
                 }
-                singleData.modelSelection.Add(model.name, model.index);
+                singleData.ModelSelections.Add(model.Name, model.Index);
             }
 
-            data.data.Add(side, singleData);
+            data.Data.Add(side, singleData);
         }
         return data;
     }
 
-    private TeamMenuData? GenerateTeamMenuData(CCSPlayerController player) {
+    private TeamMenuData? GenerateTeamMenuData(CCSPlayerController player)
+    {
         TeamMenuData data = new();
-        data.title = Localizer["modelmenu.selectside"];
+        data.Title = Localizer["modelmenu.selectside"];
         var sides = new List<String>();
 
         var tDefault = DefaultModelManager.GetPlayerDefaultModel(player, "t");
         var ctDefault = DefaultModelManager.GetPlayerDefaultModel(player, "ct");
-        if (tDefault == null || !tDefault.force) {
+        if (tDefault == null || !tDefault.force)
+        {
             sides.Add("t");
         }
-        if (ctDefault == null || !ctDefault.force) {
+        if (ctDefault == null || !ctDefault.force)
+        {
             sides.Add("ct");
         }
-        if (sides.Count == 2) {
+        if (sides.Count == 2)
+        {
             sides.Insert(0, "all");
         }
-        if (sides.Count == 0) {
+        if (sides.Count == 0)
+        {
             return null;
         }
 
-        foreach(var side in sides) {
+        foreach (var side in sides)
+        {
             var playerModel = Service.GetPlayerModel(player, side);
 
-            string selection = playerModel != null ? $"{Localizer["side."+side]}: {playerModel.name}" :  $"{Localizer["side."+side]}";
-            data.selection.Add(selection, side);
+            string selection = playerModel != null ? $"{Localizer["side." + side]}: {playerModel.Name}" : $"{Localizer["side." + side]}";
+            data.Selections.Add(selection, side);
         };
         return data;
     }
 
-    private SimpleMenuManager GetSimpleMenuManager() {
-        if (simpleMenuManager == null) {
+    private SimpleMenuManager GetSimpleMenuManager()
+    {
+        if (simpleMenuManager == null)
+        {
             simpleMenuManager = new SimpleMenuManager(Config.MenuType, this);
         }
         return simpleMenuManager;
     }
 
-    private WasdMenuManager GetWasdMenuManager() {
-        if (wasdMenuManager == null) {
+    private WasdMenuManager GetWasdMenuManager()
+    {
+        if (wasdMenuManager == null)
+        {
             wasdMenuManager = new WasdMenuManager(this);
         }
         return wasdMenuManager;
     }
-    public void OpenSelectSideMenu(CCSPlayerController player) {
+    public void OpenSelectSideMenu(CCSPlayerController player)
+    {
         var modelData = GenerateModelMenuData(player);
         var teamData = GenerateTeamMenuData(player);
-        if (teamData == null) {
+        if (teamData == null)
+        {
             player.PrintToChat(Localizer["modelmenu.forced"]);
             return;
         }
-        if (Config.MenuType == "interactive" || Config.MenuType == "wasd") {
+        if (Config.MenuType == "interactive" || Config.MenuType == "wasd")
+        {
             GetWasdMenuManager().OpenSelectSideMenu(player, teamData, modelData);
-        } else {
+        }
+        else
+        {
             GetSimpleMenuManager().OpenSelectSideMenu(player, teamData, modelData);
         }
     }
 
-    public void OpenSelectModelMenu(CCSPlayerController player, string side, Model? model) {
+    public void OpenSelectModelMenu(CCSPlayerController player, string side, Model? model)
+    {
         var modelData = GenerateModelMenuData(player);
         var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player, side);
-        if (defaultModel != null && defaultModel.force) {
+        if (defaultModel != null && defaultModel.force)
+        {
             player.PrintToChat(Localizer["modelmenu.forced"]);
             return;
         }
-        if (Config.MenuType == "interactive" || Config.MenuType == "wasd") {
+        if (Config.MenuType == "interactive" || Config.MenuType == "wasd")
+        {
             GetWasdMenuManager().OpenSelectModelMenu(player, side, modelData);
-        } else {
+        }
+        else
+        {
             GetSimpleMenuManager().OpenSelectModelMenu(player, side, modelData);
         }
     }

@@ -1,29 +1,31 @@
 using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace PlayerModelChanger;
 
-public class Inspection {
+public class Inspection
+{
 
     private static List<CameraStatus> cameraStatuses = new List<CameraStatus>();
     const int MAX_ROTATION_TIMES = 300;
     const float DISTANCE = 70;
     const float Z_DISTANCE = 50;
 
-    enum CameraMode {
+    enum CameraMode
+    {
         THIRDPERSON, ROTATION
     }
 
-    class CameraStatus {
+    class CameraStatus
+    {
         public CameraMode Mode { get; set; }
         public Vector? Origin { get; set; }
         public CBaseProp? ModelProp { get; set; }
-        public CCSPlayerController Player { get; set; }
-        public CPhysicsPropMultiplayer CameraProp { get; set; }
+        public required CCSPlayerController Player { get; set; }
+        public required CPhysicsPropMultiplayer CameraProp { get; set; }
         public float Times { get; set; }
     }
 
@@ -51,32 +53,54 @@ public class Inspection {
         return positionInFront;
     }
 
-    public static void UpdateCamera() {
-        for (int i = 0; i < cameraStatuses.Count; i++) {
+    public static void UpdateCamera()
+    {
+        for (int i = 0; i < cameraStatuses.Count; i++)
+        {
             var cameraStatus = cameraStatuses[i];
             var player = cameraStatus.Player;
 
-            if ((player.Buttons & PlayerButtons.Jump) != 0) {
+            if (player == null
+                || !player.IsValid
+                || player.PlayerPawn == null
+                || !player.PlayerPawn.IsValid
+                )
+            {
+                cameraStatuses.RemoveAt(i);
+                cameraStatus.CameraProp.Remove();
+                if (cameraStatus.ModelProp != null)
+                {
+                    cameraStatus.ModelProp.Remove();
+                }
+                continue;
+            }
+
+            if ((player.Buttons & PlayerButtons.Jump) != 0)
+            {
                 RemoveCamera(player);
                 continue;
             }
 
             var playerPawn = player.PlayerPawn.Value!;
-            
-            if (cameraStatus.Mode == CameraMode.ROTATION) {
-                var origin = cameraStatus.Origin;
+
+            if (cameraStatus.Mode == CameraMode.ROTATION)
+            {
+                var origin = cameraStatus.Origin!;
                 float rotationAngle = cameraStatus.Times / MAX_ROTATION_TIMES * 2 * float.Pi - float.Pi; // - float.PI = from back
                 float posX = origin.X + float.Cos(rotationAngle) * DISTANCE;
                 float posY = origin.Y + float.Sin(rotationAngle) * DISTANCE;
-                
+
                 var cameraOrigin = new Vector(posX, posY, origin.Z + Z_DISTANCE);
 
                 var cameraAngle = new QAngle(0, 360 * (cameraStatus.Times / MAX_ROTATION_TIMES), 0);
                 cameraStatus.CameraProp.Teleport(cameraOrigin, cameraAngle, Vector.Zero);
-            } else if (cameraStatus.Mode == CameraMode.THIRDPERSON) {
+            }
+            else if (cameraStatus.Mode == CameraMode.THIRDPERSON)
+            {
                 cameraStatus.CameraProp.Teleport(CalculatePositionInFront(player, -110, 90), playerPawn.V_angle, Vector.Zero);
             }
-            if (cameraStatus.Times >= MAX_ROTATION_TIMES) {
+            if (cameraStatus.Times >= MAX_ROTATION_TIMES)
+            {
                 RemoveCamera(player);
             }
             cameraStatus.Times += 1;
@@ -85,11 +109,24 @@ public class Inspection {
 
     }
 
-    public static void RemoveCamera(CCSPlayerController player) {
-         for (int i = 0; i < cameraStatuses.Count; i++) {
+    public static void RemoveCamera(CCSPlayerController player)
+    {
+        for (int i = 0; i < cameraStatuses.Count; i++)
+        {
             var cameraStatus = cameraStatuses[i];
             var oldPlayer = cameraStatus.Player;
-            if (oldPlayer.SteamID != player.SteamID) {
+            if (oldPlayer == null || !oldPlayer.IsValid || oldPlayer.PlayerPawn == null || !oldPlayer.PlayerPawn.IsValid)
+            {
+                cameraStatus.CameraProp.Remove();
+                cameraStatuses.RemoveAt(i);
+                if (cameraStatus.Mode == CameraMode.ROTATION)
+                {
+                    cameraStatus.ModelProp!.Remove();
+                }
+                continue;
+            }
+            if (oldPlayer.SteamID != player.SteamID)
+            {
                 continue;
             }
             var oldPlayerPawn = oldPlayer.PlayerPawn.Value!;
@@ -97,15 +134,17 @@ public class Inspection {
             Utilities.SetStateChanged(oldPlayerPawn, "CBasePlayerPawn", "m_pCameraServices");
             cameraStatus.CameraProp.Remove();
             cameraStatuses.RemoveAt(i);
-            if (cameraStatus.Mode == CameraMode.ROTATION) {
-                cameraStatus.ModelProp.Remove();
+            if (cameraStatus.Mode == CameraMode.ROTATION)
+            {
+                cameraStatus.ModelProp!.Remove();
                 oldPlayerPawn.Teleport(cameraStatus.Origin);
             }
             break;
         }
     }
 
-    public static void InspectModelForPlayer(CCSPlayerController player, string model) {
+    public static void InspectModelForPlayer(CCSPlayerController player, string model)
+    {
 
         RemoveCamera(player);
 
@@ -119,15 +158,17 @@ public class Inspection {
         _cameraProp.Collision.SolidFlags = 12;
         _cameraProp.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
 
-        _cameraProp.Render = Color.FromArgb(0,255,255,255);
+        _cameraProp.Render = Color.FromArgb(0, 255, 255, 255);
         var playerPawn = player.PlayerPawn.Value!;
         playerPawn.CameraServices!.ViewEntity.Raw = _cameraProp.EntityHandle.Raw;
         Utilities.SetStateChanged(playerPawn, "CBasePlayerPawn", "m_pCameraServices");
 
         CameraStatus? cameraStatus = null;
 
-        if (PlayerModelChanger.INSTANCE!.Config.Inspection.Mode == "thirdperson") {
-            cameraStatus = new CameraStatus {
+        if (PlayerModelChanger.getInstance().Config.Inspection.Mode == "thirdperson")
+        {
+            cameraStatus = new CameraStatus
+            {
                 Mode = CameraMode.THIRDPERSON,
                 Origin = playerPawn.AbsOrigin,
                 Player = player,
@@ -135,20 +176,23 @@ public class Inspection {
                 Times = 0
             };
 
-        } else if (PlayerModelChanger.INSTANCE!.Config.Inspection.Mode == "rotation") {
+        }
+        else if (PlayerModelChanger.getInstance().Config.Inspection.Mode == "rotation")
+        {
             var originLoc = playerPawn.AbsOrigin!;
             var originLocClone = new Vector(originLoc.X, originLoc.Y, originLoc.Z);
-            
+
             playerPawn.Teleport(new Vector(0, 0, -500));
 
-            CPhysicsPropOverride? prop = Utilities.CreateEntityByName<CPhysicsPropOverride>("prop_physics_override");
+            CPhysicsPropOverride prop = Utilities.CreateEntityByName<CPhysicsPropOverride>("prop_physics_override")!;
             prop.SetModel(model);
             prop.DispatchSpawn();
             // not sure what the fuck is this but it can resolve model have weird pose
-            var angle = (180 / float.Pi) * float.Atan2(originLocClone.Y, originLocClone.X) + 180; 
+            var angle = (180 / float.Pi) * float.Atan2(originLocClone.Y, originLocClone.X) + 180;
             prop.Teleport(originLocClone, new QAngle(0, angle, 0));
 
-            cameraStatus = new CameraStatus {
+            cameraStatus = new CameraStatus
+            {
                 Mode = CameraMode.ROTATION,
                 ModelProp = prop,
                 Origin = originLocClone,

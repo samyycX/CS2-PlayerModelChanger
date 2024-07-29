@@ -28,6 +28,13 @@
   <ItemGroup>
     <LangFiles Include="lang/*.*" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(NuGetPackageRoot)\sqlitepclraw.lib.e_sqlite3\2.1.6\runtimes\**\*.*">
+      <Link>runtimes\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <TargetPath>runtimes\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="Build">
 		<Copy SourceFiles="@(LangFiles)" DestinationFolder="$(OutputPath)\lang" />
@@ -35,6 +42,10 @@
 		<Copy SourceFiles="$(NuGetPackageRoot)\microsoft.data.sqlite.core\8.0.7\lib\net8.0\Microsoft.Data.Sqlite.dll" DestinationFolder="$(OutputPath)" />
 		<Copy SourceFiles="$(NuGetPackageRoot)\mysqlconnector\2.3.7\lib\net8.0\MySqlConnector.dll" DestinationFolder="$(OutputPath)" />
 		<Copy SourceFiles="$(NuGetPackageRoot)\newtonsoft.json\13.0.3\lib\net6.0\Newtonsoft.Json.dll" DestinationFolder="$(OutputPath)" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\sqlitepclraw.bundle_e_sqlite3\2.1.6\lib\netstandard2.0\SQLitePCLRaw.batteries_v2.dll" DestinationFolder="$(OutputPath)" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\sqlitepclraw.core\2.1.6\lib\netstandard2.0\SQLitePCLRaw.core.dll" DestinationFolder="$(OutputPath)" />
+		<Copy SourceFiles="@(SqliteLib)" DestinationFolder="$(OutputPath)\runtimes" />
+		<Copy SourceFiles="$(NuGetPackageRoot)\sqlitepclraw.provider.e_sqlite3\2.1.6\lib\netstandard2.0\SQLitePCLRaw.provider.e_sqlite3.dll" DestinationFolder="$(OutputPath)" />
     <Delete Files="$(OutputPath)\PlayerModelChanger.pdb" />
     <Delete Files="$(OutputPath)\WASDSharedAPI.dll" />
 	</Target>

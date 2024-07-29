@@ -1,16 +1,19 @@
 namespace PlayerModelChanger;
 
-public class TeamMenuData {
-    public string title { get;set;}
-    public Dictionary<string, string> selection { get; set; } = new();
+public class TeamMenuData
+{
+    public string Title { get; set; } = "";
+    public Dictionary<string, string> Selections { get; set; } = new();
 }
 
-public class ModelMenuData {
-    public Dictionary<string, SingleModelMenuData> data { get; set; } = new();
+public class ModelMenuData
+{
+    public Dictionary<string, SingleModelMenuData> Data { get; set; } = new();
 }
 
-public class SingleModelMenuData {
-    public string title { get; set; }
-    public Dictionary<string, string> specialModelSelection { get; set; } = new();
-    public Dictionary<string, string> modelSelection { get; set; } = new();
+public class SingleModelMenuData
+{
+    public string Title { get; set; } = "";
+    public Dictionary<string, string> SpecialModelSelections { get; set; } = new();
+    public Dictionary<string, string> ModelSelections { get; set; } = new();
 }

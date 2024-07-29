@@ -1,20 +1,20 @@
-using System.Drawing;
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
-using Service;
 
 namespace PlayerModelChanger;
 
-public partial class PlayerModelChanger {
+public partial class PlayerModelChanger
+{
 
     [ConsoleCommand("css_model", "Show your model.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
-    public void ChangeModelCommand(CCSPlayerController? player, CommandInfo commandInfo) {
+    public void ChangeModelCommand(CCSPlayerController player, CommandInfo commandInfo)
+    {
 
-        if (commandInfo.ArgCount == 1) {
+        if (commandInfo.ArgCount == 1)
+        {
             var TModel = Service.GetPlayerModelName(player, CsTeam.Terrorist);
             var CTModel = Service.GetPlayerModelName(player, CsTeam.CounterTerrorist);
             commandInfo.ReplyToCommand(Localizer["player.currentmodel", Localizer["side.t"], TModel]);
@@ -24,53 +24,64 @@ public partial class PlayerModelChanger {
             return;
         }
 
-        if (Config.DisablePlayerSelection) {
+        if (Config.DisablePlayerSelection)
+        {
             return;
         }
 
         var modelIndex = commandInfo.GetArg(1);
 
-        if (modelIndex != "@random" && !Service.ExistModel(modelIndex)) {
+        if (modelIndex != "@random" && !Service.ExistModel(modelIndex))
+        {
             var model = Service.FindModel(modelIndex);
-            if (model == null) {
+            if (model == null)
+            {
                 commandInfo.ReplyToCommand(Localizer["command.model.notfound", modelIndex]);
                 return;
-            } else {
-                modelIndex = model.index;
+            }
+            else
+            {
+                modelIndex = model.Index;
             }
         }
 
         var side = "all";
-        if (commandInfo.ArgCount == 3) {
+        if (commandInfo.ArgCount == 3)
+        {
             side = commandInfo.GetArg(2).ToLower();
-            if (side.ToLower() != "t" && side.ToLower() != "ct") {
+            if (side.ToLower() != "t" && side.ToLower() != "ct")
+            {
                 commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
                 return;
             }
         }
         var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player!, side);
-        if (defaultModel != null && defaultModel.force) {
+        if (defaultModel != null && defaultModel.force)
+        {
             commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
             return;
         }
-        
+
         Service.SetPlayerModelWithCheck(player, modelIndex, side);
     }
 
     [ConsoleCommand("css_md", "Select models.")]
     [ConsoleCommand("css_models", "Select models.")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
-    public void GetAllModelsCommand(CCSPlayerController? player, CommandInfo commandInfo) {
-        
-        if (Config.DisablePlayerSelection) {
+    public void GetAllModelsCommand(CCSPlayerController player, CommandInfo commandInfo)
+    {
+
+        if (Config.DisablePlayerSelection)
+        {
             return;
         }
-        if (commandInfo.ArgCount == 1) {
-          OpenSelectSideMenu(player);
-          return;
+        if (commandInfo.ArgCount == 1)
+        {
+            OpenSelectSideMenu(player);
+            return;
         }
         string side = commandInfo.GetArg(1);
         OpenSelectModelMenu(player, side, Service.GetPlayerModel(player, side));
-       
+
     }
 }
