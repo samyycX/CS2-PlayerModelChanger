@@ -1,25 +1,26 @@
 using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Core;
-using Service;
+namespace PlayerModelChanger;
 
-namespace Config;
-
-public class BotsConfig {
-  public string CT { get; set; } = "";
-  public string T { get; set; } = "";
+public class BotsConfig
+{
+    public string CT { get; set; } = "";
+    public string T { get; set; } = "";
 
 }
 
-public class InspectionConfig {
-  public bool Enable { get; set; } = true;
-  public string Mode { get; set; } = "rotation";
+public class InspectionConfig
+{
+    public bool Enable { get; set; } = true;
+    public string Mode { get; set; } = "rotation";
 }
 
-public class ModelConfig : BasePluginConfig {
+public class ModelConfig : BasePluginConfig
+{
     [JsonPropertyName("Models")] public Dictionary<string, Model> Models { get; set; } = new Dictionary<string, Model>();
-    
+
     [JsonPropertyName("MenuType")] public string MenuType { get; set; } = "centerhtml"; // chat or centerhtml
-    
+
     [JsonPropertyName("StorageType")] public string StorageType { get; set; } = "sqlite";
 
     [JsonPropertyName("MySQL_IP")] public string MySQLIP { get; set; } = "";

@@ -1,19 +1,19 @@
 using Dapper;
 using MySqlConnector;
-using Service;
-using Storage;
 
-namespace Storage;
-public class MySQLStorage : IStorage {
+namespace PlayerModelChanger;
+public class MySQLStorage : IStorage
+{
 
-    private MySqlConnection conn;
+    private MySqlConnection _Conn;
 
     private string table;
-    public MySQLStorage(string ip, string port, string user, string password, string database, string table) {
+    public MySQLStorage(string ip, string port, string user, string password, string database, string table)
+    {
         string connectStr = $"server={ip};port={port};user={user};password={password};database={database};Pooling=true;MinimumPoolSize=0;MaximumPoolsize=640;ConnectionIdleTimeout=30;AllowUserVariables=true";
         this.table = table;
-        conn = new MySqlConnection(connectStr);
-        conn.Execute($"""
+        _Conn = new MySqlConnection(connectStr);
+        _Conn.Execute($"""
             CREATE TABLE IF NOT EXISTS `{table}` (
                 `steamid` BIGINT UNSIGNED NOT NULL PRIMARY KEY,
                 `t_model` TEXT,
@@ -21,7 +21,7 @@ public class MySQLStorage : IStorage {
             );
         """);
         // UPDATE #1
-        conn.Execute($"""
+        _Conn.Execute($"""
             SET @dbname = DATABASE();
             SET @tablename = "{table}";
             SET @columnname = "t_permission_bypass";
@@ -57,25 +57,30 @@ public class MySQLStorage : IStorage {
             
         """);
     }
-    public List<ModelCache>? GetAllPlayerModel() {
-        try {   
-            return conn.Query<ModelCache>($"select * from {table};").ToList();
-        } catch (InvalidOperationException e) {
-            
+    public List<ModelCache>? GetAllPlayerModel()
+    {
+        try
+        {
+            return _Conn.Query<ModelCache>($"select * from {table};").ToList();
+        }
+        catch (InvalidOperationException)
+        {
+
         }
         return null;
     }
 
     public dynamic? GetPlayerModel(ulong SteamID, string modelfield)
     {
-        var result = conn.QueryFirstOrDefault($"SELECT `{modelfield}` FROM `{table}` WHERE `steamid` = {SteamID};");
+        var result = _Conn.QueryFirstOrDefault($"SELECT `{modelfield}` FROM `{table}` WHERE `steamid` = {SteamID};");
         return result;
     }
 
     public string? GetPlayerTModel(ulong SteamID)
     {
         var result = GetPlayerModel(SteamID, "t_model");
-        if (result == null) {
+        if (result == null)
+        {
             return null;
         }
         return result!.t_model;
@@ -83,7 +88,8 @@ public class MySQLStorage : IStorage {
     public string? GetPlayerCTModel(ulong SteamID)
     {
         var result = GetPlayerModel(SteamID, "ct_model");
-        if (result == null) {
+        if (result == null)
+        {
             return null;
         }
         return result!.ct_model;
@@ -91,36 +97,44 @@ public class MySQLStorage : IStorage {
 
     public async Task<int> SetPlayerModel(ulong SteamID, string modelName, string modelfield, bool permissionBypass, string side)
     {
-        
+
         var sql = $"""
             INSERT INTO {table} (`steamid`, `{modelfield}`, `{side}_permission_bypass`) VALUES ({SteamID}, @model, @permissionBypass) ON DUPLICATE key UPDATE `{modelfield}` = @model, `{side}_permission_bypass`=@permissionBypass;
             """;
-        return await conn.ExecuteAsync(sql,
-            new {
-                model = modelName, permissionBypass
+        return await _Conn.ExecuteAsync(sql,
+            new
+            {
+                model = modelName,
+                permissionBypass
             }
         );
-       
+
     }
-    public async Task<int> SetPlayerTModel(ulong SteamID, string modelName, bool permissionBypass) {
+    public async Task<int> SetPlayerTModel(ulong SteamID, string modelName, bool permissionBypass)
+    {
         return await SetPlayerModel(SteamID, modelName, "t_model", permissionBypass, "t");
     }
-    public async Task<int> SetPlayerCTModel(ulong SteamID, string modelName, bool permissionBypass) {
+    public async Task<int> SetPlayerCTModel(ulong SteamID, string modelName, bool permissionBypass)
+    {
         return await SetPlayerModel(SteamID, modelName, "ct_model", permissionBypass, "ct");
     }
-    public async Task<int> SetAllTModel(string tmodel, bool permissionBypass) {
-        return await conn.ExecuteAsync(@$"
+    public async Task<int> SetAllTModel(string tmodel, bool permissionBypass)
+    {
+        return await _Conn.ExecuteAsync(@$"
                 UPDATE `{table}` SET `t_model` = @tmodel, `t_permission_bypass`=@permissionBypass",
-                new {
+                new
+                {
                     tmodel,
                     permissionBypass
                 }
         );
     }
-    public async Task<int> SetAllCTModel(string ctmodel, bool permissionBypass) {
-        return await conn.ExecuteAsync(@$"
+    public async Task<int> SetAllCTModel(string ctmodel, bool permissionBypass)
+    {
+        return await _Conn.ExecuteAsync(@$"
             UPDATE `{table}` SET `ct_model` = @ctmodel, `ct_permission_bypass`=@permissionBypass",
-            new {
+            new
+            {
                 ctmodel,
                 permissionBypass
             }

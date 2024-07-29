@@ -1,28 +1,34 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
-namespace Service;
+namespace PlayerModelChanger;
 
-abstract class EntryKey {
-    public string content {get;set;}
+abstract class EntryKey
+{
+    public string Content { get; set; }
 
-    public EntryKey(string content) {
-        this.content = content;
+    public EntryKey(string content)
+    {
+        this.Content = content;
     }
 
     public bool Equals(EntryKey? key)
     {
-        if (!(key is EntryKey)) {
+        if (!(key is EntryKey))
+        {
             return false;
         }
-        if (key == null) {
+        if (key == null)
+        {
             return false;
         }
-        if (this is AllKey) {
+        if (this is AllKey)
+        {
             return true;
         }
-        return content.Equals(key.content);
+        return Content.Equals(key.Content);
     }
 
     public override bool Equals(object? obj)
@@ -30,46 +36,51 @@ abstract class EntryKey {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((EntryKey) obj);
+        return Equals((EntryKey)obj);
     }
     public override int GetHashCode()
     {
-        return content.GetHashCode();
+        return Content.GetHashCode();
     }
 
     public abstract bool Fits(CCSPlayerController player);
 }
 
-class SteamIDKey : EntryKey {
-    public SteamIDKey(string content) : base(content) {}
+class SteamIDKey : EntryKey
+{
+    public SteamIDKey(string content) : base(content) { }
     public override bool Fits(CCSPlayerController player)
     {
-        return this.content == player.AuthorizedSteamID?.SteamId64.ToString();    
+        return this.Content == player.AuthorizedSteamID?.SteamId64.ToString();
     }
 }
-class PermissionFlagKey : EntryKey {
-    public PermissionFlagKey(string content) : base(content) {}
+class PermissionFlagKey : EntryKey
+{
+    public PermissionFlagKey(string content) : base(content) { }
     public override bool Fits(CCSPlayerController player)
     {
-        return AdminManager.PlayerHasPermissions(player, new string[]{content});   
+        return AdminManager.PlayerHasPermissions(player, new string[] { Content });
     }
 }
-class PermissionGroupKey : EntryKey {
-    public PermissionGroupKey(string content) : base(content) {}
+class PermissionGroupKey : EntryKey
+{
+    public PermissionGroupKey(string content) : base(content) { }
     public override bool Fits(CCSPlayerController player)
     {
-        return AdminManager.PlayerInGroup(player, new string[]{content});   
+        return AdminManager.PlayerInGroup(player, new string[] { Content });
     }
 }
-class AllKey : EntryKey {
-    public AllKey(): base("") {}
+class AllKey : EntryKey
+{
+    public AllKey() : base("") { }
     public override bool Fits(CCSPlayerController player)
     {
         return true;
     }
 }
 
-class DefaultModelEntry {
+class DefaultModelEntry
+{
     public EntryKey key;
     public DefaultModel item; // model index
     public string side;
@@ -82,56 +93,74 @@ class DefaultModelEntry {
     }
 }
 
-public class DefaultModel {
+public class DefaultModel
+{
     public required string index;
     public bool force;
 }
 
-class ConfigDefaultModelsTemplate {
-    [JsonProperty("all")] public Dictionary<string, DefaultModel>? allModels;
-    [JsonProperty("t")] public Dictionary<string, DefaultModel>? tModels;
-    [JsonProperty("ct")] public Dictionary<string, DefaultModel>? ctModels;
-    
+class ConfigDefaultModelsTemplate
+{
+    [JsonProperty("all")] public Dictionary<string, DefaultModel>? allModels = null;
+    [JsonProperty("t")] public Dictionary<string, DefaultModel>? tModels = null;
+    [JsonProperty("ct")] public Dictionary<string, DefaultModel>? ctModels = null;
+
 }
-class ConfigTemplate {
-    [JsonProperty("DefaultModels")] public required ConfigDefaultModelsTemplate models;
+class ConfigTemplate
+{
+    [JsonProperty("DefaultModels")] public required ConfigDefaultModelsTemplate models { get; set; }
 }
 
-public class DefaultModelManager {
+public class DefaultModelManager
+{
 
     private List<DefaultModelEntry> DefaultModels = new List<DefaultModelEntry>();
 
 
-    public void ReloadConfig(string ModuleDirectory, ModelService service) {
+    public void ReloadConfig(string ModuleDirectory, ModelService service)
+    {
         var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
-        if (File.Exists(filePath)) {
+        if (File.Exists(filePath))
+        {
             StreamReader reader = File.OpenText(filePath);
             string content = reader.ReadToEnd();
             ConfigTemplate config = JsonConvert.DeserializeObject<ConfigTemplate>(content)!;
 
             DefaultModels = ParseModelConfig(config.models, service);
-        } else {
-            Console.WriteLine("[PlayerModelChanger] 'DefaultModels.json' not found. Disabling default models feature.");
+        }
+        else
+        {
+            PlayerModelChanger.getInstance().Logger.LogInformation("'DefaultModels.json' not found. Disabling default models feature.");
         }
     }
 
-    private static EntryKey ParseKey(string key) {
+    private static EntryKey ParseKey(string key)
+    {
         EntryKey entryKey;
-        if (key == "*") {
+        if (key == "*")
+        {
             entryKey = new AllKey();
-        } else if (key.StartsWith("@")) {
+        }
+        else if (key.StartsWith("@"))
+        {
             entryKey = new PermissionFlagKey(key);
-        } else if (key.StartsWith("#")) {
+        }
+        else if (key.StartsWith("#"))
+        {
             entryKey = new PermissionGroupKey(key);
-        } else {
+        }
+        else
+        {
             entryKey = new SteamIDKey(key);
         }
         return entryKey;
     }
-    private static List<DefaultModelEntry> ParseModelConfig(ConfigDefaultModelsTemplate config, ModelService service) {
+    private static List<DefaultModelEntry> ParseModelConfig(ConfigDefaultModelsTemplate config, ModelService service)
+    {
         List<DefaultModelEntry> defaultModels = new List<DefaultModelEntry>();
 
-        if (config.allModels != null) {
+        if (config.allModels != null)
+        {
             foreach (var model in config.allModels)
             {
                 var key = ParseKey(model.Key);
@@ -139,7 +168,8 @@ public class DefaultModelManager {
                 defaultModels.Add(new DefaultModelEntry(key, model.Value, "t"));
             }
         }
-        if (config.tModels != null) {
+        if (config.tModels != null)
+        {
             foreach (var model in config.tModels)
             {
                 var key = ParseKey(model.Key);
@@ -147,7 +177,8 @@ public class DefaultModelManager {
                 defaultModels.Add(new DefaultModelEntry(key, model.Value, "t"));
             }
         }
-        if (config.ctModels != null) {
+        if (config.ctModels != null)
+        {
             foreach (var model in config.ctModels)
             {
                 var key = ParseKey(model.Key);
@@ -155,10 +186,12 @@ public class DefaultModelManager {
                 defaultModels.Add(new DefaultModelEntry(key, model.Value, "ct"));
             }
         }
-        for (var i = 0; i < defaultModels.Count; i++) {
-            
-            if (service.GetModel(defaultModels[i].item.index) == null) {
-                Console.WriteLine($"[PlayerModelChanger] model '${defaultModels[i].item.index}' defined in DefaultModels.json does not exist. Skipped.");
+        for (var i = 0; i < defaultModels.Count; i++)
+        {
+
+            if (service.GetModel(defaultModels[i].item.index) == null)
+            {
+                PlayerModelChanger.getInstance().Logger.LogInformation($"model '${defaultModels[i].item.index}' defined in DefaultModels.json does not exist. Skipped.");
                 defaultModels.RemoveAt(i);
             }
         }
@@ -170,7 +203,8 @@ public class DefaultModelManager {
     // stage 2 : search permission group
     // stage 3 : search all
 
-    private DefaultModelEntry? GetPlayerDefaultModelWithPriority(List<DefaultModelEntry> entries) {
+    private DefaultModelEntry? GetPlayerDefaultModelWithPriority(List<DefaultModelEntry> entries)
+    {
         var result = entries.Find(entry => entry.key is SteamIDKey);
         if (result != null) return result;
         result = entries.Find(entry => entry.key is PermissionFlagKey);
@@ -180,16 +214,20 @@ public class DefaultModelManager {
         result = entries.Find(entry => entry.key is AllKey);
         return result;
     }
-    public DefaultModel? GetPlayerDefaultModel(CCSPlayerController player, string side) {;
+    public DefaultModel? GetPlayerDefaultModel(CCSPlayerController player, string side)
+    {
         var filter1 = DefaultModels.Where(entry => entry.side == side && entry.key.Fits(player)).ToList();
-        if (filter1 == null) {
+        if (filter1 == null)
+        {
             return null;
         }
         var result = GetPlayerDefaultModelWithPriority(filter1);
-        if (result == null) {
+        if (result == null)
+        {
             return null;
         }
-        if (result.item == null || result.item.index == "") {
+        if (result.item == null || result.item.index == "")
+        {
             return null;
         }
         return result.item;

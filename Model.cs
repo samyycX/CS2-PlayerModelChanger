@@ -1,15 +1,13 @@
-namespace Service;
-
-public class Model {
-    public string index { get; set; }
-    public string name { get; set; }
-
-    public required string path { get; set; }
-    
-    public string[] permissions { get; set; } = new string[0];
-    public string[] permissionsOr { get; set; } = new string[0];
-    public string side { get; set; } = "all";
-    public bool disableleg { get; set; }
-
-    public bool hideinmenu { get; set; }
+namespace PlayerModelChanger;
+using System.Text.Json.Serialization;
+public class Model
+{
+    [JsonPropertyName("index")] public string Index { get; set; } = "";
+    [JsonPropertyName("name")] public string Name { get; set; } = "";
+    [JsonPropertyName("path")] public required string Path { get; set; }
+    [JsonPropertyName("permissions")] public string[] Permissions { get; set; } = new string[0];
+    [JsonPropertyName("permissionsOr")] public string[] PermissionsOr { get; set; } = new string[0];
+    [JsonPropertyName("side")] public string Side { get; set; } = "all";
+    [JsonPropertyName("disableleg")] public bool Disableleg { get; set; }
+    [JsonPropertyName("hideinmenu")] public bool Hideinmenu { get; set; }
 }
