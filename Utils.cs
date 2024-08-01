@@ -115,7 +115,21 @@ public class Utils
         return true;
     }
 
-    public static bool isUpdatingSameTeam(CCSPlayerController player, string side)
+    public static bool CanPlayerSetModelInstantly(CCSPlayerController? player, string side)
+    {
+        if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
+        {
+            return false;
+        }
+        if (player.PlayerPawn.Value.LifeState != ((byte)LifeState_t.LIFE_ALIVE))
+        {
+            return false;
+        }
+        return IsUpdatingSameTeam(player, side);
+
+    }
+
+    private static bool IsUpdatingSameTeam(CCSPlayerController player, string side)
     {
         if (player.Team == CsTeam.None || player.Team == CsTeam.Spectator)
         {
@@ -131,6 +145,10 @@ public class Utils
 
     public static void RespawnPlayer(CCSPlayerController player, bool enableThirdPersonPreview)
     {
+        if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid)
+        {
+            return;
+        }
         Server.NextFrame(() =>
         {
             var playerPawn = player.PlayerPawn.Value!;
