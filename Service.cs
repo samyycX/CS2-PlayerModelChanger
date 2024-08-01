@@ -105,7 +105,7 @@ public class ModelService
         {
             var player = Utilities.GetPlayerFromSteamId(steamid);
             if (player == null) { return; }
-            if (Utils.isUpdatingSameTeam(player, side))
+            if (Utils.CanPlayerSetModelInstantly(player, side))
             {
                 Utils.RespawnPlayer(player, _Config.Inspection.Enable || modelIndex == "@random");
             }
@@ -126,7 +126,7 @@ public class ModelService
         {
             var player = Utilities.GetPlayerFromSteamId(steamid);
             if (player == null) { return; }
-            if (Utils.isUpdatingSameTeam(player, "all"))
+            if (Utils.CanPlayerSetModelInstantly(player, "all"))
             {
                 var index = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel)?.Index;
                 Utils.RespawnPlayer(player, _Config.Inspection.Enable || index == "@random");
@@ -270,7 +270,7 @@ public class ModelService
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, side, false),
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, ctDefault == null ? "" : ctDefault.index, side, false)
             );
-            if (_Config.DisableInstantChange || !Utils.isUpdatingSameTeam(player, side))
+            if (_Config.DisableInstantChange || !Utils.CanPlayerSetModelInstantly(player, side))
             {
                 player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side]]);
             }
@@ -303,7 +303,7 @@ public class ModelService
         var steamid = player!.AuthorizedSteamID!.SteamId64;
         SetPlayerModel(steamid, modelIndex, side, false);
         _ModelChangeCooldown[steamid] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        if (_Config.DisableInstantChange || !Utils.isUpdatingSameTeam(player, side))
+        if (_Config.DisableInstantChange || !Utils.CanPlayerSetModelInstantly(player, side))
         {
             player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side]]);
         }
