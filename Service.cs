@@ -107,7 +107,7 @@ public class ModelService
             if (player == null) { return; }
             if (Utils.CanPlayerSetModelInstantly(player, side))
             {
-                Utils.RespawnPlayer(player, _Config.Inspection.Enable || modelIndex == "@random");
+                Utils.RespawnPlayer(player, _Config.Inspection.Enable && modelIndex != "@random");
             }
         }
     }
@@ -129,7 +129,7 @@ public class ModelService
             if (Utils.CanPlayerSetModelInstantly(player, "all"))
             {
                 var index = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel)?.Index;
-                Utils.RespawnPlayer(player, _Config.Inspection.Enable || index == "@random");
+                Utils.RespawnPlayer(player, _Config.Inspection.Enable && index != "@random");
             }
         }
     }

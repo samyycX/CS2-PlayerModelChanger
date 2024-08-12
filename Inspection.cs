@@ -67,7 +67,10 @@ public class Inspection
                 )
             {
                 cameraStatuses.RemoveAt(i);
-                cameraStatus.CameraProp.Remove();
+                if (cameraStatus.CameraProp.IsValid)
+                {
+                    cameraStatus.CameraProp.Remove();
+                }
                 if (cameraStatus.ModelProp != null)
                 {
                     cameraStatus.ModelProp.Remove();
@@ -83,6 +86,11 @@ public class Inspection
 
             var playerPawn = player.PlayerPawn.Value!;
 
+            if (!cameraStatus.CameraProp.IsValid)
+            {
+                RemoveCamera(player);
+                continue;
+            }
             if (cameraStatus.Mode == CameraMode.ROTATION)
             {
                 var origin = cameraStatus.Origin!;
@@ -117,7 +125,10 @@ public class Inspection
             var oldPlayer = cameraStatus.Player;
             if (oldPlayer == null || !oldPlayer.IsValid || oldPlayer.PlayerPawn == null || !oldPlayer.PlayerPawn.IsValid)
             {
-                cameraStatus.CameraProp.Remove();
+                if (cameraStatus.CameraProp != null && cameraStatus.CameraProp.IsValid)
+                {
+                    cameraStatus.CameraProp.Remove();
+                }
                 cameraStatuses.RemoveAt(i);
                 if (cameraStatus.Mode == CameraMode.ROTATION)
                 {
@@ -132,7 +143,10 @@ public class Inspection
             var oldPlayerPawn = oldPlayer.PlayerPawn.Value!;
             oldPlayerPawn.CameraServices!.ViewEntity.Raw = uint.MaxValue;
             Utilities.SetStateChanged(oldPlayerPawn, "CBasePlayerPawn", "m_pCameraServices");
-            cameraStatus.CameraProp.Remove();
+            if (cameraStatus.CameraProp != null && cameraStatus.CameraProp.IsValid)
+            {
+                cameraStatus.CameraProp.Remove();
+            }
             cameraStatuses.RemoveAt(i);
             if (cameraStatus.Mode == CameraMode.ROTATION)
             {
