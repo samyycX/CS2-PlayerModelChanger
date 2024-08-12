@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v8.0": {
       "PlayerModelChanger/1.0.0": {
         "dependencies": {
-          "CounterStrikeSharp.API": "1.0.246",
+          "CounterStrikeSharp.API": "1.0.255",
           "Dapper": "2.1.44",
           "Microsoft.Data.Sqlite": "8.0.7",
           "MySqlConnector": "2.3.7",
@@ -19,7 +19,7 @@
           "PlayerModelChanger.dll": {}
         }
       },
-      "CounterStrikeSharp.API/1.0.246": {
+      "CounterStrikeSharp.API/1.0.255": {
         "dependencies": {
           "McMaster.NETCore.Plugins": "1.4.0",
           "Microsoft.CSharp": "4.7.0",
@@ -498,12 +498,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "CounterStrikeSharp.API/1.0.246": {
+    "CounterStrikeSharp.API/1.0.255": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-yBQssKbCUeI8rfw1A28rsHziv1LQCWlsgjqDQgsQ5bIK319ijT0ER/Y8pK5ouTySjEYTz5HXAvfe8oLeZlxIlQ==",
-      "path": "counterstrikesharp.api/1.0.246",
-      "hashPath": "counterstrikesharp.api.1.0.246.nupkg.sha512"
+      "sha512": "sha512-r+UI2ei13YB+aulJNT05w5gcLFViBVJ50GVHf3zWWJ88w+pzgijjU/EoHIa5oEsKDK0zsGlLZ1hGsIt0gnf0CQ==",
+      "path": "counterstrikesharp.api/1.0.255",
+      "hashPath": "counterstrikesharp.api.1.0.255.nupkg.sha512"
     },
     "Dapper/2.1.44": {
       "type": "package",
