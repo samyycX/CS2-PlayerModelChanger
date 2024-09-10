@@ -2,6 +2,9 @@
 A lightweighted counterstrikesharp plugin to change player model.
 
 If you like this plugin, please give a star :)
+
+**[A video tutorial about model can be found here](https://github.com/samyycX/CS2-PlayerModelChanger/issues/31)** (thanks to [@KEDI103](https://github.com/KEDI103))
+
 ### This plugin can cause a GSLT ban, please use at your own risk.
 [中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
 - **[Before you use](#before-you-use)**
