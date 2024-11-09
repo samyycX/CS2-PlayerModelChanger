@@ -10,7 +10,7 @@
 > [!CAUTION] 
 > This plugin can cause a GSLT ban, please use at your own risk.
 
-<div><video controls src="https://raw.githubusercontent.com/samyycX/CS2-PlayerModelChanger/refs/heads/master/preview.mp4" muted="true"></video></div>
+<div><video controls src="https://github.com/user-attachments/assets/5b4c34e7-69ea-4b13-ba16-7a811d2c2e42" muted="true"></video></div>
 
 - [🚀 Features](#-features)
 - [📥 Installation Guide](#-installation-guide)
