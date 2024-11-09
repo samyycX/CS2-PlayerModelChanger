@@ -10,16 +10,18 @@
 > [!CAUTION] 
 > This plugin can cause a GSLT ban, please use at your own risk.
 
+<div><video controls src="https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview.mp4" muted="true"></video></div>
+
 - [🚀 Features](#-features)
-- [📥 Installation Guide](#inbox_tray-installation-guide)
-- [📦 Optional Dependencies](#package-optional-dependencies)
-- [🛠️ Commands](#hammer_and_wrench-commands)
-- [⚙️ Configuration](#gear-configuration)
-- [🐞 Common Issues](#bug-common-issues)
-- [🙏 Credits](#pray-credits)
-- [📋 TODOs](#clipboard-todos)
-- [🤝 Contribution](#handshake-contribution)
-- [📚 How to add default or workshop model](#books-how-to-add-default-or-workshop-model)
+- [📥 Installation Guide](#-installation-guide)
+- [📦 Optional Dependencies](#-dependencies)
+- [🛠️ Commands](#-commands)
+- [⚙️ Configuration](#-configuration)
+- [🐞 Common Issues](#-issues)
+- [🙏 Credits](#-credits)
+- [📋 TODOs](#-todos)
+- [🤝 Contribution](#-contribution)
+- [📚 How to add default or workshop model](#-how-to-add-default-or-workshop-model)
 
 Custom model parts:
 - [How to pack a model into steam workshop item](#how-to-pack-a-model-into-steam-workshop-item)
@@ -45,14 +47,14 @@ Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerM
 ### Menu commands (Recommended!)
 - `!md <all/ct/t> / !models <all/ct/t>` select model
 - `!mg / !mesh` select meshgroup (if exists)
-
 ### Client side
 - `!model` show sender the model he is using + helper
 - `!model <@random / model name> <all/ct/t>` change sender's model (@random for random model every spawn)
+- `!md <all/ct/t> / !models <all/ct/t>` open select model menu
+- `!mg / !mesh` open select meshgroup menu (if exists)
 ### Server side
 - `pmc_enable [true/false]` Enable / Disable the plugin
 - `pmc_resynccache` Resync cache.
-
 ### Admin (Need `@pmc/admin` flag or `#pmc/admin` group)
 - `!modeladmin [all/steamid] reset [all/ct/t]` Reset player's model.
 - `!modeladmin [all/steamid] set [all/ct/t] [model index] ` Set player's model.
@@ -66,18 +68,29 @@ See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki) to config it.
 
 ## 📚 How to add default or workshop model
 
-### Find the model path
-Use `Source2Viewer` or `GCFScape` to open the workshop vpk (or pak01 vpk), then find the `.vmdl_c` file, copy the path out
+### Step 1: Locate the Model Path
 
-the path should be like this: `characters/.../xxx.vmdl` (if it is in characters folder)
+1. Open the workshop `.vpk` (or `pak01.vpk`) file using `Source2Viewer` or `GCFScape`.
+2. Navigate to find the `.vmdl_c` file. Copy its path.
+3. Replace `.vmdl_c` in the path with `.vmdl`.
 
-**Important: replace `.vmdl_c` in the path with `.vmdl`**
+The path should look like this:
 
-### Setup MultiAddonManager ( for workshop model )
-add your workshop id to this plugin, follow [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
-after added, switch the map once to make multiaddonmanager download the addon
+```plaintext
+characters/.../xxx.vmdl
+```
 
-### Config PlayerModelChanger
+> [!IMPORTANT]
+> **replace `.vmdl_c` in the path with `.vmdl`**
+
+### Step 2: Setup MultiAddonManager (Workshop Model Only)
+
+1. Add your workshop ID to `MultiAddonManager`.
+2. Follow the instructions provided on the [MultiAddonManager GitHub page](https://github.com/Source2ZE/MultiAddonManager).
+3. After adding the ID, switch the map once to initiate the download of the addon by `MultiAddonManager`.
+
+
+### Step 3: Config PlayerModelChanger
 See the [Configuration](#configuration)
 
 ## 🐞 Common Issues
@@ -88,12 +101,12 @@ See the [Configuration](#configuration)
 ## 🙏 Credits
 - Method to change model: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
 - Thirdperson inspection code: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
-
+- Menu：[WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) by Interesing-exe
 ## 📋 TODOs
 1. Translation
 
 ## 🤝 Contribution
-To build this plugin, run `build.bat`.
+To build this plugin, run `dotnet build`.
 
 Feel free to create Pull Requests or issues.
 

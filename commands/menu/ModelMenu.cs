@@ -26,43 +26,6 @@ public class SubMenuOption : MenuOption
   }
 }
 
-public class UncancellableSelectOption : MenuOption
-{
-  public Action<CCSPlayerController, UncancellableSelectOption, WasdModelMenu> Select { get; set; } = (_, _, _) => { };
-
-  public Action<CCSPlayerController, UncancellableSelectOption, WasdModelMenu> RerenderAction { get; set; } = (_, _, _) => { };
-
-  public Dictionary<string, dynamic> AdditionalProperties = new();
-  public bool IsSelected = false;
-
-  public override void Next(CCSPlayerController player, WasdModelMenu menu)
-  {
-    IsSelected = true;
-    if (IsSelected)
-    {
-      menu.Options.ForEach(option =>
-      {
-        if (option != this && option is UncancellableSelectOption)
-        {
-          ((UncancellableSelectOption)option).IsSelected = false;
-        }
-      });
-    }
-    Select(player, this, menu);
-  }
-
-  public override void Rerender(CCSPlayerController player, WasdModelMenu menu)
-  {
-    RerenderAction(player, this, menu);
-  }
-
-  public UncancellableSelectOption SetAdditionalProperty(string key, dynamic value)
-  {
-    AdditionalProperties[key] = value;
-    return this;
-  }
-}
-
 public class SelectOption : MenuOption
 {
   public Action<CCSPlayerController, SelectOption, WasdModelMenu> Select { get; set; } = (_, _, _) => { };
@@ -74,6 +37,7 @@ public class SelectOption : MenuOption
 
   public override void Next(CCSPlayerController player, WasdModelMenu menu)
   {
+    Select(player, this, menu);
     IsSelected = !IsSelected;
     if (IsSelected)
     {
@@ -85,7 +49,6 @@ public class SelectOption : MenuOption
         }
       });
     }
-    Select(player, this, menu);
   }
 
   public override void Rerender(CCSPlayerController player, WasdModelMenu menu)
@@ -100,6 +63,29 @@ public class SelectOption : MenuOption
   }
 }
 
+public class UncancellableSelectOption : SelectOption
+{
+  public override void Next(CCSPlayerController player, WasdModelMenu menu)
+  {
+    Select(player, this, menu);
+    IsSelected = true;
+    menu.Options.ForEach(option =>
+    {
+      if (option != this && option is UncancellableSelectOption)
+      {
+        ((UncancellableSelectOption)option).IsSelected = false;
+      }
+    });
+  }
+
+  public new UncancellableSelectOption SetAdditionalProperty(string key, dynamic value)
+  {
+    AdditionalProperties[key] = value;
+    return this;
+  }
+}
+
+
 public class MultiSelectOption : MenuOption
 {
   public Action<CCSPlayerController, MultiSelectOption, WasdModelMenu> Select { get; set; } = (_, _, _) => { };
@@ -110,8 +96,8 @@ public class MultiSelectOption : MenuOption
 
   public override void Next(CCSPlayerController player, WasdModelMenu menu)
   {
-    IsSelected = !IsSelected;
     Select(player, this, menu);
+    IsSelected = !IsSelected;
   }
 
   public override void Rerender(CCSPlayerController player, WasdModelMenu menu)
@@ -137,7 +123,7 @@ public class WasdModelMenu
     Options.Add(option);
   }
 
-  public void ScrollDown(CCSPlayerController player)
+  public void ScrollDown()
   {
     if (Options.Count == 0)
     {
@@ -157,7 +143,7 @@ public class WasdModelMenu
 
   }
 
-  public void ScrollUp(CCSPlayerController player)
+  public void ScrollUp()
   {
     if (Options.Count == 0)
     {

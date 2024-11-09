@@ -200,10 +200,14 @@ public class Inspection
 
             CPhysicsPropOverride prop = Utilities.CreateEntityByName<CPhysicsPropOverride>("prop_physics_override")!;
             prop.SetModel(path);
-            if (model != null && prop.CBodyComponent != null && prop.CBodyComponent.SceneNode != null)
+            if (model != null)
             {
-                prop.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = Utils.CalculateMeshgroupmask(PlayerModelChanger.getInstance().Service.GetMeshgroupPreference(player, model).ToArray());
-                Utilities.SetStateChanged(prop, "CBaseEntity", "m_CBodyComponent");
+                ulong meshgroupmask = Utils.CalculateMeshgroupmask(PlayerModelChanger.getInstance().Service.GetMeshgroupPreference(player, model).ToArray(), model.FixedMeshgroups);
+                if (meshgroupmask != 0)
+                {
+                    prop.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.MeshGroupMask = meshgroupmask;
+                    Utilities.SetStateChanged(prop, "CBaseEntity", "m_CBodyComponent");
+                }
             }
             prop.DispatchSpawn();
             // not sure what the fuck is this but it can resolve model have weird pose

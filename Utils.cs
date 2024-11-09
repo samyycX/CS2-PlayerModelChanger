@@ -195,13 +195,25 @@ public class Utils
         }
     }
 
-    public static ulong CalculateMeshgroupmask(int[] enabledMeshgroups)
+    public static ulong CalculateMeshgroupmask(int[] enabledMeshgroups, Dictionary<int, int> fixedMeshgroups)
     {
-        ulong result = 0;
+        ulong meshgroupmask = 0;
         foreach (var meshgroup in enabledMeshgroups)
         {
-            result |= (ulong)1 << meshgroup;
+            meshgroupmask |= (ulong)1 << meshgroup;
         }
-        return result;
+        foreach (var fixedMeshgroup in fixedMeshgroups)
+        {
+            if (fixedMeshgroup.Value == 0)
+            {
+                meshgroupmask &= ~((ulong)1 << fixedMeshgroup.Key);
+            }
+            else
+            {
+                meshgroupmask |= (ulong)1 << fixedMeshgroup.Key;
+            }
+        }
+        return meshgroupmask;
     }
+
 }

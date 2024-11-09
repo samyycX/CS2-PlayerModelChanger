@@ -33,5 +33,6 @@
   "model.invalidreseted": "%pmc_prefix%{red}您在{0}使用的模型无效，已被重置。",
   "model.nochangepermission": "%pmc_prefix%{red}您没有更换皮肤的权利。",
   "modelmenu.instruction": "[W/S] 滚动 - [D] 选择 - [A] 返回 - [Tab] 关闭",
-  "modelmenu.instruction2": "[E] 至顶部 - [R] 至已选项"
+  "modelmenu.instruction2": "[E] 至顶部 - [R] 至已选项",
+  "modelmenu.nomeshgroup": "%pmc_prefix%此模型无可用皮肤组。"
 }

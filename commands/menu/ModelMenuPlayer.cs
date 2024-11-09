@@ -38,13 +38,13 @@ public class ModelMenuPlayer
 
   public void ScrollUp()
   {
-    Menus.Peek().ScrollUp(Player);
+    Menus.Peek().ScrollUp();
     Render();
   }
 
   public void ScrollDown()
   {
-    Menus.Peek().ScrollDown(Player);
+    Menus.Peek().ScrollDown();
     Render();
   }
 

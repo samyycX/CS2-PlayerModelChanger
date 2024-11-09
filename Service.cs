@@ -96,7 +96,7 @@ public class ModelService
         }
     }
 
-    public void SetPlayerAllModel(ulong steamid, string? tModel, string? ctModel, bool permissionBypass)
+    public void SetPlayerAllModel(ulong steamid, string? tModel, string? ctModel, bool permissionBypass, bool inspection = true)
     {
         tModel = tModel != null ? tModel : "";
         ctModel = ctModel != null ? ctModel : "";
@@ -111,7 +111,7 @@ public class ModelService
             if (Utils.CanPlayerSetModelInstantly(player, Side.All))
             {
                 var index = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel)?.Index;
-                Utils.RespawnPlayer(player, _Config.Inspection.Enable && index != "@random");
+                Utils.RespawnPlayer(player, inspection && _Config.Inspection.Enable && index != "@random");
             }
         }
     }
@@ -143,9 +143,13 @@ public class ModelService
     {
         var steamid = player.AuthorizedSteamID!.SteamId64!;
         var modelCache = _CacheManager.GetPlayerModelCache(player);
-
         var defaultTModel = _DefaultModelManager.GetPlayerDefaultModel(player, Side.T);
         var defaultCTModel = _DefaultModelManager.GetPlayerDefaultModel(player, Side.CT);
+        if (modelCache == null) // player first time join
+        {
+            SetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, false, false);
+            return new Tuple<bool, bool>(false, false);
+        }
         var tValid = CheckModel(player, Side.T, modelCache, defaultTModel);
         var ctValid = CheckModel(player, Side.CT, modelCache, defaultCTModel);
         if (!tValid && !ctValid)
@@ -327,19 +331,7 @@ public class ModelService
 
     public List<int> GetMeshgroupPreference(CCSPlayerController player, Model model)
     {
-        var meshgroupPreference = _CacheManager.GetMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index);
-        foreach (var item in model.FixedMeshgroups)
-        {
-            if (item.Value == 0 && meshgroupPreference.Contains(item.Key))
-            {
-                meshgroupPreference.RemoveAll(i => i == item.Key);
-            }
-            else if (item.Value == 1 && !meshgroupPreference.Contains(item.Key))
-            {
-                meshgroupPreference.Add(item.Key);
-            }
-        }
-        return meshgroupPreference;
+        return _CacheManager.GetMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index);
     }
 
     public void AddMeshgroupPreference(CCSPlayerController player, Model model, int meshgroup, bool update = true)
@@ -382,6 +374,10 @@ public class ModelService
 
     public bool InitMeshgroupPreference(CCSPlayerController player, Model model, ulong meshgroupmask)
     {
+        if (model.Meshgroups.Count == 0)
+        {
+            return true;
+        }
         if (GetMeshgroupPreference(player, model).Count > 0)
         {
             return false;
