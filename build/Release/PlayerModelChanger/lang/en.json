@@ -34,5 +34,6 @@
   "model.invalidreseted": "%pmc_prefix%{red}Your model for {0} is invalid and it have been reseted.",
   "model.nochangepermission": "%pmc_prefix%{red}You don't have the permission to change your model.",
   "modelmenu.instruction": "[W/S] Scroll - [D] Select - [A] Go Back - [Tab] Close",
-  "modelmenu.instruction2": "[E] To Top - [R] To Selected"
+  "modelmenu.instruction2": "[E] To Top - [R] To Selected",
+  "modelmenu.nomeshgroup": "%pmc_prefix%{red}No customizable meshgroup for this model."
 }

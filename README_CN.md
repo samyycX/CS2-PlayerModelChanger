@@ -1,28 +1,32 @@
 # CS2-PlayerModelChanger
-一个轻量的counterstrikesharp插件，用于改变玩家模型
+![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/license/samyycX/CS2-PlayerModelChanger
+) ![](https://img.shields.io/badge/Feedback-blue?style=flat&logo=discord&logoColor=white&link=https%3A%2F%2Fdiscord.com%2Fchannels%2F1160907911501991946%2F1210856437786484747
+) ![](https://img.shields.io/badge/Tutorial-By_KEDI103-grey?style=flat&logo=youtube&labelColor=red&link=https%3A%2F%2Fgithub.com%2FKEDI103&link=https%3A%2F%2Fyoutu.be%2F9Vy-im9N8KM
+)
 
-如果你喜欢这个插件请给个Star :)
-### 此插件可能导致GSLT封禁，请自行承担风险
-- **[用前须知](#用前须知)**
-- [功能](#功能)
-- [自定义模型依赖插件](#自定义模型依赖插件)
-- [安装指南](#安装指南)
-- [命令](#命令)
-- [配置](#配置)
-- [感谢](#感谢)
-- [TODOs](#todos)
-- [常见问题](#常见问题)
-- [Contribution](#contribution)
+✨ 一个CounterStrikeSharp插件，允许玩家自定义他们的模型，具有诸如模型选择菜单、权限限制、设置默认模型以及其他高级功能。
+
+> [!CAUTION] 
+> 此插件可能导致GSLT封禁，请自行承担风险
+
+<div><video controls src="https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview.mp4" muted="true"></video></div>
+
+- [🚀 功能](#-功能)
+- [📦 自定义模型依赖插件](#-自定义模型依赖插件)
+- [📥 安装指南](#-安装指南)
+- [🛠️ 命令](#-命令)
+- [⚙️ 配置](#-配置)
+- [🐞 常见问题](#-常见问题)
+- [🙏 感谢](#-感谢)
+- [📋 TODOs](#-todos)
+- [🤝 Contribution](#-contribution)
 
 自定义模型部分
 - [如何添加原版或创意工坊模型](#如何添加原版或创意工坊模型)
 - [如何把你的模型打包并上传到创意工坊](#如何把你的模型打包并上传到创意工坊)
 
-## 用前须知
-1. **此插件可能导致GSLT封禁，请自行承担风险**
-
-## 功能
-- 菜单式选择模型 (支持wasd菜单)
+## 🚀 功能
+- 菜单式选择模型 (wasd菜单)
 - 可为T/CT阵营设置不同模型
 - 随机模型
 - 选择后可立刻更新
@@ -31,40 +35,51 @@
 - 可按照权限和玩家设置特殊模型
 - 可禁用腿部模型
 
-## 自定义模型依赖插件
+## 📥 安装指南
+从 [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases)下载最新版插件, 然后放到counterstrikesharp的plugins文件夹里
+
+## 📦 自定义模型依赖插件
 **如果你不使用自定义模型，不用安装这些插件**
 1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
-## 安装指南
-从 [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases)下载最新版插件, 然后放到counterstrikesharp的plugins文件夹里
 
-## 可选依赖
-1. 使用创意工坊模型请安装：[MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager) 
-2. 使用交互式菜单请安装：[WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI)
 
-## 指令
-### 服务器端
-- `pmc_enable [true/false]` 开启 / 关闭此插件
-- `pmc_resynccache` 重新同步缓存
+## 📦 可选依赖
+1. 使用创意工坊模型请安装：[MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
+
+
+## 🛠️ 指令
+### 菜单指令 (推荐使用!)
+- `!md <all/ct/t> / !models <all/ct/t>` 打开选择模型菜单
+- `!mg` 打开皮肤组选择菜单
 ### 客户端
 - `!model` 显示玩家当前用的模型 + 帮助
 - `!model <@random / model name> <all/ct/t>` 改变玩家的模型 (@random 代表随机模型)
-- `!md <all/ct/t> / !models <all/ct/t>` 选择模型
+- `!md <all/ct/t> / !models <all/ct/t>` 打开选择模型菜单
+- `!mg` 打开皮肤组选择菜单
+### 服务器端
+- `pmc_enable [true/false]` 开启 / 关闭此插件
+- `pmc_resynccache` 重新同步缓存
 ### Admin (需要 `@pmc/admin` flag 或 `#pmc/admin` 组)
 - `!modeladmin [all/steamid] reset [all/ct/t]` 重置玩家的模型
 - `!modeladmin [all/steamid] set [all/ct/t] [model index] ` 设置玩家的模型
 - `!modeladmin [steamid] check` 检查玩家是否可以使用当前使用的模型，如果不可以则重置
 - `!modeladmin reload` 重载配置文件
-## 配置
+
+## ⚙️ 配置
 如果你正确的安装了此插件，`counterstrikesharp/configs/plugins/PlayerModelChanger/PlayerModelChanger.json`文件会被生成。
 
 
 见 [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki)
 
+## 🐞 常见问题
+- **你应该使用编译后的模型 (后缀为 `.vmdl_c`)**
+- **在配置文件内，你应该使用 `.vmdl` 而不是 `.vmdl_c` 作为后缀**
 
-## 如何添加原版或创意工坊模型
 
-### 找到模型路径
+## 📚 如何添加原版或创意工坊模型
+
+### 1. 找到模型路径
 用 `Source2Viewer` 或 `GCFScape` 打开创意工坊vpk (或者原版的pak01 vpk)
 
 找到你想要的模型 (`.vmdl_c`文件)，复制出他的路径
@@ -73,25 +88,22 @@
 **注意: 路径里的文件格式`.vmdl_c`应该被替换成`.vmdl`**
 
 
-### 设置 MultiAddonManager
+### 2. 设置 MultiAddonManager
 在这个插件里设置你的workshop id, 请看 [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager)
 
-### 设置 PlayerModelChanger
+### 3. 设置 PlayerModelChanger
 请看 [配置](#配置) 部分
 
-## 感谢
+## 🙏 感谢
 - 替换模型的方法: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
 - 第三人称预览代码: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
+- 菜单：[WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) by Interesing-exe
 
-## TODOs
+## 📋 TODOs
 1. 翻译
 
-## 常见问题
-- **你应该使用编译后的模型 (后缀为 `.vmdl_c`)**
-- **在配置文件内，你应该使用 `.vmdl` 而不是 `.vmdl_c` 作为后缀**
-
-## Contribution
-构建插件请使用 `build.bat`.
+## 🤝 Contribution
+构建插件请使用 `dotnet build`.
 
 欢迎一切 Issues / Pull Requests
 

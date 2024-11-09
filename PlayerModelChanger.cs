@@ -12,7 +12,7 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.7.4";
+    public override string ModuleVersion => "1.8.0";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -299,13 +299,16 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             }
 
             ulong meshgroupmask = pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask;
-            if (meshgroupmask == 1 || Service.InitMeshgroupPreference(player, model, meshgroupmask))
+            if (Service.InitMeshgroupPreference(player, model, meshgroupmask))
             {
                 return;
             }
-            meshgroupmask = Utils.CalculateMeshgroupmask(Service.GetMeshgroupPreference(player, model).ToArray());
-            pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = meshgroupmask;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_CBodyComponent");
+            meshgroupmask = Utils.CalculateMeshgroupmask(Service.GetMeshgroupPreference(player, model).ToArray(), model.FixedMeshgroups);
+            if (meshgroupmask != 0)
+            {
+                pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = meshgroupmask;
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_CBodyComponent");
+            }
         });
     }
 }

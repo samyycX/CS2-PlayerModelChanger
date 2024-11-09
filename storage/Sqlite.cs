@@ -15,13 +15,12 @@ public class SqliteStorage : IStorage
 
         connection.Execute(@"
             CREATE TABLE IF NOT EXISTS `players` (
-                `steamid` UNSIGNED BIG INT NOT NULL,
+                `steamid` INTEGER NOT NULL PRIMARY KEY,
                 `t_model` TEXT,
                 `ct_model` TEXT,
-                `t_permission_bypass` BOOLEAN,
-                `ct_permission_bypass` BOOLEAN,
-                PRIMARY KEY (`steamid`));
-            )
+                `t_permission_bypass` INTEGER,
+                `ct_permission_bypass` INTEGER
+            );
         ");
         IEnumerable<dynamic> tPermissionBypassResult = connection.Query("select * from sqlite_master where name='players' and sql like '%t_permission_bypass%'");
         if (tPermissionBypassResult.Count() == 0)
@@ -35,16 +34,12 @@ public class SqliteStorage : IStorage
         }
 
         connection.Execute(@"
-            CREATE TABLE IF NOT EXISTS meshgrouppreferences (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                steamid INTEGER NOT NULL,
-                model TEXT NOT NULL,
-                meshgroup INTEGER NOT NULL
+            CREATE TABLE IF NOT EXISTS `meshgrouppreferences` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+                `steamid` INTEGER NOT NULL,
+                `model` TEXT NOT NULL,
+                `meshgroup` INTEGER NOT NULL
             );
-        ");
-        connection.Execute(@"
-            CREATE INDEX idx_steamid ON meshgrouppreferences (steamid);
-            CREATE INDEX idx_model ON meshgrouppreferences (model);
         ");
     }
 
@@ -138,7 +133,7 @@ public class SqliteStorage : IStorage
     public List<int> GetMeshgroupPreference(ulong SteamID, string modelIndex)
     {
         using SqliteConnection connection = ConnectAsync().Result;
-        return connection.Query<int>("SELECT meshgroup FROM meshgrouppreferences WHERE steamid=@SteamID AND model=@modelName", new { SteamID, modelIndex }).ToList();
+        return connection.Query<int>("SELECT `meshgroup` FROM `meshgrouppreferences` WHERE `steamid`=@SteamID AND `model`=@modelName", new { SteamID, modelIndex }).ToList();
     }
 
     public void AddMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup)
@@ -147,13 +142,13 @@ public class SqliteStorage : IStorage
         var existing = connection.QueryFirstOrDefault<int>($"SELECT COUNT(*) FROM `meshgrouppreferences` WHERE `steamid` = {SteamID} AND `model` = '{modelIndex}' AND `meshgroup` = {meshgroup};");
         if (existing == 0)
         {
-            connection.ExecuteAsync("INSERT INTO meshgrouppreferences (steamid, model, meshgroup) VALUES (@SteamID, @modelName, @meshgroup);", new { SteamID, modelIndex, meshgroup });
+            connection.ExecuteAsync("INSERT INTO `meshgrouppreferences` (`steamid`, `model`, `meshgroup`) VALUES (@SteamID, @modelIndex, @meshgroup);", new { SteamID, modelIndex, meshgroup });
         }
     }
 
     public void RemoveMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup)
     {
-        ExecuteAsync("DELETE FROM meshgrouppreferences WHERE steamid=@SteamID AND model=@modelName AND meshgroup=@meshgroup;", new { SteamID, modelIndex, meshgroup });
+        ExecuteAsync("DELETE FROM `meshgrouppreferences` WHERE `steamid`=@SteamID AND `model`=@modelIndex AND `meshgroup`=@meshgroup;", new { SteamID, modelIndex, meshgroup });
     }
 
     public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>> GetCaches()
@@ -164,13 +159,13 @@ public class SqliteStorage : IStorage
         List<MeshgroupPreferenceCache> meshgroupPreferenceCaches = new();
         foreach (var query in result)
         {
-            MeshgroupPreferenceCache? cache = meshgroupPreferenceCaches.Find(meshgroupPreference => meshgroupPreference.steamid == query.steamid && meshgroupPreference.model == query.model);
+            MeshgroupPreferenceCache? cache = meshgroupPreferenceCaches.Find(meshgroupPreference => meshgroupPreference.steamid == (ulong)query.steamid && meshgroupPreference.model == query.model);
             if (cache == null)
             {
-                cache = new MeshgroupPreferenceCache { steamid = query.steamid, model = query.model };
+                cache = new MeshgroupPreferenceCache { steamid = (ulong)query.steamid, model = query.model };
                 meshgroupPreferenceCaches.Add(cache);
             }
-            cache.meshgroups.Add(query.meshgroup);
+            cache.meshgroups.Add((int)query.meshgroup);
         }
         return new(modelCache, meshgroupPreferenceCaches);
     }

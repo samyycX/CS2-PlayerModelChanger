@@ -8,28 +8,46 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger
 {
 
-    public UncancellableSelectOption GetSelectModelOption(CCSPlayerController player, Side side, string modelIndex, string text, bool isSelected = false) => new UncancellableSelectOption()
+    public UncancellableSelectOption GetSelectModelOption(CCSPlayerController player, Side side, string modelIndex, string text, bool isSelected = false, bool hasMeshgroup = false)
     {
-        Text = text,
-        Select = (player, option, menu) =>
+        return new UncancellableSelectOption()
         {
-            if (Service.SetPlayerModelWithCheck(player, modelIndex, side))
+            Text = text,
+            Select = (player, option, menu) =>
             {
-                menu.Title = Localizer["modelmenu.title", Localizer[$"side.{side.ToName()}"], text];
-                var menus = MenuManager.GetPlayer(player.Slot);
-                if (menus.Menus.Count > 1)
+                if (option.IsSelected && hasMeshgroup)
                 {
-                    var newSideMenu = GetSelectSideMenu(player);
-                    if (newSideMenu != null)
-                    {
-                        menus.Menus.ElementAt(menus.Menus.Count - 1).Options = newSideMenu!.Options;
-                    }
-
+                    option.AdditionalProperties["meshgroupMenu"] = GetSelectMeshgroupMenu(player)!;
+                    MenuManager.OpenSubMenu(player, option.AdditionalProperties["meshgroupMenu"]);
+                    return;
                 }
-            }
-        },
-        IsSelected = isSelected
-    };
+                if (Service.SetPlayerModelWithCheck(player, modelIndex, side))
+                {
+                    menu.Title = Localizer["modelmenu.title", Localizer[$"side.{side.ToName()}"], text];
+                    var menus = MenuManager.GetPlayer(player.Slot);
+                    if (menus.Menus.Count > 1)
+                    {
+                        var newSideMenu = GetSelectSideMenu(player);
+                        if (newSideMenu != null)
+                        {
+                            menus.Menus.ElementAt(menus.Menus.Count - 1).Options = newSideMenu!.Options;
+                        }
+
+                    }
+                }
+            },
+            IsSelected = isSelected,
+            RerenderAction = (player, option, menu) =>
+            {
+                if (option.AdditionalProperties.ContainsKey("meshgroupMenu"))
+
+                {
+                    option.AdditionalProperties["meshgroupMenu"].Rerender(player); // make sure rerender chain pass through meshgroup menu
+                }
+            },
+
+        };
+    }
 
     public WasdModelMenu GetSelectModelMenu(CCSPlayerController player, Side side)
     {
@@ -56,7 +74,9 @@ public partial class PlayerModelChanger
             {
                 isSelected = true;
             }
-            menu.AddOption(GetSelectModelOption(player, side, model.Index, model.Name, isSelected));
+            var hasMeshgroup = model.Meshgroups.Count > 0;
+
+            menu.AddOption(GetSelectModelOption(player, side, model.Index, model.Name, isSelected, hasMeshgroup));
         }
         return menu;
     }
@@ -122,15 +142,14 @@ public partial class PlayerModelChanger
         MenuManager.OpenMainMenu(player, modelMenu);
     }
 
-    public void OpenSelectMeshgroupMenu(CCSPlayerController player)
+    public WasdModelMenu? GetSelectMeshgroupMenu(CCSPlayerController player)
     {
 
         var menu = new WasdModelMenu();
         var currentModel = Service.GetPlayerNowTeamModel(player);
         if (currentModel == null || currentModel.Meshgroups.Count == 0)
         {
-            player.PrintToChat(Localizer["modelmenu.nomeshgroup"]);
-            return;
+            return null;
         }
         menu.Title = currentModel.Name;
         var meshgroupPreference = Service.GetMeshgroupPreference(player, currentModel);
@@ -138,9 +157,10 @@ public partial class PlayerModelChanger
         foreach (var meshgroup in currentModel.Meshgroups)
         {
             Dictionary<string, dynamic> data = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(meshgroup.Value);
-            bool multiselect = meshgroup.Key.Contains("@multiselect");
+            bool radio = meshgroup.Key.Contains("@radio");
+            bool opradio = meshgroup.Key.Contains("@opradio");
             bool combination = meshgroup.Key.Contains("@combination");
-            var key = meshgroup.Key.Replace("@multiselect", "").Replace("@combination", "");
+            var key = meshgroup.Key.Replace("@radio", "").Replace("@combination", "").Replace("@opradio", "");
             var subMenu = new WasdModelMenu { Title = key };
 
             foreach (var item in data)
@@ -153,20 +173,24 @@ public partial class PlayerModelChanger
                     {
                         isSelected = true;
                     }
-                    if (multiselect)
+                    if (radio)
                     {
-                        subMenu.AddOption(new MultiSelectOption
+                        var steamid = player.AuthorizedSteamID!.SteamId64;
+                        subMenu.AddOption(new UncancellableSelectOption
                         {
                             Text = item.Key,
                             Select = (player, option, menu) =>
                             {
-                                if (option.IsSelected)
+                                if (!option.IsSelected)
                                 {
                                     Service.AddMeshgroupPreference(player, currentModel, value);
-                                }
-                                else
-                                {
-                                    Service.RemoveMeshgroupPreference(player, currentModel, value);
+                                    foreach (var op in menu.Options)
+                                    {
+                                        if (op is SelectOption && ((SelectOption)op).IsSelected)
+                                        {
+                                            Service.RemoveMeshgroupPreference(player, currentModel, ((SelectOption)op).AdditionalProperties["meshgroup"], false);
+                                        }
+                                    };
                                 }
                             },
                             IsSelected = isSelected,
@@ -174,9 +198,9 @@ public partial class PlayerModelChanger
                             {
                                 option.IsSelected = Service.HasMeshgroupPreference(player, currentModel, value);
                             }
-                        });
+                        }.SetAdditionalProperty("meshgroup", value));
                     }
-                    else
+                    else if (opradio)
                     {
                         var steamid = player.AuthorizedSteamID!.SteamId64;
                         subMenu.AddOption(new SelectOption
@@ -184,12 +208,12 @@ public partial class PlayerModelChanger
                             Text = item.Key,
                             Select = (player, option, menu) =>
                             {
-                                if (option.IsSelected)
+                                if (!option.IsSelected)
                                 {
                                     Service.AddMeshgroupPreference(player, currentModel, value);
                                     foreach (var op in menu.Options)
                                     {
-                                        if (op is SelectOption && !((SelectOption)op).IsSelected)
+                                        if (op is SelectOption && ((SelectOption)op).IsSelected)
                                         {
                                             Service.RemoveMeshgroupPreference(player, currentModel, ((SelectOption)op).AdditionalProperties["meshgroup"], false);
                                         }
@@ -207,18 +231,43 @@ public partial class PlayerModelChanger
                             }
                         }.SetAdditionalProperty("meshgroup", value));
                     }
-                }
-                else
-                {
-                    var value = JsonSerializer.Deserialize<List<int>>(item.Value);
-                    if (multiselect)
+                    else
                     {
                         subMenu.AddOption(new MultiSelectOption
                         {
                             Text = item.Key,
                             Select = (player, option, menu) =>
                             {
-                                if (option.IsSelected)
+                                if (!option.IsSelected)
+                                {
+                                    Service.AddMeshgroupPreference(player, currentModel, value);
+                                }
+                                else
+                                {
+                                    Service.RemoveMeshgroupPreference(player, currentModel, value);
+                                }
+                            },
+                            IsSelected = isSelected,
+                            RerenderAction = (player, option, menu) =>
+                            {
+                                option.IsSelected = Service.HasMeshgroupPreference(player, currentModel, value);
+                            }
+                        });
+
+
+                    }
+                }
+                else
+                {
+                    var value = JsonSerializer.Deserialize<List<int>>(item.Value);
+                    if (!opradio && !radio)
+                    {
+                        subMenu.AddOption(new MultiSelectOption
+                        {
+                            Text = item.Key,
+                            Select = (player, option, menu) =>
+                            {
+                                if (!option.IsSelected)
                                 {
                                     foreach (var meshgroup in value)
                                     {
@@ -257,6 +306,18 @@ public partial class PlayerModelChanger
                 NextMenu = subMenu
             });
         }
+        return menu;
+    }
+
+    public void OpenSelectMeshgroupMenu(CCSPlayerController player)
+    {
+        var menu = GetSelectMeshgroupMenu(player);
+        if (menu == null)
+        {
+            player.PrintToChat(Localizer["modelmenu.nomeshgroup"]);
+            return;
+        }
         MenuManager.OpenMainMenu(player, menu);
     }
+
 }
