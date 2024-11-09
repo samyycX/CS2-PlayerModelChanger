@@ -1,16 +1,16 @@
 # CS2-PlayerModelChanger
-![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/license/samyycX/CS2-PlayerModelChanger
-) ![](https://img.shields.io/badge/Feedback-blue?style=flat&logo=discord&logoColor=white&link=https%3A%2F%2Fdiscord.com%2Fchannels%2F1160907911501991946%2F1210856437786484747
-) ![](https://img.shields.io/badge/Tutorial-By_KEDI103-grey?style=flat&logo=youtube&labelColor=red&link=https%3A%2F%2Fgithub.com%2FKEDI103&link=https%3A%2F%2Fyoutu.be%2F9Vy-im9N8KM
-) ![](https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E6%95%99%E7%A8%8B-red?logo=china&link=https%3A%2F%2Fgithub.com%2FsamyycX%2FCS2-PlayerModelChanger%2Fblob%2Fmaster%2FREADME_CN.md
-)
+![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/stars/samyycX/CS2-PlayerModelChanger?style=flat&logo=github
+) ![](https://img.shields.io/github/license/samyycX/CS2-PlayerModelChanger
+) [![](https://img.shields.io/badge/Feedback-blue?style=flat&logo=discord&logoColor=white
+)](https%3A%2F%2Fdiscord.com%2Fchannels%2F1160907911501991946%2F1210856437786484747) [![](https://img.shields.io/badge/Tutorial-By_KEDI103-grey?style=flat&logo=youtube&labelColor=red)](https%3A%2F%2Fyoutu.be%2F9Vy-im9N8KM) [![](https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E6%95%99%E7%A8%8B-red
+)](https%3A%2F%2Fgithub.com%2FsamyycX%2FCS2-PlayerModelChanger%2Fblob%2Fmaster%2FREADME_CN.md)
 
 ✨ A CounterStrikeSharp plugin that allows players to customize their models, with features like a model selection menu, permission restrictions, setting default models, and other advanced options.
 
 > [!CAUTION] 
 > This plugin can cause a GSLT ban, please use at your own risk.
 
-<div><video controls src="https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/preview.mp4" muted="true"></video></div>
+<div><video controls src="https://raw.githubusercontent.com/samyycX/CS2-PlayerModelChanger/refs/heads/master/preview.mp4" muted="true"></video></div>
 
 - [🚀 Features](#-features)
 - [📥 Installation Guide](#-installation-guide)
