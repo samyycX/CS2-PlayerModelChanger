@@ -10,7 +10,7 @@
 > [!CAUTION] 
 > This plugin can cause a GSLT ban, please use at your own risk.
 
-- [🚀 Features](#rocket-features)
+- [🚀 Features](#-features)
 - [📥 Installation Guide](#inbox_tray-installation-guide)
 - [📦 Optional Dependencies](#package-optional-dependencies)
 - [🛠️ Commands](#hammer_and_wrench-commands)
