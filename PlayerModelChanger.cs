@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Drawing;
 using CounterStrikeSharp.API.Modules.Config;
 using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 namespace PlayerModelChanger;
 
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
@@ -17,6 +18,8 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     public required ModelConfig Config { get; set; }
     public required ModelService Service { get; set; }
     public required DefaultModelManager DefaultModelManager { get; set; }
+
+    public required ModelMenuManager MenuManager { get; set; } = new();
 
     private static PlayerModelChanger? _Instance { get; set; }
 
@@ -50,6 +53,30 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         RegisterListener<Listeners.OnTick>(OnTick);
 
         Utils.InitializeLangPrefix();
+
+        RegisterEventHandler<EventPlayerActivate>((@event, info) =>
+        {
+            if (@event.Userid != null)
+            {
+                MenuManager.AddPlayer(@event.Userid.Slot, new ModelMenuPlayer { Player = @event.Userid, Buttons = 0 });
+            }
+            return HookResult.Continue;
+        });
+
+        RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
+        {
+            if (@event.Userid != null)
+            {
+                MenuManager.RemovePlayer(@event.Userid.Slot);
+            }
+            return HookResult.Continue;
+        });
+
+        if (hotReload)
+        {
+            MenuManager.ReloadPlayer();
+        }
+
         Logger.LogInformation($"Loaded {Service.GetModelCount()} model(s) successfully.");
     }
 
@@ -125,12 +152,6 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         {
             config.ModelForBots = new BotsConfig();
         }
-
-        if (!new string[] { "chat", "centerhtml", "wasd", "interactive" }.Contains(config.MenuType.ToLower()))
-        {
-            throw new Exception($"[PlayerModelChanger] Unknown menu type: {config.MenuType}");
-        }
-        config.MenuType = config.MenuType.ToLower();
         for (int i = 0; i < config.Models.Count; i++)
         {
             var entry = config.Models.ElementAt(i);
@@ -147,6 +168,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
     public void OnTick()
     {
         Inspection.UpdateCamera();
+        MenuManager.Update();
     }
 
     // from https://github.com/Challengermode/cm-cs2-defaultskins/
@@ -189,7 +211,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 var botmodel = Service.GetModel(modelindex);
                 if (botmodel != null)
                 {
-                    SetModelNextServerFrame(player, botmodel.Path, botmodel.Disableleg);
+                    SetModelNextServerFrame(player, botmodel, botmodel.Disableleg);
                 }
                 else
                 {
@@ -241,10 +263,9 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
 
             var model = Service.GetPlayerNowTeamModel(player);
-
             if (model != null)
             {
-                SetModelNextServerFrame(player, model.Path, model.Disableleg);
+                SetModelNextServerFrame(player, model, model.Disableleg);
             }
             else
             {
@@ -263,14 +284,28 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return HookResult.Continue;
     }
 
-    public void SetModelNextServerFrame(CCSPlayerController player, string model, bool disableleg)
+    public void SetModelNextServerFrame(CCSPlayerController player, Model model, bool disableleg)
     {
         Server.NextFrame(() =>
         {
             var pawn = player.Pawn.Value!;
-            pawn.SetModel(model);
+            pawn.SetModel(model.Path);
             var originalRender = pawn.Render;
             pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+
+            if (player.IsBot || pawn.CBodyComponent == null || pawn.CBodyComponent.SceneNode == null)
+            {
+                return;
+            }
+
+            ulong meshgroupmask = pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask;
+            if (meshgroupmask == 1 || Service.InitMeshgroupPreference(player, model, meshgroupmask))
+            {
+                return;
+            }
+            meshgroupmask = Utils.CalculateMeshgroupmask(Service.GetMeshgroupPreference(player, model).ToArray());
+            pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = meshgroupmask;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_CBodyComponent");
         });
     }
 }

@@ -12,8 +12,7 @@
           "Dapper": "2.1.44",
           "Microsoft.Data.Sqlite": "8.0.7",
           "MySqlConnector": "2.3.7",
-          "Newtonsoft.Json": "13.0.3",
-          "WASDSharedAPI": "1.0.0.0"
+          "Newtonsoft.Json": "13.0.3"
         },
         "runtime": {
           "PlayerModelChanger.dll": {}
@@ -481,14 +480,6 @@
         "dependencies": {
           "System.Text.Encodings.Web": "8.0.0"
         }
-      },
-      "WASDSharedAPI/1.0.0.0": {
-        "runtime": {
-          "WASDSharedAPI.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
       }
     }
   },
@@ -889,11 +880,6 @@
       "sha512": "sha512-OdrZO2WjkiEG6ajEFRABTRCi/wuXQPxeV6g8xvUJqdxMvvuCCEk86zPla8UiIQJz3durtUEbNyY/3lIhS0yZvQ==",
       "path": "system.text.json/8.0.0",
       "hashPath": "system.text.json.8.0.0.nupkg.sha512"
-    },
-    "WASDSharedAPI/1.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
     }
   }
 }

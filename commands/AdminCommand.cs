@@ -38,7 +38,12 @@ public partial class PlayerModelChanger
                 ShowAdminCommandHelp(commandInfo);
                 return;
             }
-            var side = commandInfo.GetArg(3);
+            Side? side = commandInfo.GetArg(3).ToSide();
+            if (side == null)
+            {
+                ShowAdminCommandHelp(commandInfo);
+                return;
+            }
 
             var target = commandInfo.GetArg(1);
             if (target == "all")
@@ -52,7 +57,7 @@ public partial class PlayerModelChanger
             else
             {
                 var steamid = ulong.Parse(target);
-                Service.SetPlayerModel(steamid, "", side, true);
+                Service.SetPlayerModel(steamid, "", (Side)side, true);
             }
             commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
         }
@@ -63,7 +68,12 @@ public partial class PlayerModelChanger
                 ShowAdminCommandHelp(commandInfo);
                 return;
             }
-            var side = commandInfo.GetArg(3);
+            var side = commandInfo.GetArg(3).ToSide();
+            if (side == null)
+            {
+                ShowAdminCommandHelp(commandInfo);
+                return;
+            }
             var modelIndex = commandInfo.GetArg(4);
             if (Service.GetModel(modelIndex) == null)
             {
@@ -83,7 +93,7 @@ public partial class PlayerModelChanger
             else
             {
                 var steamid = ulong.Parse(target);
-                Service.SetPlayerModel(steamid, modelIndex, side, true);
+                Service.SetPlayerModel(steamid, modelIndex, (Side)side, true);
             }
             commandInfo.ReplyToCommand(Localizer["command.modeladmin.success"]);
         }

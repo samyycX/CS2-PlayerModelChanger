@@ -45,24 +45,24 @@ public partial class PlayerModelChanger
             }
         }
 
-        var side = "all";
+        Side? side = Side.All;
         if (commandInfo.ArgCount == 3)
         {
-            side = commandInfo.GetArg(2).ToLower();
-            if (side.ToLower() != "t" && side.ToLower() != "ct")
+            side = commandInfo.GetArg(2).ToSide();
+            if (side == null)
             {
-                commandInfo.ReplyToCommand(Localizer["command.unknownside", side]);
+                commandInfo.ReplyToCommand(Localizer["command.unknownside", "null"]);
                 return;
             }
         }
-        var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player!, side);
+        var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player!, (Side)side!);
         if (defaultModel != null && defaultModel.force)
         {
             commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
             return;
         }
 
-        Service.SetPlayerModelWithCheck(player, modelIndex, side);
+        Service.SetPlayerModelWithCheck(player, modelIndex, (Side)side!);
     }
 
     [ConsoleCommand("css_md", "Select models.")]
@@ -80,8 +80,22 @@ public partial class PlayerModelChanger
             OpenSelectSideMenu(player);
             return;
         }
-        string side = commandInfo.GetArg(1);
-        OpenSelectModelMenu(player, side, Service.GetPlayerModel(player, side));
+        var side = commandInfo.GetArg(1).ToSide();
+        if (side == null)
+        {
+            commandInfo.ReplyToCommand(Localizer["command.unknownside", "null"]);
+            return;
+        }
 
+        OpenSelectModelMenu(player, (Side)side!, Service.GetPlayerModel(player, (Side)side!));
+
+    }
+
+    [ConsoleCommand("css_mesh", "Select models.")]
+    [ConsoleCommand("css_mg", "Select models.")]
+    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+    public void MeshgroupCommand(CCSPlayerController player, CommandInfo commandInfo)
+    {
+        OpenSelectMeshgroupMenu(player);
     }
 }

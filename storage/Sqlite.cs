@@ -5,15 +5,15 @@ namespace PlayerModelChanger;
 
 public class SqliteStorage : IStorage
 {
-
-    private SqliteConnection _Conn { get; set; }
+    private string DbConnString { get; set; }
     public SqliteStorage(string ModuleDirectory)
     {
 
-        _Conn = new SqliteConnection($"Data Source={Path.Join(ModuleDirectory, "data.db")}");
-        _Conn.Open();
+        DbConnString = $"Data Source={Path.Join(ModuleDirectory, "data.db")}";
+        var connection = new SqliteConnection(DbConnString);
+        connection.Open();
 
-        _Conn.ExecuteAsync(@"
+        connection.Execute(@"
             CREATE TABLE IF NOT EXISTS `players` (
                 `steamid` UNSIGNED BIG INT NOT NULL,
                 `t_model` TEXT,
@@ -23,27 +23,51 @@ public class SqliteStorage : IStorage
                 PRIMARY KEY (`steamid`));
             )
         ");
-        IEnumerable<dynamic> tPermissionBypassResult = _Conn.Query("select * from sqlite_master where name='players' and sql like '%t_permission_bypass%'");
+        IEnumerable<dynamic> tPermissionBypassResult = connection.Query("select * from sqlite_master where name='players' and sql like '%t_permission_bypass%'");
         if (tPermissionBypassResult.Count() == 0)
         {
-            _Conn.Execute("ALTER TABLE players ADD COLUMN `t_permission_bypass` BOOLEAN;");
+            connection.Execute("ALTER TABLE players ADD COLUMN `t_permission_bypass` BOOLEAN;");
         }
-        IEnumerable<dynamic> ctPermissionBypassResult = _Conn.Query("select * from sqlite_master where name='players' and sql like '%ct_permission_bypass%'");
+        IEnumerable<dynamic> ctPermissionBypassResult = connection.Query("select * from sqlite_master where name='players' and sql like '%ct_permission_bypass%'");
         if (ctPermissionBypassResult.Count() == 0)
         {
-            _Conn.Execute("ALTER TABLE players ADD COLUMN `ct_permission_bypass` BOOLEAN;");
+            connection.Execute("ALTER TABLE players ADD COLUMN `ct_permission_bypass` BOOLEAN;");
         }
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS meshgrouppreferences (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                steamid INTEGER NOT NULL,
+                model TEXT NOT NULL,
+                meshgroup INTEGER NOT NULL
+            );
+        ");
+        connection.Execute(@"
+            CREATE INDEX idx_steamid ON meshgrouppreferences (steamid);
+            CREATE INDEX idx_model ON meshgrouppreferences (model);
+        ");
     }
-    public List<ModelCache> GetAllPlayerModel()
+
+    public async Task<SqliteConnection> ConnectAsync()
     {
-        return _Conn.Query<ModelCache>($"select * from players;").ToList();
+        SqliteConnection connection = new(DbConnString);
+        await connection.OpenAsync();
+        return connection;
+    }
+
+    public void ExecuteAsync(string query, object? parameters)
+    {
+        Task.Run(async () =>
+        {
+            using SqliteConnection connection = await ConnectAsync();
+            await connection.ExecuteAsync(query, parameters);
+        });
     }
 
     public dynamic? GetPlayerModel(ulong SteamID, string modelfield)
     {
-
-        var result = _Conn.QueryFirstOrDefault(@$"SELECT `{modelfield}` FROM `players` WHERE `steamid` = @SteamId;", new { SteamId = SteamID });
-        return result;
+        using SqliteConnection connection = ConnectAsync().Result;
+        return connection.QueryFirstOrDefault(@$"SELECT `{modelfield}` FROM `players` WHERE `steamid` = @SteamId;", new { SteamId = SteamID });
     }
 
     public string? GetPlayerTModel(ulong SteamID)
@@ -65,12 +89,12 @@ public class SqliteStorage : IStorage
         return result!.ct_model;
     }
 
-    public async Task<int> SetPlayerModel(ulong SteamId, string model, string modelfield, bool permissionBypass, string side)
+    public void SetPlayerModel(ulong SteamId, string model, string modelIndex, bool permissionBypass, string side)
     {
 
-        return await _Conn.ExecuteAsync(@$"
-            INSERT INTO `players` (`steamid`, `{modelfield}`, `{side}_permission_bypass`) VALUES (@SteamId, @model, @permissionBypass)
-            ON CONFLICT(`steamid`) DO UPDATE SET `{modelfield}` = @model, `{side}_permission_bypass`=@permissionBypass;",
+        ExecuteAsync(@$"
+            INSERT INTO `players` (`steamid`, `{modelIndex}`, `{side}_permission_bypass`) VALUES (@SteamId, @model, @permissionBypass)
+            ON CONFLICT(`steamid`) DO UPDATE SET `{modelIndex}` = @model, `{side}_permission_bypass`=@permissionBypass;",
             new
             {
                 SteamId,
@@ -80,17 +104,17 @@ public class SqliteStorage : IStorage
         );
 
     }
-    public async Task<int> SetPlayerTModel(ulong SteamID, string model, bool permissionBypass)
+    public void SetPlayerTModel(ulong SteamID, string model, bool permissionBypass)
     {
-        return await SetPlayerModel(SteamID, model, "t_model", permissionBypass, "t");
+        SetPlayerModel(SteamID, model, "t_model", permissionBypass, "t");
     }
-    public async Task<int> SetPlayerCTModel(ulong SteamID, string model, bool permissionBypass)
+    public void SetPlayerCTModel(ulong SteamID, string model, bool permissionBypass)
     {
-        return await SetPlayerModel(SteamID, model, "ct_model", permissionBypass, "ct");
+        SetPlayerModel(SteamID, model, "ct_model", permissionBypass, "ct");
     }
-    public async Task<int> SetAllTModel(string tmodel, bool permissionBypass)
+    public void SetAllTModel(string tmodel, bool permissionBypass)
     {
-        return await _Conn.ExecuteAsync(@$"
+        ExecuteAsync(@$"
             UPDATE `players` SET `t_model` = @tmodel, `t_permission_bypass`=@permissionBypass;",
             new
             {
@@ -99,9 +123,9 @@ public class SqliteStorage : IStorage
             }
         );
     }
-    public async Task<int> SetAllCTModel(string ctmodel, bool permissionBypass)
+    public void SetAllCTModel(string ctmodel, bool permissionBypass)
     {
-        return await _Conn.ExecuteAsync(@$"
+        ExecuteAsync(@$"
             UPDATE `players` SET `ct_model` = @ctmodel, `ct_permission_bypass`=@permissionBypass;",
             new
             {
@@ -109,5 +133,45 @@ public class SqliteStorage : IStorage
                 permissionBypass
             }
         );
+    }
+
+    public List<int> GetMeshgroupPreference(ulong SteamID, string modelIndex)
+    {
+        using SqliteConnection connection = ConnectAsync().Result;
+        return connection.Query<int>("SELECT meshgroup FROM meshgrouppreferences WHERE steamid=@SteamID AND model=@modelName", new { SteamID, modelIndex }).ToList();
+    }
+
+    public void AddMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup)
+    {
+        using SqliteConnection connection = ConnectAsync().Result;
+        var existing = connection.QueryFirstOrDefault<int>($"SELECT COUNT(*) FROM `meshgrouppreferences` WHERE `steamid` = {SteamID} AND `model` = '{modelIndex}' AND `meshgroup` = {meshgroup};");
+        if (existing == 0)
+        {
+            connection.ExecuteAsync("INSERT INTO meshgrouppreferences (steamid, model, meshgroup) VALUES (@SteamID, @modelName, @meshgroup);", new { SteamID, modelIndex, meshgroup });
+        }
+    }
+
+    public void RemoveMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup)
+    {
+        ExecuteAsync("DELETE FROM meshgrouppreferences WHERE steamid=@SteamID AND model=@modelName AND meshgroup=@meshgroup;", new { SteamID, modelIndex, meshgroup });
+    }
+
+    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>> GetCaches()
+    {
+        using SqliteConnection connection = ConnectAsync().Result;
+        List<ModelCache> modelCache = connection.Query<ModelCache>($"select * from players;").ToList();
+        var result = connection.Query<dynamic>($"SELECT * FROM `meshgrouppreferences`");
+        List<MeshgroupPreferenceCache> meshgroupPreferenceCaches = new();
+        foreach (var query in result)
+        {
+            MeshgroupPreferenceCache? cache = meshgroupPreferenceCaches.Find(meshgroupPreference => meshgroupPreference.steamid == query.steamid && meshgroupPreference.model == query.model);
+            if (cache == null)
+            {
+                cache = new MeshgroupPreferenceCache { steamid = query.steamid, model = query.model };
+                meshgroupPreferenceCaches.Add(cache);
+            }
+            cache.meshgroups.Add(query.meshgroup);
+        }
+        return new(modelCache, meshgroupPreferenceCaches);
     }
 }

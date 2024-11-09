@@ -21,7 +21,7 @@
   "command.modeladmin.reloadsuccess": "%pmc_prefix%{green}Config reloaded successfully.",
   "command.modeladmin.checkedinvalid": "%pmc_prefix%{red}Removed invalid model: {default}{0}",
   "random.notavailable": "%pmc_prefix%{red}No available model.",
-  "modelmenu.title": "({0}) Current model: {1}",
+  "modelmenu.title": "({0}) {1}",
   "modelmenu.nomodel": "%pmc_prefix%{red}No available model.",
   "modelmenu.forced": "%pmc_prefix%{red}Your model had been forced.",
   "modelmenu.selectside": "Please select a side",
@@ -32,5 +32,7 @@
   "model.none": "{red}None",
   "model.nopermission": "%pmc_prefix%{red}You don't have the permission for this model.",
   "model.invalidreseted": "%pmc_prefix%{red}Your model for {0} is invalid and it have been reseted.",
-  "model.nochangepermission": "%pmc_prefix%{red}You don't have the permission to change your model."
+  "model.nochangepermission": "%pmc_prefix%{red}You don't have the permission to change your model.",
+  "modelmenu.instruction": "[W/S] Scroll - [D] Select - [A] Go Back - [Tab] Close",
+  "modelmenu.instruction2": "[E] To Top - [R] To Selected"
 }
