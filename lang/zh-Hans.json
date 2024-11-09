@@ -20,7 +20,7 @@
   "command.modeladmin.checkedinvalid": "%pmc_prefix%{red}已移除无效的模型: {default}{0}",
   "command.models": "%pmc_prefix%{green}可用的模型 ({0}个): {default}",
   "random.notavailable": "%pmc_prefix%{red}没有可用的模型。",
-  "modelmenu.title": "({0}) 当前模型: {1}",
+  "modelmenu.title": "({0}) {1}",
   "modelmenu.nomodel": "%pmc_prefix%{red}没有可用的模型。",
   "modelmenu.forced": "%pmc_prefix%{red}您的模型已被强制设置，无法更改。",
   "modelmenu.selectside": "请选择阵营",
@@ -31,5 +31,7 @@
   "model.none": "{red}无",
   "model.nopermission": "%pmc_prefix%{red}你没有使用该模型的权限。",
   "model.invalidreseted": "%pmc_prefix%{red}您在{0}使用的模型无效，已被重置。",
-  "model.nochangepermission": "%pmc_prefix%{red}您没有更换皮肤的权利。"
+  "model.nochangepermission": "%pmc_prefix%{red}您没有更换皮肤的权利。",
+  "modelmenu.instruction": "[W/S] 滚动 - [D] 选择 - [A] 返回 - [Tab] 关闭",
+  "modelmenu.instruction2": "[E] 至顶部 - [R] 至已选项"
 }

@@ -1,66 +1,70 @@
 # CS2-PlayerModelChanger
-A lightweighted counterstrikesharp plugin to change player model.
+![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/license/samyycX/CS2-PlayerModelChanger
+) ![](https://img.shields.io/badge/Feedback-blue?style=flat&logo=discord&logoColor=white&link=https%3A%2F%2Fdiscord.com%2Fchannels%2F1160907911501991946%2F1210856437786484747
+) ![](https://img.shields.io/badge/Tutorial-By_KEDI103-grey?style=flat&logo=youtube&labelColor=red&link=https%3A%2F%2Fgithub.com%2FKEDI103&link=https%3A%2F%2Fyoutu.be%2F9Vy-im9N8KM
+) ![](https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E6%95%99%E7%A8%8B-red?logo=china&link=https%3A%2F%2Fgithub.com%2FsamyycX%2FCS2-PlayerModelChanger%2Fblob%2Fmaster%2FREADME_CN.md
+)
 
-If you like this plugin, please give a star :)
+✨ A CounterStrikeSharp plugin that allows players to customize their models, with features like a model selection menu, permission restrictions, setting default models, and other advanced options.
 
-**[A video tutorial about model can be found here](https://github.com/samyycX/CS2-PlayerModelChanger/issues/31)** (thanks to [@KEDI103](https://github.com/KEDI103))
+> [!CAUTION] 
+> This plugin can cause a GSLT ban, please use at your own risk.
 
-### This plugin can cause a GSLT ban, please use at your own risk.
-[中文教程请点这里](https://github.com/samyycX/CS2-PlayerModelChanger/blob/master/README_CN.md)
-- **[Before you use](#before-you-use)**
-- [Feature](#feature)
-- [Installation Guide](#installation-guide)
-- [Optional Dependencies](#optional-dependencies)
-- [Commands](#commands)
-- [Configuration](#configuration)
-- [Common Issues](#common-issues)
-- [Credits](#credits)
-- [TODOs](#todos)
-- [Contribution](#contribution)
-- [How to add default or workshop model](#how-to-add-default-or-workshop-model)
+- [🚀 Features](#rocket-features)
+- [📥 Installation Guide](#inbox_tray-installation-guide)
+- [📦 Optional Dependencies](#package-optional-dependencies)
+- [🛠️ Commands](#hammer_and_wrench-commands)
+- [⚙️ Configuration](#gear-configuration)
+- [🐞 Common Issues](#bug-common-issues)
+- [🙏 Credits](#pray-credits)
+- [📋 TODOs](#clipboard-todos)
+- [🤝 Contribution](#handshake-contribution)
+- [📚 How to add default or workshop model](#books-how-to-add-default-or-workshop-model)
 
 Custom model parts:
 - [How to pack a model into steam workshop item](#how-to-pack-a-model-into-steam-workshop-item)
 
-## Before you use
-1. **this plugin can cause a GSLT ban, use at your own risk**
 
-## Feature
-- a model select menu (support wasd menu)
-- can set different model for T and CT
-- random model
-- update model after change instantly
-- thirdperson inspection
-- can set default model
-- can provide special models for specified permission or player
-- can disable the display of leg model
+## 🚀 Features
+- Browse models smoothly using the WASD keys.
+- Set different models for `T` and `CT`.
+- Surprise your players with a random model every time!
+- Changes reflect immediately.
+- View models in third person for a full perspective.
+- Set a default model for different sides.
+- Offer unique models based on player permissions.
+- Toggle the leg model display on or off for enhanced customization.
 
-## Installation Guide
+## 📥 Installation Guide
 Download the plugin from latest [Release](https://github.com/samyycX/CS2-PlayerModelChanger/releases), then put it into your counterstrikesharp plugin folder.
 
-## Optional Dependencies
+## 📦 Optional Dependencies
 1. [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager) (for workshop model)
-2. [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) (for wasd interactive menu)
 
-## Commands
-### Server side
-- `pmc_enable [true/false]` Enable / Disable the plugin
-- `pmc_resynccache` Resync cache.
+## 🛠️ Commands
+### Menu commands (Recommended!)
+- `!md <all/ct/t> / !models <all/ct/t>` select model
+- `!mg / !mesh` select meshgroup (if exists)
+
 ### Client side
 - `!model` show sender the model he is using + helper
 - `!model <@random / model name> <all/ct/t>` change sender's model (@random for random model every spawn)
-- `!md <all/ct/t> / !models <all/ct/t>` select model
+### Server side
+- `pmc_enable [true/false]` Enable / Disable the plugin
+- `pmc_resynccache` Resync cache.
+
 ### Admin (Need `@pmc/admin` flag or `#pmc/admin` group)
 - `!modeladmin [all/steamid] reset [all/ct/t]` Reset player's model.
 - `!modeladmin [all/steamid] set [all/ct/t] [model index] ` Set player's model.
 - `!modeladmin [steamid] check` Check if player's model is not allowed to have, if not then reset it.
 - `!modeladmin reload` Reload the config.
-## Configuration
+
+## ⚙️ Configuration
 When you install the plugin successfully, it will generate `counterstrikesharp/configs/plugins/PlayerModelChanger/PlayerModelChanger.json`.
 
 See [Wiki](https://github.com/samyycX/CS2-PlayerModelChanger/wiki) to config it.
 
-## How to add default or workshop model
+## 📚 How to add default or workshop model
 
 ### Find the model path
 Use `Source2Viewer` or `GCFScape` to open the workshop vpk (or pak01 vpk), then find the `.vmdl_c` file, copy the path out
@@ -76,19 +80,19 @@ after added, switch the map once to make multiaddonmanager download the addon
 ### Config PlayerModelChanger
 See the [Configuration](#configuration)
 
-## Common Issues
+## 🐞 Common Issues
 - **You should use the compiled model (suffix `.vmdl_c`)**
 - **You should use `.vmdl` instead of `.vmdl_c` in config json**
 - If your model don't have animation, try to switch the map once (to make multiaddonmanager download the model)
 
-## Credits
+## 🙏 Credits
 - Method to change model: [DefaultSkins](https://github.com/Challengermode/cm-cs2-defaultskins) by ChallengerMode
 - Thirdperson inspection code: [ThirdPerson-WIP](https://github.com/UgurhanK/ThirdPerson-WIP) by UgurhanK
 
-## TODOs
+## 📋 TODOs
 1. Translation
 
-## Contribution
+## 🤝 Contribution
 To build this plugin, run `build.bat`.
 
 Feel free to create Pull Requests or issues.

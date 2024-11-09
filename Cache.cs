@@ -12,9 +12,18 @@ public class ModelCache
     public bool ct_permission_bypass { get; set; }
 }
 
+public class MeshgroupPreferenceCache
+{
+    public ulong steamid { get; set; }
+    public required string model { get; set; }
+    public List<int> meshgroups { get; set; } = new();
+
+}
+
 public class ModelCacheManager
 {
     private List<ModelCache> _Cache = new List<ModelCache>();
+    private List<MeshgroupPreferenceCache> _MeshgroupPreferenceCache = new List<MeshgroupPreferenceCache>();
     private IStorage _Storage;
     public ModelCacheManager(IStorage storage)
     {
@@ -22,11 +31,9 @@ public class ModelCacheManager
     }
     public void ResyncCache()
     {
-        var data = _Storage.GetAllPlayerModel();
-        if (data != null)
-        {
-            _Cache = data;
-        }
+        var data = _Storage.GetCaches();
+        _Cache = data.Item1;
+        _MeshgroupPreferenceCache = data.Item2;
     }
 
     public void SetAllTModels(string tmodel, bool permissionBypass)
@@ -45,7 +52,7 @@ public class ModelCacheManager
     {
         return _Cache.Select(model => model.steamid).ToList();
     }
-    public void SetPlayerModel(ulong steamid, string modelIndex, string side, bool permissionBypass)
+    public void SetPlayerModel(ulong steamid, string modelIndex, Side side, bool permissionBypass)
     {
         var obj = _Cache.Find(model => model.steamid == steamid);
 
@@ -69,4 +76,42 @@ public class ModelCacheManager
     {
         return _Cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64);
     }
+
+    public void AddMeshgroupPreference(ulong steamid, string modelIndex, int meshgroup)
+    {
+        var obj = _MeshgroupPreferenceCache.Find(model => model.steamid == steamid && model.model == modelIndex);
+        if (obj == null)
+        {
+            obj = new MeshgroupPreferenceCache
+            {
+                steamid = steamid,
+                model = modelIndex,
+                meshgroups = new List<int>()
+            };
+            _MeshgroupPreferenceCache.Add(obj);
+        }
+        obj.meshgroups.Add(meshgroup);
+    }
+
+    public List<int> GetMeshgroupPreference(ulong steamid, string modelIndex)
+    {
+        var obj = _MeshgroupPreferenceCache.Find(model => model.steamid == steamid && model.model == modelIndex);
+        if (obj == null)
+        {
+            return new List<int>();
+        }
+        return obj.meshgroups;
+    }
+
+    public void RemoveMeshgroupPreference(ulong steamid, string modelIndex, int meshgroup)
+    {
+        var obj = _MeshgroupPreferenceCache.Find(model => model.steamid == steamid && model.model == modelIndex);
+        if (obj == null)
+        {
+            return;
+        }
+        obj.meshgroups.Remove(meshgroup);
+    }
+
+
 }

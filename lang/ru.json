@@ -21,7 +21,7 @@
   "command.modeladmin.reloadsuccess": "%pmc_prefix%{green}Конфигурация успешно перезагружена!",
   "command.modeladmin.checkedinvalid": "%pmc_prefix%{red}Удалена недопустимая модель: {default}{0}",
   "random.notavailable": "%pmc_prefix%{red}Нет доступной модели.",
-  "modelmenu.title": "({0}) Текущая модель: {1}",
+  "modelmenu.title": "({0}) {1}",
   "modelmenu.forced": "%pmc_prefix%{red}Ваша модель была принудительной.",
   "modelmenu.nomodel": "%pmc_prefix%{red}Нет доступной модели.",
   "modelmenu.selectside": "Пожалуйста выбирите сторону",

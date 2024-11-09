@@ -12,34 +12,16 @@ namespace PlayerModelChanger;
 public class Utils
 {
 
-    public static void ExecuteSide(string side, Action? whenAll, Action whenT, Action whenCT, Action? invalid = null)
+    public static void ExecuteSide(Side? side, Action? whenAll, Action whenT, Action whenCT, Action? invalid = null)
     {
-        switch (side.ToLower())
+        Action action = side switch
         {
-            case "all":
-                if (whenAll == null)
-                {
-                    whenT();
-                    whenCT();
-                }
-                else
-                {
-                    whenAll();
-                }
-                break;
-            case "t":
-                whenT();
-                break;
-            case "ct":
-                whenCT();
-                break;
-            default:
-                if (invalid != null)
-                {
-                    invalid();
-                }
-                break;
+            Side.All => whenAll ?? (() => { whenT(); whenCT(); }),
+            Side.T => whenT,
+            Side.CT => whenCT,
+            _ => invalid ?? (() => { })
         };
+        action();
     }
 
     public static bool PlayerHasPermission(CCSPlayerController player, string[] permissions, string[] permissionsOr)
@@ -49,14 +31,14 @@ public class Utils
         {
             if (perm.StartsWith("@"))
             {
-                if (!AdminManager.PlayerHasPermissions(player, new string[] { perm }))
+                if (!AdminManager.PlayerHasPermissions(player, [perm]))
                 {
                     return false;
                 }
             }
             else if (perm.StartsWith("#"))
             {
-                if (!AdminManager.PlayerInGroup(player, new string[] { perm }))
+                if (!AdminManager.PlayerInGroup(player, [perm]))
                 {
                     return false;
                 }
@@ -115,7 +97,7 @@ public class Utils
         return true;
     }
 
-    public static bool CanPlayerSetModelInstantly(CCSPlayerController? player, string side)
+    public static bool CanPlayerSetModelInstantly(CCSPlayerController? player, Side side)
     {
         if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
         {
@@ -129,18 +111,17 @@ public class Utils
 
     }
 
-    private static bool IsUpdatingSameTeam(CCSPlayerController player, string side)
+    private static bool IsUpdatingSameTeam(CCSPlayerController player, Side side)
     {
         if (player.Team == CsTeam.None || player.Team == CsTeam.Spectator)
         {
             return false;
         }
-        side = side.ToLower();
-        if (side == "all")
+        if (side == Side.All)
         {
             return true;
         }
-        return (side == "t" && player.Team == CsTeam.Terrorist) || (side == "ct" && player.Team == CsTeam.CounterTerrorist);
+        return (side == Side.T && player.Team == CsTeam.Terrorist) || (side == Side.CT && player.Team == CsTeam.CounterTerrorist);
     }
 
     public static void RespawnPlayer(CCSPlayerController player, bool enableThirdPersonPreview)
@@ -182,7 +163,7 @@ public class Utils
                 }
                 if (path != null)
                 {
-                    Inspection.InspectModelForPlayer(player, path);
+                    Inspection.InspectModelForPlayer(player, path, model);
                 }
             }
             player.PrintToChat(PlayerModelChanger.getInstance().Localizer["command.model.instantsuccess"]);
@@ -197,6 +178,12 @@ public class Utils
         var jsonResourceManagerField = internalLocalizer.GetType().GetField("_resourceManager", BindingFlags.Instance | BindingFlags.NonPublic)!;
         JsonResourceManager jsonResourceManager = (JsonResourceManager)jsonResourceManagerField.GetValue(internalLocalizer)!;
         var resourcesCacheField = jsonResourceManager.GetType().GetField("_resourcesCache", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var tryLoadResourceSet = jsonResourceManager.GetType().GetMethod("TryLoadResourceSet", BindingFlags.NonPublic | BindingFlags.Instance, [typeof(string)])!;
+        tryLoadResourceSet.Invoke(jsonResourceManager, ["en"]);
+        tryLoadResourceSet.Invoke(jsonResourceManager, ["pt-BR"]);
+        tryLoadResourceSet.Invoke(jsonResourceManager, ["ru"]);
+        tryLoadResourceSet.Invoke(jsonResourceManager, ["zh-Hans"]);
+
         jsonResourceManager.GetString("command.model.success"); // make it initialize
         ConcurrentDictionary<string, ConcurrentDictionary<string, string>> resourcesCache = (ConcurrentDictionary<string, ConcurrentDictionary<string, string>>)resourcesCacheField.GetValue(jsonResourceManager)!;
         foreach (var caches in resourcesCache)
@@ -206,5 +193,15 @@ public class Utils
                 caches.Value[key] = caches.Value[key].Replace("%pmc_prefix%", "[{green}PlayerModelChanger{default}] ");
             }
         }
+    }
+
+    public static ulong CalculateMeshgroupmask(int[] enabledMeshgroups)
+    {
+        ulong result = 0;
+        foreach (var meshgroup in enabledMeshgroups)
+        {
+            result |= (ulong)1 << meshgroup;
+        }
+        return result;
     }
 }

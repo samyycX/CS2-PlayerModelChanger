@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CounterStrikeSharp.API.Core;
 
 namespace PlayerModelChanger;
@@ -7,58 +8,78 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger
 {
 
-    private SimpleMenuManager? simpleMenuManager;
-    private WasdMenuManager? wasdMenuManager;
-
-    private ModelMenuData GenerateModelMenuData(CCSPlayerController player)
+    public UncancellableSelectOption GetSelectModelOption(CCSPlayerController player, Side side, string modelIndex, string text, bool isSelected = false) => new UncancellableSelectOption()
     {
-        ModelMenuData data = new();
-        foreach (var side in new string[] { "t", "ct", "all" })
+        Text = text,
+        Select = (player, option, menu) =>
         {
-            SingleModelMenuData singleData = new SingleModelMenuData();
-            var currentModel = Service.GetPlayerModel(player, side);
-            List<Model> models = Service.GetAllAppliableModels(player, side);
-            singleData.Title = Localizer["modelmenu.title", Localizer[$"side.{side}"], currentModel == null ? Localizer["model.none"] : currentModel.Name];
-            singleData.SpecialModelSelections.Add(Localizer["modelmenu.unset"], "");
-            if (!Config.DisableRandomModel)
+            if (Service.SetPlayerModelWithCheck(player, modelIndex, side))
             {
-                singleData.SpecialModelSelections.Add(Localizer["modelmenu.random"], "@random");
-            }
-            singleData.SpecialModelSelections.Add(Localizer["modelmenu.default"], "@default");
-
-            foreach (var model in models)
-            {
-                if (model.Hideinmenu)
+                menu.Title = Localizer["modelmenu.title", Localizer[$"side.{side.ToName()}"], text];
+                var menus = MenuManager.GetPlayer(player.Slot);
+                if (menus.Menus.Count > 1)
                 {
-                    continue;
-                }
-                singleData.ModelSelections.Add(model.Name, model.Index);
-            }
+                    var newSideMenu = GetSelectSideMenu(player);
+                    if (newSideMenu != null)
+                    {
+                        menus.Menus.ElementAt(menus.Menus.Count - 1).Options = newSideMenu!.Options;
+                    }
 
-            data.Data.Add(side, singleData);
+                }
+            }
+        },
+        IsSelected = isSelected
+    };
+
+    public WasdModelMenu GetSelectModelMenu(CCSPlayerController player, Side side)
+    {
+
+        var menu = new WasdModelMenu();
+        var currentModel = Service.GetPlayerModel(player, side);
+        List<Model> models = Service.GetAllAppliableModels(player, side);
+        menu.Title = Localizer["modelmenu.title", Localizer[$"side.{side.ToName()}"], currentModel == null ? Localizer["model.none"] : currentModel.Name];
+        menu.AddOption(GetSelectModelOption(player, side, "", Localizer["modelmenu.unset"]));
+        if (!Config.DisableRandomModel)
+        {
+            menu.AddOption(GetSelectModelOption(player, side, "@random", Localizer["modelmenu.random"]));
         }
-        return data;
+        menu.AddOption(GetSelectModelOption(player, side, "@default", Localizer["modelmenu.default"]));
+
+        foreach (var model in models)
+        {
+            if (model.Hideinmenu)
+            {
+                continue;
+            }
+            var isSelected = false;
+            if (currentModel != null && model.Index == currentModel.Index)
+            {
+                isSelected = true;
+            }
+            menu.AddOption(GetSelectModelOption(player, side, model.Index, model.Name, isSelected));
+        }
+        return menu;
     }
 
-    private TeamMenuData? GenerateTeamMenuData(CCSPlayerController player)
+    public WasdModelMenu? GetSelectSideMenu(CCSPlayerController player)
     {
-        TeamMenuData data = new();
-        data.Title = Localizer["modelmenu.selectside"];
-        var sides = new List<String>();
+        var menu = new WasdModelMenu();
+        menu.Title = Localizer["modelmenu.selectside"];
+        var sides = new List<Side>();
 
-        var tDefault = DefaultModelManager.GetPlayerDefaultModel(player, "t");
-        var ctDefault = DefaultModelManager.GetPlayerDefaultModel(player, "ct");
+        var tDefault = DefaultModelManager.GetPlayerDefaultModel(player, Side.T);
+        var ctDefault = DefaultModelManager.GetPlayerDefaultModel(player, Side.CT);
         if (tDefault == null || !tDefault.force)
         {
-            sides.Add("t");
+            sides.Add(Side.T);
         }
         if (ctDefault == null || !ctDefault.force)
         {
-            sides.Add("ct");
+            sides.Add(Side.CT);
         }
         if (sides.Count == 2)
         {
-            sides.Insert(0, "all");
+            sides.Insert(0, Side.All);
         }
         if (sides.Count == 0)
         {
@@ -69,64 +90,173 @@ public partial class PlayerModelChanger
         {
             var playerModel = Service.GetPlayerModel(player, side);
 
-            string selection = playerModel != null ? $"{Localizer["side." + side]}: {playerModel.Name}" : $"{Localizer["side." + side]}";
-            data.Selections.Add(selection, side);
+            var text = playerModel != null ? $"{Localizer["side." + side.ToName()]}: {playerModel.Name}" : $"{Localizer["side." + side.ToName()]}";
+            var modelMenu = GetSelectModelMenu(player, side);
+
+            var option = new SubMenuOption { Text = text, NextMenu = modelMenu };
+
+            menu.AddOption(option);
         };
-        return data;
-    }
-
-    private SimpleMenuManager GetSimpleMenuManager()
-    {
-        if (simpleMenuManager == null)
-        {
-            simpleMenuManager = new SimpleMenuManager(Config.MenuType, this);
-        }
-        return simpleMenuManager;
-    }
-
-    private WasdMenuManager GetWasdMenuManager()
-    {
-        if (wasdMenuManager == null)
-        {
-            wasdMenuManager = new WasdMenuManager(this);
-        }
-        return wasdMenuManager;
+        return menu;
     }
     public void OpenSelectSideMenu(CCSPlayerController player)
     {
-        var modelData = GenerateModelMenuData(player);
-        var teamData = GenerateTeamMenuData(player);
-        if (teamData == null)
+        var modelMenu = GetSelectSideMenu(player);
+        if (modelMenu == null)
         {
             player.PrintToChat(Localizer["modelmenu.forced"]);
             return;
         }
-        if (Config.MenuType == "interactive" || Config.MenuType == "wasd")
-        {
-            GetWasdMenuManager().OpenSelectSideMenu(player, teamData, modelData);
-        }
-        else
-        {
-            GetSimpleMenuManager().OpenSelectSideMenu(player, teamData, modelData);
-        }
+        MenuManager.OpenMainMenu(player, modelMenu);
     }
 
-    public void OpenSelectModelMenu(CCSPlayerController player, string side, Model? model)
+    public void OpenSelectModelMenu(CCSPlayerController player, Side side, Model? model)
     {
-        var modelData = GenerateModelMenuData(player);
+        var modelMenu = GetSelectModelMenu(player, side);
         var defaultModel = DefaultModelManager.GetPlayerDefaultModel(player, side);
         if (defaultModel != null && defaultModel.force)
         {
             player.PrintToChat(Localizer["modelmenu.forced"]);
             return;
         }
-        if (Config.MenuType == "interactive" || Config.MenuType == "wasd")
+        MenuManager.OpenMainMenu(player, modelMenu);
+    }
+
+    public void OpenSelectMeshgroupMenu(CCSPlayerController player)
+    {
+
+        var menu = new WasdModelMenu();
+        var currentModel = Service.GetPlayerNowTeamModel(player);
+        if (currentModel == null || currentModel.Meshgroups.Count == 0)
         {
-            GetWasdMenuManager().OpenSelectModelMenu(player, side, modelData);
+            player.PrintToChat(Localizer["modelmenu.nomeshgroup"]);
+            return;
         }
-        else
+        menu.Title = currentModel.Name;
+        var meshgroupPreference = Service.GetMeshgroupPreference(player, currentModel);
+
+        foreach (var meshgroup in currentModel.Meshgroups)
         {
-            GetSimpleMenuManager().OpenSelectModelMenu(player, side, modelData);
+            Dictionary<string, dynamic> data = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(meshgroup.Value);
+            bool multiselect = meshgroup.Key.Contains("@multiselect");
+            bool combination = meshgroup.Key.Contains("@combination");
+            var key = meshgroup.Key.Replace("@multiselect", "").Replace("@combination", "");
+            var subMenu = new WasdModelMenu { Title = key };
+
+            foreach (var item in data)
+            {
+                if (!combination)
+                {
+                    var value = JsonSerializer.Deserialize<int>(item.Value);
+                    var isSelected = false;
+                    if (meshgroupPreference.Contains(value))
+                    {
+                        isSelected = true;
+                    }
+                    if (multiselect)
+                    {
+                        subMenu.AddOption(new MultiSelectOption
+                        {
+                            Text = item.Key,
+                            Select = (player, option, menu) =>
+                            {
+                                if (option.IsSelected)
+                                {
+                                    Service.AddMeshgroupPreference(player, currentModel, value);
+                                }
+                                else
+                                {
+                                    Service.RemoveMeshgroupPreference(player, currentModel, value);
+                                }
+                            },
+                            IsSelected = isSelected,
+                            RerenderAction = (player, option, menu) =>
+                            {
+                                option.IsSelected = Service.HasMeshgroupPreference(player, currentModel, value);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var steamid = player.AuthorizedSteamID!.SteamId64;
+                        subMenu.AddOption(new SelectOption
+                        {
+                            Text = item.Key,
+                            Select = (player, option, menu) =>
+                            {
+                                if (option.IsSelected)
+                                {
+                                    Service.AddMeshgroupPreference(player, currentModel, value);
+                                    foreach (var op in menu.Options)
+                                    {
+                                        if (op is SelectOption && !((SelectOption)op).IsSelected)
+                                        {
+                                            Service.RemoveMeshgroupPreference(player, currentModel, ((SelectOption)op).AdditionalProperties["meshgroup"], false);
+                                        }
+                                    };
+                                }
+                                else
+                                {
+                                    Service.RemoveMeshgroupPreference(player, currentModel, value);
+                                }
+                            },
+                            IsSelected = isSelected,
+                            RerenderAction = (player, option, menu) =>
+                            {
+                                option.IsSelected = Service.HasMeshgroupPreference(player, currentModel, value);
+                            }
+                        }.SetAdditionalProperty("meshgroup", value));
+                    }
+                }
+                else
+                {
+                    var value = JsonSerializer.Deserialize<List<int>>(item.Value);
+                    if (multiselect)
+                    {
+                        subMenu.AddOption(new MultiSelectOption
+                        {
+                            Text = item.Key,
+                            Select = (player, option, menu) =>
+                            {
+                                if (option.IsSelected)
+                                {
+                                    foreach (var meshgroup in value)
+                                    {
+                                        Service.AddMeshgroupPreference(player, currentModel, meshgroup, false);
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var meshgroup in value)
+                                    {
+                                        Service.RemoveMeshgroupPreference(player, currentModel, meshgroup, false);
+                                    }
+                                }
+                                Service.MeshgroupUpdate(player);
+                                MenuManager.RerenderPlayer(player.Slot);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        subMenu.AddOption(new UncancellableSelectOption
+                        {
+                            Text = item.Key,
+                            Select = (player, option, menu) =>
+                            {
+                                Service.SetMeshgroupPreference(player, currentModel, value);
+                                MenuManager.RerenderPlayer(player.Slot);
+                            },
+                        });
+                    }
+                }
+            }
+            menu.AddOption(new SubMenuOption
+            {
+                Text = key,
+                NextMenu = subMenu
+            });
         }
+        MenuManager.OpenMainMenu(player, menu);
     }
 }

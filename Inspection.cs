@@ -157,7 +157,7 @@ public class Inspection
         }
     }
 
-    public static void InspectModelForPlayer(CCSPlayerController player, string model)
+    public static void InspectModelForPlayer(CCSPlayerController player, string path, Model? model = null)
     {
 
         RemoveCamera(player);
@@ -199,7 +199,12 @@ public class Inspection
             playerPawn.Teleport(new Vector(0, 0, -500));
 
             CPhysicsPropOverride prop = Utilities.CreateEntityByName<CPhysicsPropOverride>("prop_physics_override")!;
-            prop.SetModel(model);
+            prop.SetModel(path);
+            if (model != null && prop.CBodyComponent != null && prop.CBodyComponent.SceneNode != null)
+            {
+                prop.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = Utils.CalculateMeshgroupmask(PlayerModelChanger.getInstance().Service.GetMeshgroupPreference(player, model).ToArray());
+                Utilities.SetStateChanged(prop, "CBaseEntity", "m_CBodyComponent");
+            }
             prop.DispatchSpawn();
             // not sure what the fuck is this but it can resolve model have weird pose
             var angle = (180 / float.Pi) * float.Atan2(originLocClone.Y, originLocClone.X) + 180;

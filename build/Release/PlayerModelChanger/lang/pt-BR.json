@@ -19,7 +19,7 @@
   "command.modeladmin.reloadsuccess": "%pmc_prefix%{green}Config reloaded successfully.",
   "command.modeladmin.checkedinvalid": "%pmc_prefix%{red}Modelo inválido removido: {default}{0}",
   "random.notavailable": "%pmc_prefix%{red}Nenhum modelo disponível.",
-  "modelmenu.title": "({0}) Modelo atual: {1}",
+  "modelmenu.title": "({0}) {1}",
   "modelmenu.nomodel": "%pmc_prefix%{red}Nenhum modelo disponível.",
   "modelmenu.selectside": "Please select a side",
   "modelmenu.unset": "Não definido",

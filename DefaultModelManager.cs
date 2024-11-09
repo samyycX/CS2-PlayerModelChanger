@@ -51,7 +51,7 @@ class SteamIDKey : EntryKey
     public SteamIDKey(string content) : base(content) { }
     public override bool Fits(CCSPlayerController player)
     {
-        return this.Content == player.AuthorizedSteamID?.SteamId64.ToString();
+        return Content == player.AuthorizedSteamID?.SteamId64.ToString();
     }
 }
 class PermissionFlagKey : EntryKey
@@ -59,7 +59,7 @@ class PermissionFlagKey : EntryKey
     public PermissionFlagKey(string content) : base(content) { }
     public override bool Fits(CCSPlayerController player)
     {
-        return AdminManager.PlayerHasPermissions(player, new string[] { Content });
+        return AdminManager.PlayerHasPermissions(player, [Content]);
     }
 }
 class PermissionGroupKey : EntryKey
@@ -67,7 +67,7 @@ class PermissionGroupKey : EntryKey
     public PermissionGroupKey(string content) : base(content) { }
     public override bool Fits(CCSPlayerController player)
     {
-        return AdminManager.PlayerInGroup(player, new string[] { Content });
+        return AdminManager.PlayerInGroup(player, [Content]);
     }
 }
 class AllKey : EntryKey
@@ -83,9 +83,9 @@ class DefaultModelEntry
 {
     public EntryKey key;
     public DefaultModel item; // model index
-    public string side;
+    public Side side;
 
-    public DefaultModelEntry(EntryKey key, DefaultModel item, string side)
+    public DefaultModelEntry(EntryKey key, DefaultModel item, Side side)
     {
         this.key = key;
         this.item = item;
@@ -164,8 +164,8 @@ public class DefaultModelManager
             foreach (var model in config.allModels)
             {
                 var key = ParseKey(model.Key);
-                defaultModels.Add(new DefaultModelEntry(key, model.Value, "ct"));
-                defaultModels.Add(new DefaultModelEntry(key, model.Value, "t"));
+                defaultModels.Add(new DefaultModelEntry(key, model.Value, Side.CT));
+                defaultModels.Add(new DefaultModelEntry(key, model.Value, Side.T));
             }
         }
         if (config.tModels != null)
@@ -173,8 +173,8 @@ public class DefaultModelManager
             foreach (var model in config.tModels)
             {
                 var key = ParseKey(model.Key);
-                defaultModels.RemoveAll(entry => entry.key.Equals(key) && entry.side == "t");
-                defaultModels.Add(new DefaultModelEntry(key, model.Value, "t"));
+                defaultModels.RemoveAll(entry => entry.key.Equals(key) && entry.side == Side.T);
+                defaultModels.Add(new DefaultModelEntry(key, model.Value, Side.T));
             }
         }
         if (config.ctModels != null)
@@ -182,8 +182,8 @@ public class DefaultModelManager
             foreach (var model in config.ctModels)
             {
                 var key = ParseKey(model.Key);
-                defaultModels.RemoveAll(entry => entry.key.Equals(key) && entry.side == "ct");
-                defaultModels.Add(new DefaultModelEntry(key, model.Value, "ct"));
+                defaultModels.RemoveAll(entry => entry.key.Equals(key) && entry.side == Side.CT);
+                defaultModels.Add(new DefaultModelEntry(key, model.Value, Side.CT));
             }
         }
         for (var i = 0; i < defaultModels.Count; i++)
@@ -214,7 +214,7 @@ public class DefaultModelManager
         result = entries.Find(entry => entry.key is AllKey);
         return result;
     }
-    public DefaultModel? GetPlayerDefaultModel(CCSPlayerController player, string side)
+    public DefaultModel? GetPlayerDefaultModel(CCSPlayerController player, Side side)
     {
         var filter1 = DefaultModels.Where(entry => entry.side == side && entry.key.Fits(player)).ToList();
         if (filter1 == null)

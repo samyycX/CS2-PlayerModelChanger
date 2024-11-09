@@ -34,21 +34,9 @@ public class ModelService
     public static void InitializeModel(string key, Model model)
     {
         model.Index = key;
-        if (model.Name == null)
+        if (model.Name == "")
         {
             model.Name = model.Index;
-        }
-        if (model.Side == null)
-        {
-            model.Side = "ALL";
-        }
-        if (model.Permissions == null)
-        {
-            model.Permissions = new string[0];
-        }
-        if (model.PermissionsOr == null)
-        {
-            model.PermissionsOr = new string[0];
         }
     }
 
@@ -75,22 +63,18 @@ public class ModelService
     public void SetAllModels(string tmodel, string ctmodel, bool permissionBypass)
     {
         _CacheManager.SetAllModels(tmodel, ctmodel, permissionBypass);
-        _Storage.SetAllTModel(tmodel, permissionBypass).ContinueWith((_) =>
-        {
-            _Storage.SetAllCTModel(ctmodel, permissionBypass);
-        });
+        _Storage.SetAllTModel(tmodel, permissionBypass);
+        _Storage.SetAllCTModel(ctmodel, permissionBypass);
     }
-    public void SetPlayerModel(ulong steamid, string? modelIndex, string side, bool permissionBypass)
+    public void SetPlayerModel(ulong steamid, string? modelIndex, Side side, bool permissionBypass)
     {
         modelIndex = modelIndex != null ? modelIndex : "";
         _CacheManager.SetPlayerModel(steamid, modelIndex, side, true);
         Utils.ExecuteSide(side,
             () =>
             {
-                _Storage.SetPlayerTModel(steamid, modelIndex, permissionBypass).ContinueWith((_) =>
-                {
-                    _Storage.SetPlayerCTModel(steamid, modelIndex, permissionBypass);
-                });
+                _Storage.SetPlayerTModel(steamid, modelIndex, permissionBypass);
+                _Storage.SetPlayerCTModel(steamid, modelIndex, permissionBypass);
             },
             () =>
             {
@@ -116,17 +100,15 @@ public class ModelService
     {
         tModel = tModel != null ? tModel : "";
         ctModel = ctModel != null ? ctModel : "";
-        _CacheManager.SetPlayerModel(steamid, tModel, "t", permissionBypass);
-        _CacheManager.SetPlayerModel(steamid, ctModel, "ct", permissionBypass);
-        _Storage.SetPlayerTModel(steamid, tModel, permissionBypass).ContinueWith((_) =>
-        {
-            _Storage.SetPlayerCTModel(steamid, ctModel, permissionBypass);
-        });
+        _CacheManager.SetPlayerModel(steamid, tModel, Side.T, permissionBypass);
+        _CacheManager.SetPlayerModel(steamid, ctModel, Side.CT, permissionBypass);
+        _Storage.SetPlayerTModel(steamid, tModel, permissionBypass);
+        _Storage.SetPlayerCTModel(steamid, ctModel, permissionBypass);
         if (!_Config.DisableInstantChange)
         {
             var player = Utilities.GetPlayerFromSteamId(steamid);
             if (player == null) { return; }
-            if (Utils.CanPlayerSetModelInstantly(player, "all"))
+            if (Utils.CanPlayerSetModelInstantly(player, Side.All))
             {
                 var index = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel)?.Index;
                 Utils.RespawnPlayer(player, _Config.Inspection.Enable && index != "@random");
@@ -135,51 +117,24 @@ public class ModelService
     }
     public void SetPlayerModel(ulong steamid, string? modelIndex, CsTeam team, bool permissionBypass)
     {
-        var side = team == CsTeam.Terrorist ? "t" : "ct";
+        var side = team == CsTeam.Terrorist ? Side.T : Side.CT;
         SetPlayerModel(steamid, modelIndex != null ? modelIndex : "", side, permissionBypass);
     }
 
-    public int GetModelCount()
-    {
-        return _Config.Models.Count();
-    }
-    public List<ulong> GetAllPlayers()
-    {
-        return _CacheManager.GetAllPlayers();
-    }
-    public List<Model> GetAllModels()
-    {
-        return _Config.Models.Values.ToList();
-    }
-    public bool ExistModel(string modelIndex)
-    {
-        return _Config.Models.ContainsKey(modelIndex);
-    }
-    public Model? FindModel(string modelName)
-    {
-        return _Config.Models.Values.FirstOrDefault(model => model?.Name == modelName, null);
-    }
-    public Model? GetModel(string modelIndex)
-    {
-        Model? value;
-        if (!_Config.Models.TryGetValue(modelIndex, out value))
-        {
-            return null;
-        }
-        else
-        {
-            return value;
-        }
+    public int GetModelCount() => _Config.Models.Count;
+    public List<ulong> GetAllPlayers() => _CacheManager.GetAllPlayers();
+    public List<Model> GetAllModels() => _Config.Models.Values.ToList();
+    public bool ExistModel(string modelIndex) => _Config.Models.ContainsKey(modelIndex);
+    public Model? FindModel(string modelName) => _Config.Models.Values.FirstOrDefault(model => model?.Name == modelName, null);
+    public Model? GetModel(string modelIndex) => _Config.Models.TryGetValue(modelIndex, out var value) ? value : null;
 
-    }
-
-    public bool CanPlayerApplyModel(CCSPlayerController player, string side, Model model)
+    public bool CanPlayerApplyModel(CCSPlayerController player, Side side, Model model)
     {
         return Utils.PlayerHasPermission(player, model.Permissions, model.PermissionsOr) && // permission
-            (model.Side.ToUpper() == "ALL" || model.Side.ToUpper() == side.ToUpper()); // side
+            (model.Side == Side.All || model.Side == side); // side
     }
 
-    public List<Model> GetAllAppliableModels(CCSPlayerController player, string side)
+    public List<Model> GetAllAppliableModels(CCSPlayerController player, Side side)
     {
         return _Config.Models.Values.Where(model => CanPlayerApplyModel(player, side, model)).ToList();
     }
@@ -189,10 +144,10 @@ public class ModelService
         var steamid = player.AuthorizedSteamID!.SteamId64!;
         var modelCache = _CacheManager.GetPlayerModelCache(player);
 
-        var defaultTModel = _DefaultModelManager.GetPlayerDefaultModel(player, "t");
-        var defaultCTModel = _DefaultModelManager.GetPlayerDefaultModel(player, "ct");
-        var tValid = CheckModel(player, "t", modelCache, defaultTModel);
-        var ctValid = CheckModel(player, "ct", modelCache, defaultCTModel);
+        var defaultTModel = _DefaultModelManager.GetPlayerDefaultModel(player, Side.T);
+        var defaultCTModel = _DefaultModelManager.GetPlayerDefaultModel(player, Side.CT);
+        var tValid = CheckModel(player, Side.T, modelCache, defaultTModel);
+        var ctValid = CheckModel(player, Side.CT, modelCache, defaultCTModel);
         if (!tValid && !ctValid)
         {
             SetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, false);
@@ -200,26 +155,26 @@ public class ModelService
         }
         else if (!tValid)
         {
-            SetPlayerModel(steamid, defaultTModel?.index, "t", false);
+            SetPlayerModel(steamid, defaultTModel?.index, Side.T, false);
             return new Tuple<bool, bool>(true, false);
         }
         else if (!ctValid)
         {
-            SetPlayerModel(steamid, defaultCTModel?.index, "ct", false);
+            SetPlayerModel(steamid, defaultCTModel?.index, Side.CT, false);
             return new Tuple<bool, bool>(false, true);
         }
         return new Tuple<bool, bool>(false, false);
     }
 
     // side only t and ct
-    public bool CheckModel(CCSPlayerController player, string side, ModelCache? modelCache, DefaultModel? defaultModel)
+    public bool CheckModel(CCSPlayerController player, Side side, ModelCache? modelCache, DefaultModel? defaultModel)
     {
         if (modelCache == null)
         {
             return false;
         }
-        var modelIndex = side == "t" ? modelCache!.t_model : modelCache!.ct_model;
-        if ((side == "t" && modelCache!.t_permission_bypass) || (side == "ct" && modelCache!.ct_permission_bypass))
+        var modelIndex = side == Side.T ? modelCache!.t_model : modelCache!.ct_model;
+        if ((side == Side.T && modelCache!.t_permission_bypass) || (side == Side.CT && modelCache!.ct_permission_bypass))
         {
             return true;
         }
@@ -247,7 +202,7 @@ public class ModelService
         return CanPlayerApplyModel(player, side, model);
     }
 
-    public void SetPlayerModelWithCheck(CCSPlayerController player, string modelIndex, string side)
+    public bool SetPlayerModelWithCheck(CCSPlayerController player, string modelIndex, Side side)
     {
         if (_ModelChangeCooldown.ContainsKey(player.SteamID))
         {
@@ -255,7 +210,7 @@ public class ModelService
             if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastTime < (_Config.ModelChangeCooldownSecond * 1000))
             {
                 player.PrintToChat(_Localizer["command.model.cooldown"]);
-                return;
+                return false;
             }
         }
 
@@ -263,8 +218,8 @@ public class ModelService
 
         if (modelIndex == "@default")
         {
-            var tDefault = _DefaultModelManager.GetPlayerDefaultModel(player, "t");
-            var ctDefault = _DefaultModelManager.GetPlayerDefaultModel(player, "ct");
+            var tDefault = _DefaultModelManager.GetPlayerDefaultModel(player, Side.T);
+            var ctDefault = _DefaultModelManager.GetPlayerDefaultModel(player, Side.CT);
             Utils.ExecuteSide(side,
                 () => SetPlayerAllModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, ctDefault == null ? "" : ctDefault.index, false),
                 () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, side, false),
@@ -272,9 +227,9 @@ public class ModelService
             );
             if (_Config.DisableInstantChange || !Utils.CanPlayerSetModelInstantly(player, side))
             {
-                player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side]]);
+                player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side.ToName()]]);
             }
-            return;
+            return true;
         }
 
         var model = GetModel(modelIndex);
@@ -283,19 +238,19 @@ public class ModelService
             if (model == null)
             {
                 player.PrintToChat(_Localizer["command.model.notfound", modelIndex]);
-                return;
+                return false;
             }
 
             if (!Utils.PlayerHasPermission(player, model.Permissions, model.PermissionsOr))
             {
                 player.PrintToChat(_Localizer["model.nopermission", modelIndex]);
-                return;
+                return false;
             }
 
             if (!GetAllAppliableModels(player, side).Contains(model))
             {
                 player.PrintToChat(_Localizer["model.wrongteam", modelIndex]);
-                return;
+                return false;
             }
 
         }
@@ -305,20 +260,21 @@ public class ModelService
         _ModelChangeCooldown[steamid] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         if (_Config.DisableInstantChange || !Utils.CanPlayerSetModelInstantly(player, side))
         {
-            player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side]]);
+            player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side.ToName()]]);
         }
+        return true;
 
     }
-    public Model? GetPlayerModel(CCSPlayerController player, string side)
+    public Model? GetPlayerModel(CCSPlayerController player, Side side)
     {
-        if (side == "all")
+        if (side == Side.All)
         {
-            var tModel = GetPlayerModel(player, "t");
-            var ctModel = GetPlayerModel(player, "ct");
+            var tModel = GetPlayerModel(player, Side.T);
+            var ctModel = GetPlayerModel(player, Side.CT);
             return tModel?.Index == ctModel?.Index ? tModel : null;
         }
         var modelCache = _CacheManager.GetPlayerModelCache(player);
-        var modelIndex = side == "t" ? modelCache?.t_model : modelCache?.ct_model;
+        var modelIndex = side == Side.T ? modelCache?.t_model : modelCache?.ct_model;
         if (modelIndex == null || modelIndex == "")
         {
             return null;
@@ -343,7 +299,7 @@ public class ModelService
         {
             return null;
         }
-        var side = team == CsTeam.Terrorist ? "t" : "ct";
+        var side = team == CsTeam.Terrorist ? Side.T : Side.CT;
         return GetPlayerModel(player, side);
     }
     public string GetPlayerModelName(CCSPlayerController player, CsTeam team)
@@ -368,4 +324,84 @@ public class ModelService
             return model.Name;
         }
     }
+
+    public List<int> GetMeshgroupPreference(CCSPlayerController player, Model model)
+    {
+        var meshgroupPreference = _CacheManager.GetMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index);
+        foreach (var item in model.FixedMeshgroups)
+        {
+            if (item.Value == 0 && meshgroupPreference.Contains(item.Key))
+            {
+                meshgroupPreference.RemoveAll(i => i == item.Key);
+            }
+            else if (item.Value == 1 && !meshgroupPreference.Contains(item.Key))
+            {
+                meshgroupPreference.Add(item.Key);
+            }
+        }
+        return meshgroupPreference;
+    }
+
+    public void AddMeshgroupPreference(CCSPlayerController player, Model model, int meshgroup, bool update = true)
+
+    {
+
+        _CacheManager.AddMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index, meshgroup);
+        _Storage.AddMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index, meshgroup);
+        if (update) MeshgroupUpdate(player);
+    }
+
+    public void SetMeshgroupPreference(CCSPlayerController player, Model model, List<int> meshgroups)
+    {
+        var old = new List<int>(GetMeshgroupPreference(player, model));
+        old.Sort();
+        old.RemoveAt(old.Count - 1); // preserve the 'autodefault' meshgroup
+        foreach (var meshgroup in old)
+        {
+            RemoveMeshgroupPreference(player, model, meshgroup, false);
+        }
+
+        foreach (var meshgroup in meshgroups)
+        {
+            AddMeshgroupPreference(player, model, meshgroup, false);
+        }
+        MeshgroupUpdate(player);
+    }
+
+    public void RemoveMeshgroupPreference(CCSPlayerController player, Model model, int meshgroup, bool update = true)
+    {
+        _CacheManager.RemoveMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index, meshgroup);
+        _Storage.RemoveMeshgroupPreference(player.AuthorizedSteamID!.SteamId64, model.Index, meshgroup);
+        if (update) MeshgroupUpdate(player);
+    }
+
+    public bool HasMeshgroupPreference(CCSPlayerController player, Model model, int meshgroup)
+    {
+        return GetMeshgroupPreference(player, model).Contains(meshgroup);
+    }
+
+    public bool InitMeshgroupPreference(CCSPlayerController player, Model model, ulong meshgroupmask)
+    {
+        if (GetMeshgroupPreference(player, model).Count > 0)
+        {
+            return false;
+        }
+        var meshgroups = Convert.ToString((long)meshgroupmask, 2).ToList().Select((b, i) => b == '1' ? i : -1).Where(i => i != -1).ToList();
+        var steamid = player.AuthorizedSteamID!.SteamId64;
+        foreach (var meshgroup in meshgroups)
+        {
+            _CacheManager.AddMeshgroupPreference(steamid, model.Index, meshgroup);
+            _Storage.AddMeshgroupPreference(steamid, model.Index, meshgroup);
+        }
+        return true;
+    }
+
+    public void MeshgroupUpdate(CCSPlayerController player)
+    {
+        if (Utils.CanPlayerSetModelInstantly(player, Side.All))
+        {
+            Utils.RespawnPlayer(player, _Config.Inspection.Enable);
+        }
+    }
+
 }
