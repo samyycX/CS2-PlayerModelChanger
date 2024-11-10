@@ -1,5 +1,6 @@
 # CS2-PlayerModelChanger
-![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/stars/samyycX/CS2-PlayerModelChanger?style=flat&logo=github
+![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/downloads/samyycX/CS2-PlayerModelChanger/total
+) ![](https://img.shields.io/github/stars/samyycX/CS2-PlayerModelChanger?style=flat&logo=github
 ) ![](https://img.shields.io/github/license/samyycX/CS2-PlayerModelChanger
 ) [![](https://img.shields.io/badge/Feedback-blue?style=flat&logo=discord&logoColor=white
 )](https://discord.com/channels/1160907911501991946/1210856437786484747) [![](https://img.shields.io/badge/Tutorial-By_KEDI103-grey?style=flat&logo=youtube&labelColor=red)](https://youtu.be/9Vy-im9N8KM) [![](https://img.shields.io/badge/%E4%B8%AD%E6%96%87%E6%95%99%E7%A8%8B-red

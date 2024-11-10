@@ -71,7 +71,7 @@ public class Inspection
                 {
                     cameraStatus.CameraProp.Remove();
                 }
-                if (cameraStatus.ModelProp != null)
+                if (cameraStatus.ModelProp != null && cameraStatus.ModelProp.IsValid)
                 {
                     cameraStatus.ModelProp.Remove();
                 }
@@ -132,7 +132,10 @@ public class Inspection
                 cameraStatuses.RemoveAt(i);
                 if (cameraStatus.Mode == CameraMode.ROTATION)
                 {
-                    cameraStatus.ModelProp!.Remove();
+                    if (cameraStatus.ModelProp != null && cameraStatus.ModelProp.IsValid)
+                    {
+                        cameraStatus.ModelProp.Remove();
+                    }
                 }
                 continue;
             }
@@ -150,7 +153,10 @@ public class Inspection
             cameraStatuses.RemoveAt(i);
             if (cameraStatus.Mode == CameraMode.ROTATION)
             {
-                cameraStatus.ModelProp!.Remove();
+                if (cameraStatus.ModelProp != null && cameraStatus.ModelProp.IsValid)
+                {
+                    cameraStatus.ModelProp.Remove();
+                }
                 oldPlayerPawn.Teleport(cameraStatus.Origin);
             }
             break;
