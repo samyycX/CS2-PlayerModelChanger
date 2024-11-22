@@ -6,13 +6,12 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Drawing;
 using CounterStrikeSharp.API.Modules.Config;
 using Microsoft.Extensions.Logging;
-using System.Runtime.InteropServices;
 namespace PlayerModelChanger;
 
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.8.0";
+    public override string ModuleVersion => "1.8.1";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -58,6 +57,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         {
             if (@event.Userid != null)
             {
+                MenuManager.RemovePlayer(@event.Userid.Slot);
                 MenuManager.AddPlayer(@event.Userid.Slot, new ModelMenuPlayer { Player = @event.Userid, Buttons = 0 });
             }
             return HookResult.Continue;

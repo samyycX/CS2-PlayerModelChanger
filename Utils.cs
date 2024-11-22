@@ -94,7 +94,7 @@ public class Utils
                 }
             }
         }
-        return true;
+        return permissionsOr.Length == 0;
     }
 
     public static bool CanPlayerSetModelInstantly(CCSPlayerController? player, Side side)
