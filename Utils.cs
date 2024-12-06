@@ -124,49 +124,35 @@ public class Utils
         return (side == Side.T && player.Team == CsTeam.Terrorist) || (side == Side.CT && player.Team == CsTeam.CounterTerrorist);
     }
 
-    public static void RespawnPlayer(CCSPlayerController player, bool enableThirdPersonPreview)
+    public static void InstantUpdatePlayer(CCSPlayerController player, Model? model, bool enableThirdPersonPreview)
     {
         if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid)
         {
             return;
         }
-        Server.NextFrame(() =>
+        PlayerModelChanger.getInstance().SetModelNextServerFrame(player, model, model == null ? false : model.Disableleg).ContinueWith((_) =>
         {
-            var playerPawn = player.PlayerPawn.Value!;
-            var absOrigin = new Vector(playerPawn.AbsOrigin?.X, playerPawn.AbsOrigin?.Y, playerPawn.AbsOrigin?.Z);
-            var absAngle = new QAngle(playerPawn.AbsRotation?.X, playerPawn.AbsRotation?.Y, playerPawn.AbsRotation?.Z);
-            var health = playerPawn.Health;
-            var armor = playerPawn.ArmorValue;
-            CCSPlayer_ItemServices services = new CCSPlayer_ItemServices(playerPawn.ItemServices!.Handle);
-            var armorHelmet = services.HasHelmet;
-            var defuser = services.HasDefuser;
-
-            player.Respawn();
-            playerPawn.Teleport(absOrigin, absAngle);
-            playerPawn.Health = health;
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
-            playerPawn.ArmorValue = armor;
-            services.HasHelmet = armorHelmet;
-            services.HasDefuser = defuser;
-            Utilities.SetStateChanged(playerPawn, "CBasePlayerPawn", "m_pItemServices");
-            if (enableThirdPersonPreview)
+            Server.NextFrame(() =>
             {
-                var model = PlayerModelChanger.getInstance().Service.GetPlayerNowTeamModel(player);
-                var path = "";
-                if (model == null || model.Path == "")
+                if (enableThirdPersonPreview)
                 {
-                    path = playerPawn.CBodyComponent?.SceneNode?.GetSkeletonInstance().ModelState.ModelName;
+                    var model = PlayerModelChanger.getInstance().Service.GetPlayerNowTeamModel(player);
+                    var path = "";
+                    if (model == null || model.Path == "")
+                    {
+                        path = player.PlayerPawn.Value.CBodyComponent?.SceneNode?.GetSkeletonInstance().ModelState.ModelName;
+                    }
+                    else
+                    {
+                        path = model.Path;
+                    }
+                    if (path != null)
+                    {
+                        Inspection.InspectModelForPlayer(player, path, model);
+                    }
                 }
-                else
-                {
-                    path = model.Path;
-                }
-                if (path != null)
-                {
-                    Inspection.InspectModelForPlayer(player, path, model);
-                }
-            }
-            player.PrintToChat(PlayerModelChanger.getInstance().Localizer["command.model.instantsuccess"]);
+                player.PrintToChat(PlayerModelChanger.getInstance().Localizer["command.model.instantsuccess"]);
+            });
         });
     }
 

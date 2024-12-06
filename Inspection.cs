@@ -173,6 +173,7 @@ public class Inspection
         if (_cameraProp == null || !_cameraProp.IsValid) return;
 
         _cameraProp.DispatchSpawn();
+        _cameraProp.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(_cameraProp.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
 
         _cameraProp.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_NEVER;
         _cameraProp.Collision.SolidFlags = 12;
@@ -216,6 +217,7 @@ public class Inspection
                 }
             }
             prop.DispatchSpawn();
+            _cameraProp.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(_cameraProp.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             // not sure what the fuck is this but it can resolve model have weird pose
             var angle = (180 / float.Pi) * float.Atan2(originLocClone.Y, originLocClone.X) + 180;
             prop.Teleport(originLocClone, new QAngle(0, angle, 0));
