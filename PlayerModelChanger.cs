@@ -11,7 +11,7 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.8.1";
+    public override string ModuleVersion => "1.8.2";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -50,6 +50,10 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         }
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         RegisterListener<Listeners.OnTick>(OnTick);
+        RegisterListener<Listeners.OnMapEnd>(() =>
+        {
+            Service.ClearMapDefaultModel();
+        });
 
         Utils.InitializeLangPrefix();
 
@@ -261,20 +265,26 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 }
             }
 
-
-            var model = Service.GetPlayerNowTeamModel(player);
-            if (model != null)
+            Server.NextFrame(() =>
             {
-                SetModelNextServerFrame(player, model, model.Disableleg);
-            }
-            else
-            {
+                if (!Service.MapDefaultModelInitialized(player))
+                {
+                    Service.SetMapDefaultModel(player, player.PlayerPawn.Value.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
+                }
                 Server.NextFrame(() =>
                 {
-                    var originalRender = player.PlayerPawn.Value.Render;
-                    player.PlayerPawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
+                    var model = Service.GetPlayerNowTeamModel(player);
+                    if (model != null)
+                    {
+                        SetModelNextServerFrame(player, model, model.Disableleg);
+                    }
+                    else
+                    {
+                        var originalRender = player.PlayerPawn.Value.Render;
+                        player.PlayerPawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
+                    }
                 });
-            }
+            });
         }
         catch (Exception ex)
         {
@@ -284,19 +294,28 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return HookResult.Continue;
     }
 
-    public void SetModelNextServerFrame(CCSPlayerController player, Model model, bool disableleg)
+    public Task SetModelNextServerFrame(CCSPlayerController player, Model? model, bool disableleg)
     {
-        Server.NextFrame(() =>
+        return Server.NextFrameAsync(() =>
         {
             var pawn = player.Pawn.Value!;
-            pawn.SetModel(model.Path);
-            var originalRender = pawn.Render;
-            pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
-
             if (player.IsBot || pawn.CBodyComponent == null || pawn.CBodyComponent.SceneNode == null)
             {
                 return;
             }
+            if (model == null)
+            {
+                var defaultModel = Service.GetMapDefaultModel(player);
+                if (defaultModel != null)
+                {
+                    pawn.SetModel(defaultModel);
+                }
+                return;
+            }
+            pawn.SetModel(model.Path);
+            var originalRender = pawn.Render;
+            pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+
 
             ulong meshgroupmask = pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask;
             if (Service.InitMeshgroupPreference(player, model, meshgroupmask))

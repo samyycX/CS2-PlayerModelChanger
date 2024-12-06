@@ -1,9 +1,16 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Extensions;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Localization;
 
 namespace PlayerModelChanger;
+
+struct MapDefaultModel
+{
+    public string? T { get; set; }
+    public string? CT { get; set; }
+}
 
 public class ModelService
 {
@@ -16,6 +23,8 @@ public class ModelService
     private IStringLocalizer _Localizer;
 
     private ModelCacheManager _CacheManager;
+
+    private Dictionary<ulong, MapDefaultModel> _MapDefaultModels = new Dictionary<ulong, MapDefaultModel>();
 
 
     private Dictionary<ulong, long> _ModelChangeCooldown = new Dictionary<ulong, long>();
@@ -91,7 +100,8 @@ public class ModelService
             if (player == null) { return; }
             if (Utils.CanPlayerSetModelInstantly(player, side))
             {
-                Utils.RespawnPlayer(player, _Config.Inspection.Enable && modelIndex != "@random");
+                var model = GetPlayerModel(player, side);
+                Utils.InstantUpdatePlayer(player, model, _Config.Inspection.Enable && modelIndex != "@random");
             }
         }
     }
@@ -110,8 +120,8 @@ public class ModelService
             if (player == null) { return; }
             if (Utils.CanPlayerSetModelInstantly(player, Side.All))
             {
-                var index = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel)?.Index;
-                Utils.RespawnPlayer(player, inspection && _Config.Inspection.Enable && index != "@random");
+                var model = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel);
+                Utils.InstantUpdatePlayer(player, model, inspection && _Config.Inspection.Enable && model?.Index != "@random");
             }
         }
     }
@@ -396,8 +406,56 @@ public class ModelService
     {
         if (Utils.CanPlayerSetModelInstantly(player, Side.All))
         {
-            Utils.RespawnPlayer(player, _Config.Inspection.Enable);
+            var model = GetPlayerNowTeamModel(player);
+            Utils.InstantUpdatePlayer(player, model, _Config.Inspection.Enable);
         }
+    }
+
+    public bool MapDefaultModelInitialized(CCSPlayerController player)
+    {
+        if (!_MapDefaultModels.ContainsKey(player.AuthorizedSteamID!.SteamId64))
+        {
+            return false;
+        }
+        MapDefaultModel model = _MapDefaultModels[player.AuthorizedSteamID!.SteamId64];
+        if (player.Team == CsTeam.None || player.Team == CsTeam.Spectator)
+        {
+            return true;
+        }
+        return player.Team == CsTeam.Terrorist ? model.T != null : model.CT != null;
+    }
+    public void SetMapDefaultModel(CCSPlayerController player, string model)
+    {
+        var m = _MapDefaultModels.GetValueOrDefault(player.AuthorizedSteamID!.SteamId64, new MapDefaultModel());
+        if (player.Team == CsTeam.CounterTerrorist)
+        {
+            m.CT = model;
+        }
+        else if (player.Team == CsTeam.Terrorist)
+        {
+            m.T = model;
+        }
+        _MapDefaultModels[player.AuthorizedSteamID!.SteamId64] = m;
+    }
+    public string? GetMapDefaultModel(CCSPlayerController player)
+    {
+        if (!_MapDefaultModels.ContainsKey(player.AuthorizedSteamID!.SteamId64))
+        {
+            return null;
+        }
+        if (player.Team == CsTeam.CounterTerrorist)
+        {
+            return _MapDefaultModels[player.AuthorizedSteamID!.SteamId64].CT;
+        }
+        else if (player.Team == CsTeam.Terrorist)
+        {
+            return _MapDefaultModels[player.AuthorizedSteamID!.SteamId64].T;
+        }
+        return null;
+    }
+    public void ClearMapDefaultModel()
+    {
+        _MapDefaultModels.Clear();
     }
 
 }
