@@ -65,7 +65,7 @@ public partial class PlayerModelChanger
 
         foreach (var model in models)
         {
-            if (model.Hideinmenu)
+            if (model.HideInMenu)
             {
                 continue;
             }

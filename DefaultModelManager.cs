@@ -1,7 +1,8 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace PlayerModelChanger;
 
@@ -93,22 +94,75 @@ class DefaultModelEntry
     }
 }
 
+public class DefaultModelIndexConverter : JsonConverter
+{
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(List<string>) || objectType == typeof(string);
+    }
+
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.String)
+        {
+            return new List<string> { (string)reader.Value! };
+        }
+        else if (reader.TokenType == JsonToken.StartArray)
+        {
+            var list = new List<string>();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonToken.EndArray)
+                    break;
+                if (reader.TokenType == JsonToken.String)
+                    list.Add((string)reader.Value!);
+            }
+            return list;
+        }
+
+        throw new JsonException("Expected string or array of strings");
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        var list = (List<string>?)value;
+        if (list == null) return;
+
+        writer.WriteStartArray();
+        foreach (var item in list)
+        {
+            writer.WriteValue(item);
+        }
+        writer.WriteEndArray();
+    }
+}
+
 public class DefaultModel
 {
-    public required string index;
-    public bool force;
+    [JsonProperty("index")]
+    [JsonConverter(typeof(DefaultModelIndexConverter))]
+    public required List<string> index;
+
+    [JsonProperty("force")]
+    public bool force = false;
 }
 
 class ConfigDefaultModelsTemplate
 {
-    [JsonProperty("all")] public Dictionary<string, DefaultModel>? allModels = null;
-    [JsonProperty("t")] public Dictionary<string, DefaultModel>? tModels = null;
-    [JsonProperty("ct")] public Dictionary<string, DefaultModel>? ctModels = null;
+    [JsonProperty("all")]
+    public Dictionary<string, DefaultModel>? allModels = null;
 
+    [JsonProperty("t")]
+    public Dictionary<string, DefaultModel>? tModels = null;
+
+    [JsonProperty("ct")]
+    public Dictionary<string, DefaultModel>? ctModels = null;
 }
+
 class ConfigTemplate
 {
-    [JsonProperty("DefaultModels")] public required ConfigDefaultModelsTemplate models { get; set; }
+    [JsonProperty("DefaultModels")]
+    public required ConfigDefaultModelsTemplate models { get; set; }
 }
 
 public class DefaultModelManager
@@ -122,8 +176,7 @@ public class DefaultModelManager
         var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
         if (File.Exists(filePath))
         {
-            StreamReader reader = File.OpenText(filePath);
-            string content = reader.ReadToEnd();
+            string content = File.ReadAllText(filePath);
             ConfigTemplate config = JsonConvert.DeserializeObject<ConfigTemplate>(content)!;
 
             DefaultModels = ParseModelConfig(config.models, service);
@@ -188,11 +241,14 @@ public class DefaultModelManager
         }
         for (var i = 0; i < defaultModels.Count; i++)
         {
-
-            if (service.GetModel(defaultModels[i].item.index) == null)
+            foreach (var index in defaultModels[i].item.index)
             {
-                PlayerModelChanger.getInstance().Logger.LogInformation($"model '${defaultModels[i].item.index}' defined in DefaultModels.json does not exist. Skipped.");
-                defaultModels.RemoveAt(i);
+                if (index != "" || service.GetModel(index) == null)
+                {
+                    PlayerModelChanger.getInstance().Logger.LogInformation($"model '${index}' defined in DefaultModels.json does not exist. Skipped.");
+                    defaultModels.RemoveAt(i);
+                    break;
+                }
             }
         }
         return defaultModels;
@@ -226,7 +282,7 @@ public class DefaultModelManager
         {
             return null;
         }
-        if (result.item == null || result.item.index == "")
+        if (result.item == null || result.item.index.Count == 0)
         {
             return null;
         }

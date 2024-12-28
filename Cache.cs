@@ -72,6 +72,7 @@ public class ModelCacheManager
         );
 
     }
+
     public ModelCache? GetPlayerModelCache(CCSPlayerController player)
     {
         return _Cache.Find(model => model.steamid == player!.AuthorizedSteamID!.SteamId64);
