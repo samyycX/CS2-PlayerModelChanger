@@ -14,7 +14,7 @@ public class Model
     [JsonConverter(typeof(CaseInsensitiveJsonStringEnumConverter))]
     public Side Side { get; set; } = Side.All;
     [JsonPropertyName("disableleg")] public bool Disableleg { get; set; }
-    [JsonPropertyName("hideinmenu")] public bool Hideinmenu { get; set; }
+    [JsonPropertyName("hideinmenu")] public bool HideInMenu { get; set; }
     [JsonPropertyName("fixedmeshgroups")] public Dictionary<int, int> FixedMeshgroups { get; set; } = [];
     [JsonPropertyName("meshgroups")] public Dictionary<string, dynamic> Meshgroups { get; set; } = new();
 }

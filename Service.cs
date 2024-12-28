@@ -48,7 +48,6 @@ public class ModelService
             model.Name = model.Index;
         }
     }
-
     public void ReloadConfig(string ModuleDirectory, ModelConfig config)
     {
         this._Config = config;
@@ -125,6 +124,7 @@ public class ModelService
             }
         }
     }
+
     public void SetPlayerModel(ulong steamid, string? modelIndex, CsTeam team, bool permissionBypass)
     {
         var side = team == CsTeam.Terrorist ? Side.T : Side.CT;
@@ -157,24 +157,24 @@ public class ModelService
         var defaultCTModel = _DefaultModelManager.GetPlayerDefaultModel(player, Side.CT);
         if (modelCache == null) // player first time join
         {
-            SetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, false, false);
+            SetPlayerAllModel(steamid, "@default", "@default", false, false);
             return new Tuple<bool, bool>(false, false);
         }
         var tValid = CheckModel(player, Side.T, modelCache, defaultTModel);
         var ctValid = CheckModel(player, Side.CT, modelCache, defaultCTModel);
         if (!tValid && !ctValid)
         {
-            SetPlayerAllModel(steamid, defaultTModel?.index, defaultCTModel?.index, false);
+            SetPlayerAllModel(steamid, "@default", "@default", false);
             return new Tuple<bool, bool>(true, true);
         }
         else if (!tValid)
         {
-            SetPlayerModel(steamid, defaultTModel?.index, Side.T, false);
+            SetPlayerModel(steamid, "@default", Side.T, false);
             return new Tuple<bool, bool>(true, false);
         }
         else if (!ctValid)
         {
-            SetPlayerModel(steamid, defaultCTModel?.index, Side.CT, false);
+            SetPlayerModel(steamid, "@default", Side.CT, false);
             return new Tuple<bool, bool>(false, true);
         }
         return new Tuple<bool, bool>(false, false);
@@ -192,18 +192,15 @@ public class ModelService
         {
             return true;
         }
-        if (defaultModel != null && defaultModel.force)
+        if (defaultModel != null && defaultModel.force && modelIndex != "@default")
         {
-            if (modelIndex != defaultModel.index)
-            {
-                return false;
-            }
+            return false;
         }
         if (modelIndex == "@random" && _Config.DisableRandomModel)
         {
             return false;
         }
-        if (modelIndex == "" || modelIndex == "@random")
+        if (modelIndex == "" || modelIndex == "@random" || modelIndex == "@default")
         {
             return true;
         }
@@ -216,7 +213,7 @@ public class ModelService
         return CanPlayerApplyModel(player, side, model);
     }
 
-    public bool SetPlayerModelWithCheck(CCSPlayerController player, string modelIndex, Side side)
+    private bool IsPlayerInCooldown(CCSPlayerController player)
     {
         if (_ModelChangeCooldown.ContainsKey(player.SteamID))
         {
@@ -224,20 +221,27 @@ public class ModelService
             if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastTime < (_Config.ModelChangeCooldownSecond * 1000))
             {
                 player.PrintToChat(_Localizer["command.model.cooldown"]);
-                return false;
+                return true;
             }
+        }
+        return false;
+    }
+
+    public bool SetPlayerModelWithCheck(CCSPlayerController player, string modelIndex, Side side)
+    {
+        if (IsPlayerInCooldown(player))
+        {
+            return false;
         }
 
         var isSpecial = modelIndex == "" || modelIndex == "@random";
 
         if (modelIndex == "@default")
         {
-            var tDefault = _DefaultModelManager.GetPlayerDefaultModel(player, Side.T);
-            var ctDefault = _DefaultModelManager.GetPlayerDefaultModel(player, Side.CT);
             Utils.ExecuteSide(side,
-                () => SetPlayerAllModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, ctDefault == null ? "" : ctDefault.index, false),
-                () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, tDefault == null ? "" : tDefault.index, side, false),
-                () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, ctDefault == null ? "" : ctDefault.index, side, false)
+                () => SetPlayerAllModel(player!.AuthorizedSteamID!.SteamId64, "@default", "@default", false),
+                () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, "@default", side, false),
+                () => SetPlayerModel(player!.AuthorizedSteamID!.SteamId64, "@default", side, false)
             );
             if (_Config.DisableInstantChange || !Utils.CanPlayerSetModelInstantly(player, side))
             {
@@ -277,8 +281,8 @@ public class ModelService
             player.PrintToChat(_Localizer["command.model.success", _Localizer["side." + side.ToName()]]);
         }
         return true;
-
     }
+
     public Model? GetPlayerModel(CCSPlayerController player, Side side)
     {
         if (side == Side.All)
@@ -303,6 +307,20 @@ public class ModelService
             var index = Random.Shared.Next(models.Count());
             return models[index];
         }
+        if (modelIndex == "@default")
+        {
+            var defaultModel = _DefaultModelManager.GetPlayerDefaultModel(player, side);
+            if (defaultModel == null || defaultModel.index.Count == 0)
+            {
+                return null;
+            }
+            var index = defaultModel.index[Random.Shared.Next(defaultModel.index.Count)];
+            if (index == "")
+            {
+                return null;
+            }
+            return GetModel(index);
+        }
         return GetModel(modelIndex);
     }
 
@@ -316,6 +334,7 @@ public class ModelService
         var side = team == CsTeam.Terrorist ? Side.T : Side.CT;
         return GetPlayerModel(player, side);
     }
+
     public string GetPlayerModelName(CCSPlayerController player, CsTeam team)
     {
         var modelCache = _CacheManager.GetPlayerModelCache(player);
@@ -457,5 +476,4 @@ public class ModelService
     {
         _MapDefaultModels.Clear();
     }
-
 }

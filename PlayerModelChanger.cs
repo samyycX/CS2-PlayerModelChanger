@@ -6,12 +6,14 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Drawing;
 using CounterStrikeSharp.API.Modules.Config;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Memory;
+using System.Runtime.InteropServices;
 namespace PlayerModelChanger;
 
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.8.2";
+    public override string ModuleVersion => "1.8.3";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -100,8 +102,6 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         RemoveListener<Listeners.OnTick>(OnTick);
         DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawnEvent);
         Logger.LogInformation("Unloaded successfully.");
-
-
     }
 
     public static PlayerModelChanger getInstance()
@@ -265,24 +265,27 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 }
             }
 
-            Server.NextFrame(() =>
+            AddTimer(0.03f, () =>
             {
-                if (!Service.MapDefaultModelInitialized(player))
-                {
-                    Service.SetMapDefaultModel(player, player.PlayerPawn.Value.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
-                }
                 Server.NextFrame(() =>
                 {
-                    var model = Service.GetPlayerNowTeamModel(player);
-                    if (model != null)
+                    if (!Service.MapDefaultModelInitialized(player))
                     {
-                        SetModelNextServerFrame(player, model, model.Disableleg);
+                        Service.SetMapDefaultModel(player, player.PlayerPawn.Value.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
                     }
-                    else
+                    Server.NextFrame(() =>
                     {
-                        var originalRender = player.PlayerPawn.Value.Render;
-                        player.PlayerPawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
-                    }
+                        var model = Service.GetPlayerNowTeamModel(player);
+                        if (model != null)
+                        {
+                            SetModelNextServerFrame(player, model, model.Disableleg);
+                        }
+                        else
+                        {
+                            var originalRender = player.PlayerPawn.Value.Render;
+                            player.PlayerPawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
+                        }
+                    });
                 });
             });
         }
