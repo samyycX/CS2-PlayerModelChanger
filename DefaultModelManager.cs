@@ -243,9 +243,9 @@ public class DefaultModelManager
         {
             foreach (var index in defaultModels[i].item.index)
             {
-                if (index != "" || service.GetModel(index) == null)
+                if (index != "" && index != "@random" && service.GetModel(index) == null)
                 {
-                    PlayerModelChanger.getInstance().Logger.LogInformation($"model '${index}' defined in DefaultModels.json does not exist. Skipped.");
+                    PlayerModelChanger.getInstance().Logger.LogInformation($"model '{index}' defined in DefaultModels.json does not exist. Skipped.");
                     defaultModels.RemoveAt(i);
                     break;
                 }
