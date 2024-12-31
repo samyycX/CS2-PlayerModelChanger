@@ -297,16 +297,7 @@ public class ModelService
         {
             return null;
         }
-        if (modelIndex == "@random")
-        {
-            var models = GetAllAppliableModels(player, side);
-            if (models.Count() == 0)
-            {
-                return null;
-            }
-            var index = Random.Shared.Next(models.Count());
-            return models[index];
-        }
+
         if (modelIndex == "@default")
         {
             var defaultModel = _DefaultModelManager.GetPlayerDefaultModel(player, side);
@@ -319,7 +310,17 @@ public class ModelService
             {
                 return null;
             }
-            return GetModel(index);
+            modelIndex = index;
+        }
+        if (modelIndex == "@random")
+        {
+            var models = GetAllAppliableModels(player, side);
+            if (models.Count() == 0)
+            {
+                return null;
+            }
+            var index = Random.Shared.Next(models.Count());
+            return models[index];
         }
         return GetModel(modelIndex);
     }
