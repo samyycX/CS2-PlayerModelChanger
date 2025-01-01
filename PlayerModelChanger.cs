@@ -13,7 +13,7 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.8.4";
+    public override string ModuleVersion => "1.8.5";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -207,15 +207,23 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 
             if (player.IsBot)
             {
-                string modelindex = team == CsTeam.Terrorist ? Config.ModelForBots.T : Config.ModelForBots.CT;
-                if (modelindex == "")
+                List<string> modelindexs = team == CsTeam.Terrorist ? Config.ModelForBots.T : Config.ModelForBots.CT;
+                if (modelindexs.Count() == 0)
                 {
                     return HookResult.Continue;
                 }
+                var modelindex = modelindexs[Random.Shared.Next(modelindexs.Count)];
                 var botmodel = Service.GetModel(modelindex);
+                if (modelindex == "@random")
+                {
+                    botmodel = Service.GetRandomModel(player, team == CsTeam.Terrorist ? Side.T : Side.CT);
+                }
                 if (botmodel != null)
                 {
-                    SetModelNextServerFrame(player, botmodel, botmodel.Disableleg);
+                    AddTimer(0.03f, () =>
+                    {
+                        SetModelNextServerFrame(player, botmodel, botmodel.Disableleg);
+                    });
                 }
                 else
                 {
@@ -225,6 +233,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                         player.Pawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
                     });
                 }
+                return HookResult.Continue;
             }
 
             if (player.AuthorizedSteamID == null)
@@ -302,10 +311,6 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return Server.NextFrameAsync(() =>
         {
             var pawn = player.Pawn.Value!;
-            if (player.IsBot || pawn.CBodyComponent == null || pawn.CBodyComponent.SceneNode == null)
-            {
-                return;
-            }
             if (model == null)
             {
                 var defaultModel = Service.GetMapDefaultModel(player);

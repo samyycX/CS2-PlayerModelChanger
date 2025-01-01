@@ -283,6 +283,17 @@ public class ModelService
         return true;
     }
 
+    public Model? GetRandomModel(CCSPlayerController player, Side side)
+    {
+        var models = GetAllAppliableModels(player, side);
+        if (models.Count() == 0)
+        {
+            return null;
+        }
+        var index = Random.Shared.Next(models.Count());
+        return models[index];
+    }
+
     public Model? GetPlayerModel(CCSPlayerController player, Side side)
     {
         if (side == Side.All)
@@ -314,13 +325,7 @@ public class ModelService
         }
         if (modelIndex == "@random")
         {
-            var models = GetAllAppliableModels(player, side);
-            if (models.Count() == 0)
-            {
-                return null;
-            }
-            var index = Random.Shared.Next(models.Count());
-            return models[index];
+            return GetRandomModel(player, side);
         }
         return GetModel(modelIndex);
     }
