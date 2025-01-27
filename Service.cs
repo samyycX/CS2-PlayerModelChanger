@@ -100,7 +100,7 @@ public class ModelService
             if (Utils.CanPlayerSetModelInstantly(player, side))
             {
                 var model = GetPlayerModel(player, side);
-                Utils.InstantUpdatePlayer(player, model, _Config.Inspection.Enable && modelIndex != "@random");
+                Utils.InstantUpdatePlayer(player, model, _Config.Inspection.Enable);
             }
         }
     }

@@ -13,7 +13,7 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
 {
     public override string ModuleName => "Player Model Changer";
-    public override string ModuleVersion => "1.8.5";
+    public override string ModuleVersion => "1.8.6";
 
     public override string ModuleAuthor => "samyyc";
     public required ModelConfig Config { get; set; }
@@ -38,7 +38,8 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             case "mysql":
                 Storage = new MySQLStorage(Config.MySQLIP, Config.MySQLPort, Config.MySQLUser, Config.MySQLPassword, Config.MySQLDatabase, Config.MySQLTable);
                 break;
-        };
+        }
+        ;
         if (Storage == null)
         {
             throw new Exception("[PlayerModelChanger] Failed to initialize storage. Please check your config");
@@ -220,10 +221,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 }
                 if (botmodel != null)
                 {
-                    AddTimer(0.03f, () =>
-                    {
-                        SetModelNextServerFrame(player, botmodel, botmodel.Disableleg);
-                    });
+                    SetModelNextServerFrame(player, botmodel, botmodel.Disableleg);
                 }
                 else
                 {
@@ -274,27 +272,25 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 }
             }
 
-            AddTimer(0.03f, () =>
+            Server.NextFrame(() =>
             {
+                if (!Service.MapDefaultModelInitialized(player))
+                {
+                    Service.SetMapDefaultModel(player, player.PlayerPawn.Value.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
+                }
                 Server.NextFrame(() =>
                 {
-                    if (!Service.MapDefaultModelInitialized(player))
+                    var model = Service.GetPlayerNowTeamModel(player);
+                    if (model != null)
                     {
-                        Service.SetMapDefaultModel(player, player.PlayerPawn.Value.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
+                        SetModelNextServerFrame(player, model, model.Disableleg);
                     }
-                    Server.NextFrame(() =>
+                    else
                     {
-                        var model = Service.GetPlayerNowTeamModel(player);
-                        if (model != null)
-                        {
-                            SetModelNextServerFrame(player, model, model.Disableleg);
-                        }
-                        else
-                        {
-                            var originalRender = player.PlayerPawn.Value.Render;
-                            player.PlayerPawn.Value.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
-                        }
-                    });
+                        var originalRender = player.PlayerPawn.Value.Render;
+                        player.PlayerPawn.Value.Render = Color.FromArgb(Config.DisableDefaultModelLeg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+                        Utilities.SetStateChanged(player.PlayerPawn.Value, "CBaseModelEntity", "m_clrRender");
+                    }
                 });
             });
         }
@@ -311,19 +307,23 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
         return Server.NextFrameAsync(() =>
         {
             var pawn = player.Pawn.Value!;
+            var originalRender = pawn.Render;
             if (model == null)
             {
                 var defaultModel = Service.GetMapDefaultModel(player);
                 if (defaultModel != null)
                 {
                     pawn.SetModel(defaultModel);
+
                 }
+                pawn.Render = Color.FromArgb(Config.DisableDefaultModelLeg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+                Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+
                 return;
             }
             pawn.SetModel(model.Path);
-            var originalRender = pawn.Render;
             pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
-
+            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
 
             ulong meshgroupmask = pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask;
             if (Service.InitMeshgroupPreference(player, model, meshgroupmask))

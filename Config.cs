@@ -76,6 +76,8 @@ public class ModelConfig : BasePluginConfig
     [JsonPropertyName("ModelChangeCooldownSecond")] public float ModelChangeCooldownSecond { get; set; } = 0f;
     [JsonPropertyName("Inspection")] public InspectionConfig Inspection { get; set; } = new InspectionConfig();
 
+    [JsonPropertyName("BasicPermission")] public string BasicPermission { get; set; } = "";
+    [JsonPropertyName("DisableDefaultModelLeg")] public bool DisableDefaultModelLeg { get; set; } = false;
     [JsonPropertyName("DisableInstantChange")] public bool DisableInstantChange { get; set; } = false;
     [JsonPropertyName("DisablePrecache")] public bool DisablePrecache { get; set; } = false;
     [JsonPropertyName("DisableRandomModel")] public bool DisableRandomModel { get; set; } = false;
