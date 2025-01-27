@@ -28,6 +28,11 @@ public partial class PlayerModelChanger
         {
             return;
         }
+        if (!Utils.PlayerHasBasicPermission(player))
+        {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
+        }
 
         var modelIndex = commandInfo.GetArg(1);
 
@@ -75,6 +80,11 @@ public partial class PlayerModelChanger
         {
             return;
         }
+        if (!Utils.PlayerHasBasicPermission(player))
+        {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
+        }
         if (commandInfo.ArgCount == 1)
         {
             OpenSelectSideMenu(player);
@@ -96,6 +106,15 @@ public partial class PlayerModelChanger
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void MeshgroupCommand(CCSPlayerController player, CommandInfo commandInfo)
     {
+        if (Config.DisablePlayerSelection)
+        {
+            return;
+        }
+        if (!Utils.PlayerHasBasicPermission(player))
+        {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
+        }
         OpenSelectMeshgroupMenu(player);
     }
 }

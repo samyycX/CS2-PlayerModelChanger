@@ -24,6 +24,20 @@ public class Utils
         action();
     }
 
+    public static bool PlayerHasBasicPermission(CCSPlayerController player)
+    {
+        var basicPermission = PlayerModelChanger.getInstance().Config.BasicPermission;
+        if (basicPermission == "")
+        {
+            return true;
+        }
+        if (PlayerHasPermission(player, [basicPermission], []))
+        {
+            return true;
+        }
+        return false;
+    }
+
     public static bool PlayerHasPermission(CCSPlayerController player, string[] permissions, string[] permissionsOr)
     {
 
