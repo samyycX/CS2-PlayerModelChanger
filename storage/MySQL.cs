@@ -1,5 +1,6 @@
 using Dapper;
 using MySqlConnector;
+using PlayerModelChanger.Services;
 
 namespace PlayerModelChanger;
 public class MySQLStorage : IStorage
