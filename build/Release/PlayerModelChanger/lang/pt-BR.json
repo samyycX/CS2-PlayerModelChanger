@@ -25,6 +25,7 @@
   "modelmenu.unset": "Não definido",
   "modelmenu.random": "Aleatório",
   "modelmenu.default": "Por defeito",
+  "modelmenu.skin": "Skin",
   "model.wrongteam": "%pmc_prefix%{red}Você não pode aplicar o modelo {default} {0}{red} neste lado.",
   "model.none": "{red}Nenhum",
   "model.nopermission": "%pmc_prefix%{red}Você não tem permissão para este modelo.",
