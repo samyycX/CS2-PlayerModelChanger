@@ -27,6 +27,7 @@
   "modelmenu.unset": "重置",
   "modelmenu.random": "随机",
   "modelmenu.default": "默认",
+  "modelmenu.skin": "皮肤",
   "model.wrongteam": "%pmc_prefix%{red}你不能将{default} {0}{red} 模型应用到此阵营。",
   "model.none": "{red}无",
   "model.nopermission": "%pmc_prefix%{red}你没有使用该模型的权限。",
