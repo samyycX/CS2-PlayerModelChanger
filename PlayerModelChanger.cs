@@ -325,7 +325,18 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
             Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
 
-            ulong meshgroupmask = pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask;
+            Logger.LogInformation($"Setting skin to {model.FixedSkin} for {player.SteamID}");
+            if (model.FixedSkin != -1)
+            {
+                Logger.LogInformation($"Setting skin to {model.FixedSkin} for {player.SteamID}");
+                pawn.AcceptInput("Skin", pawn, pawn, model.FixedSkin.ToString());
+            }
+            else
+            {
+                pawn.AcceptInput("Skin", pawn, pawn, Service.GetSkinPreference(player, model).ToString());
+            }
+            
+            ulong meshgroupmask = pawn.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.MeshGroupMask;
             if (Service.InitMeshgroupPreference(player, model, meshgroupmask))
             {
                 return;
@@ -336,6 +347,7 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
                 pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = meshgroupmask;
                 Utilities.SetStateChanged(pawn, "CBaseEntity", "m_CBodyComponent");
             }
+
         });
     }
 }

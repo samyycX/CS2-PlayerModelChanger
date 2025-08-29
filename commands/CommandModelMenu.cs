@@ -8,16 +8,16 @@ namespace PlayerModelChanger;
 public partial class PlayerModelChanger
 {
 
-    public UncancellableSelectOption GetSelectModelOption(CCSPlayerController player, Side side, string modelIndex, string text, bool isSelected = false, bool hasMeshgroup = false)
+    public UncancellableSelectOption GetSelectModelOption(CCSPlayerController player, Side side, string modelIndex, string text, bool isSelected = false, bool hasMeshgroup = false, bool hasSkin = false)
     {
         return new UncancellableSelectOption()
         {
             Text = text,
             Select = (player, option, menu) =>
             {
-                if (option.IsSelected && hasMeshgroup)
+                if (option.IsSelected && (hasMeshgroup || hasSkin))
                 {
-                    option.AdditionalProperties["meshgroupMenu"] = GetSelectMeshgroupMenu(player)!;
+                    option.AdditionalProperties["meshgroupMenu"] = GetSelectMeshgroupMenu(player, hasSkin)!;
                     MenuManager.OpenSubMenu(player, option.AdditionalProperties["meshgroupMenu"]);
                     return;
                 }
@@ -75,8 +75,9 @@ public partial class PlayerModelChanger
                 isSelected = true;
             }
             var hasMeshgroup = model.Meshgroups.Count > 0;
+            var hasSkin = model.Skins.Count > 0;
 
-            menu.AddOption(GetSelectModelOption(player, side, model.Index, model.Name, isSelected, hasMeshgroup));
+            menu.AddOption(GetSelectModelOption(player, side, model.Index, model.Name, isSelected, hasMeshgroup, hasSkin));
         }
         return menu;
     }
@@ -142,7 +143,7 @@ public partial class PlayerModelChanger
         MenuManager.OpenMainMenu(player, modelMenu);
     }
 
-    public WasdModelMenu? GetSelectMeshgroupMenu(CCSPlayerController player)
+    public WasdModelMenu? GetSelectMeshgroupMenu(CCSPlayerController player, bool skin)
     {
 
         var menu = new WasdModelMenu();
@@ -153,6 +154,15 @@ public partial class PlayerModelChanger
         }
         menu.Title = currentModel.Name;
         var meshgroupPreference = Service.GetMeshgroupPreference(player, currentModel);
+
+        if (skin)
+        {
+            var skinMenu = GetSelectSkinMenu(player);
+            if (skinMenu != null)
+            {
+                menu.AddOption(new SubMenuOption { Text = Localizer["modelmenu.skin"], NextMenu = skinMenu });
+            }
+        }
 
         foreach (var meshgroup in currentModel.Meshgroups)
         {
@@ -309,12 +319,45 @@ public partial class PlayerModelChanger
         return menu;
     }
 
+    public WasdModelMenu? GetSelectSkinMenu(CCSPlayerController player)
+    {
+        var menu = new WasdModelMenu();
+        var currentModel = Service.GetPlayerNowTeamModel(player);
+        if (currentModel == null || currentModel.Skins.Count == 0)
+        {
+            return null;
+        }
+        menu.Title = currentModel.Name;
+        var skinPreference = Service.GetSkinPreference(player, currentModel);
+        foreach (var skin in currentModel.Skins)
+        {
+            menu.AddOption(new UncancellableSelectOption { Text = skin.Key, IsSelected = skin.Value == skinPreference, Select = (player, option, menu) =>
+            {
+                Service.SetSkinPreference(player, currentModel, skin.Value);
+            } });
+        }
+
+        return menu;
+    }
+
     public void OpenSelectMeshgroupMenu(CCSPlayerController player)
     {
-        var menu = GetSelectMeshgroupMenu(player);
+        // TODO: maybe also add skin menu? but we have !skin command
+        var menu = GetSelectMeshgroupMenu(player, false);
         if (menu == null)
         {
             player.PrintToChat(Localizer["modelmenu.nomeshgroup"]);
+            return;
+        }
+        MenuManager.OpenMainMenu(player, menu);
+    }
+
+    public void OpenSelectSkinMenu(CCSPlayerController player)
+    {
+        var menu = GetSelectSkinMenu(player);
+        if (menu == null)
+        {
+            player.PrintToChat(Localizer["modelmenu.noskin"]);
             return;
         }
         MenuManager.OpenMainMenu(player, menu);

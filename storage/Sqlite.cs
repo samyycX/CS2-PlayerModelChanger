@@ -41,6 +41,15 @@ public class SqliteStorage : IStorage
                 `meshgroup` INTEGER NOT NULL
             );
         ");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS `skippreferences` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+                `steamid` INTEGER NOT NULL,
+                `model` TEXT NOT NULL,
+                `skin` INTEGER NOT NULL
+            );
+        ");
     }
 
     public async Task<SqliteConnection> ConnectAsync()
@@ -151,7 +160,18 @@ public class SqliteStorage : IStorage
         ExecuteAsync("DELETE FROM `meshgrouppreferences` WHERE `steamid`=@SteamID AND `model`=@modelIndex AND `meshgroup`=@meshgroup;", new { SteamID, modelIndex, meshgroup });
     }
 
-    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>> GetCaches()
+    public int GetSkinPreference(ulong SteamID, string modelIndex)
+    {
+        using SqliteConnection connection = ConnectAsync().Result;
+        return connection.QueryFirstOrDefault<int>($"SELECT `skin` FROM `skippreferences` WHERE `steamid` = @SteamID AND `model` = @modelIndex;", new { SteamID, modelIndex });
+    }
+
+    public void UpdateSkinPerference(ulong SteamID, string modelIndex, int skin)
+    {
+        ExecuteAsync("INSERT INTO `skippreferences` (`steamid`, `model`, `skin`) VALUES (@SteamID, @modelIndex, @skin) ON DUPLICATE KEY UPDATE `skin` = @skin;", new { SteamID, modelIndex, skin });
+    }
+
+    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>, List<SkinPreferenceCache>> GetCaches()
     {
         using SqliteConnection connection = ConnectAsync().Result;
         List<ModelCache> modelCache = connection.Query<ModelCache>($"select * from players;").ToList();
@@ -167,6 +187,7 @@ public class SqliteStorage : IStorage
             }
             cache.meshgroups.Add((int)query.meshgroup);
         }
-        return new(modelCache, meshgroupPreferenceCaches);
+        var skinPreferenceCaches = connection.Query<SkinPreferenceCache>($"SELECT * FROM `skippreferences`").ToList();
+        return new(modelCache, meshgroupPreferenceCaches, skinPreferenceCaches);
     }
 }
