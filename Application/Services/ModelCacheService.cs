@@ -1,6 +1,6 @@
 using CounterStrikeSharp.API.Core;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services;
 
 public class ModelCache
 {
@@ -27,16 +27,16 @@ public class SkinPreferenceCache
     public int skin { get; set; }
 }
 
-public class ModelCacheManager
+public class ModelCacheService
 {
-    private List<ModelCache> _Cache = new List<ModelCache>();
-    private List<MeshgroupPreferenceCache> _MeshgroupPreferenceCache = new List<MeshgroupPreferenceCache>();
-    private List<SkinPreferenceCache> _SkinPreferenceCache = new List<SkinPreferenceCache>();
+    private List<ModelCache> _Cache = new();
+    private List<MeshgroupPreferenceCache> _MeshgroupPreferenceCache = new();
+    private List<SkinPreferenceCache> _SkinPreferenceCache = new();
 
     private IStorage _Storage;
-    public ModelCacheManager(IStorage storage)
+    public ModelCacheService(DatabaseService databaseService)
     {
-        this._Storage = storage;
+        _Storage = databaseService.GetStorage();
     }
     public void ResyncCache()
     {

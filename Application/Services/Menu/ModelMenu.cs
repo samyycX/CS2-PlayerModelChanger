@@ -1,10 +1,18 @@
 using System.Text;
 using CounterStrikeSharp.API.Core;
+using Microsoft.Extensions.Localization;
 
 namespace PlayerModelChanger;
 
 public abstract class MenuOption
 {
+
+  public ModelMenuManager _MenuManager { get; init; }
+
+  public MenuOption(ModelMenuManager menuManager) {
+    _MenuManager = menuManager;
+  }
+
   public string Text { get; set; } = "";
 
   public abstract void Next(CCSPlayerController player, WasdModelMenu menu);
@@ -14,10 +22,12 @@ public abstract class MenuOption
 
 public class SubMenuOption : MenuOption
 {
+
+  public SubMenuOption(ModelMenuManager menuManager) : base(menuManager) { }
   public required WasdModelMenu NextMenu { get; set; }
   public override void Next(CCSPlayerController player, WasdModelMenu menu)
   {
-    PlayerModelChanger.getInstance().MenuManager.OpenSubMenu(player, NextMenu);
+    _MenuManager.OpenSubMenu(player, NextMenu);
   }
 
   public override void Rerender(CCSPlayerController player, WasdModelMenu menu)
@@ -28,12 +38,15 @@ public class SubMenuOption : MenuOption
 
 public class SelectOption : MenuOption
 {
+
   public Action<CCSPlayerController, SelectOption, WasdModelMenu> Select { get; set; } = (_, _, _) => { };
 
   public Action<CCSPlayerController, SelectOption, WasdModelMenu> RerenderAction { get; set; } = (_, _, _) => { };
 
   public Dictionary<string, dynamic> AdditionalProperties = new();
   public bool IsSelected = false;
+
+  public SelectOption(ModelMenuManager menuManager) : base(menuManager) { }
 
   public override void Next(CCSPlayerController player, WasdModelMenu menu)
   {
@@ -65,6 +78,9 @@ public class SelectOption : MenuOption
 
 public class UncancellableSelectOption : SelectOption
 {
+
+  public UncancellableSelectOption(ModelMenuManager menuManager) : base(menuManager) { }
+
   public override void Next(CCSPlayerController player, WasdModelMenu menu)
   {
     Select(player, this, menu);
@@ -94,6 +110,8 @@ public class MultiSelectOption : MenuOption
 
   public bool IsSelected = false;
 
+  public MultiSelectOption(ModelMenuManager menuManager) : base(menuManager) { }
+
   public override void Next(CCSPlayerController player, WasdModelMenu menu)
   {
     Select(player, this, menu);
@@ -109,6 +127,9 @@ public class MultiSelectOption : MenuOption
 
 public class WasdModelMenu
 {
+
+  public IStringLocalizer _Localizer { get; init; }
+
   const int MAX_OPTIONS = 4;
 
   public string Title { get; set; } = "";
@@ -117,6 +138,10 @@ public class WasdModelMenu
   public int StartOffset = 0;
 
   public int SelectedOption = 0;
+
+  public WasdModelMenu(IStringLocalizer localizer) {
+    _Localizer = localizer;
+  }
 
   public void AddOption(MenuOption option)
   {
@@ -231,8 +256,8 @@ public class WasdModelMenu
 
     }
 
-    builder.AppendLine($"<font class='fontSize-s' color='#9ee1f0'>{PlayerModelChanger.getInstance().Localizer["modelmenu.instruction"]}</font><br>");
-    builder.AppendLine($"<font class='fontSize-s' color='#9ee1f0'>{PlayerModelChanger.getInstance().Localizer["modelmenu.instruction2"]}</font>");
+    builder.AppendLine($"<font class='fontSize-s' color='#9ee1f0'>{_Localizer["modelmenu.instruction"]}</font><br>");
+    builder.AppendLine($"<font class='fontSize-s' color='#9ee1f0'>{_Localizer["modelmenu.instruction2"]}</font>");
     builder.AppendLine("</div>");
     return builder.ToString();
 

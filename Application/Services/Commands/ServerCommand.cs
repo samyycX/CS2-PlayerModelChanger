@@ -1,11 +1,31 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using Microsoft.Extensions.Localization;
+using PlayerModelChanger.Models;
+using PlayerModelChanger.Services;
 
 namespace PlayerModelChanger;
 
-public partial class PlayerModelChanger
+public class ServerCommand
 {
+
+    private PlayerModelChanger _Plugin { get; init; }
+
+    private GlobalVars _GlobalVars { get; init; }
+
+    private IStringLocalizer _Localizer { get; init; }
+
+    private ModelCacheService _ModelCacheService { get; init; }
+
+    public ServerCommand(PlayerModelChanger plugin, GlobalVars globalVars, IStringLocalizer localizer, ModelCacheService modelCacheService)
+    {
+        _Plugin = plugin;
+        _GlobalVars = globalVars;
+        _Localizer = localizer;
+        _ModelCacheService = modelCacheService;
+    }
+
 
     [ConsoleCommand("playermodelchanger_enable", "Enable/Disable the plugin.")]
     [ConsoleCommand("pmc_enable", "Enable/Disable the plugin.")]
@@ -15,17 +35,17 @@ public partial class PlayerModelChanger
         var arg = commandInfo.GetArg(1);
         if (arg == "1" || arg == "true")
         {
-            Enable = true;
-            commandInfo.ReplyToCommand(Localizer["plugin.enable"]);
+            _GlobalVars.Enable = true;
+            commandInfo.ReplyToCommand(_Localizer["plugin.enable"]);
         }
         else if (arg == "0" || arg == "false")
         {
-            Enable = false;
-            commandInfo.ReplyToCommand(Localizer["plugin.disable"]);
+            _GlobalVars.Enable = false;
+            commandInfo.ReplyToCommand(_Localizer["plugin.disable"]);
         }
         else
         {
-            commandInfo.ReplyToCommand(Localizer["command.incorrectusage"]);
+            commandInfo.ReplyToCommand(_Localizer["command.incorrectusage"]);
         }
 
     }
@@ -35,7 +55,7 @@ public partial class PlayerModelChanger
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.SERVER_ONLY)]
     public void ResyncCache(CCSPlayerController? player, CommandInfo commandInfo)
     {
-        Service.ResyncCache();
+        _ModelCacheService.ResyncCache();
         commandInfo.ReplyToCommand("Resynced.");
     }
 

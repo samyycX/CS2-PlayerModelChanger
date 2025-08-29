@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Modules.Admin;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using PlayerModelChanger.Services;
 
 namespace PlayerModelChanger;
 
@@ -147,7 +148,7 @@ public class DefaultModel
     public bool force = false;
 }
 
-class ConfigDefaultModelsTemplate
+public class ConfigDefaultModelsTemplate
 {
     [JsonProperty("all")]
     public Dictionary<string, DefaultModel>? allModels = null;
@@ -159,32 +160,25 @@ class ConfigDefaultModelsTemplate
     public Dictionary<string, DefaultModel>? ctModels = null;
 }
 
-class ConfigTemplate
+public class ConfigTemplate
 {
     [JsonProperty("DefaultModels")]
-    public required ConfigDefaultModelsTemplate models { get; set; }
+    public ConfigDefaultModelsTemplate models { get; set; } = new();
 }
 
-public class DefaultModelManager
+public class DefaultModelService
 {
+    private ConfigurationService _ConfigurationService { get; init; }
+
+    private ILogger _Logger { get; init; }
 
     private List<DefaultModelEntry> DefaultModels = new List<DefaultModelEntry>();
 
+    public DefaultModelService(ConfigurationService configurationService, ILogger logger) {
+        _ConfigurationService = configurationService;
+        _Logger = logger;
 
-    public void ReloadConfig(string ModuleDirectory, ModelService service)
-    {
-        var filePath = Path.Join(ModuleDirectory, "../../configs/plugins/PlayerModelChanger/DefaultModels.json");
-        if (File.Exists(filePath))
-        {
-            string content = File.ReadAllText(filePath);
-            ConfigTemplate config = JsonConvert.DeserializeObject<ConfigTemplate>(content)!;
-
-            DefaultModels = ParseModelConfig(config.models, service);
-        }
-        else
-        {
-            PlayerModelChanger.getInstance().Logger.LogInformation("'DefaultModels.json' not found. Disabling default models feature.");
-        }
+        DefaultModels = ParseModelConfig(_ConfigurationService.DefaultModelConfig.models);
     }
 
     private static EntryKey ParseKey(string key)
@@ -208,7 +202,7 @@ public class DefaultModelManager
         }
         return entryKey;
     }
-    private static List<DefaultModelEntry> ParseModelConfig(ConfigDefaultModelsTemplate config, ModelService service)
+    private List<DefaultModelEntry> ParseModelConfig(ConfigDefaultModelsTemplate config)
     {
         List<DefaultModelEntry> defaultModels = new List<DefaultModelEntry>();
 
@@ -243,9 +237,9 @@ public class DefaultModelManager
         {
             foreach (var index in defaultModels[i].item.index)
             {
-                if (index != "" && index != "@random" && service.GetModel(index) == null)
+                if (index != "" && index != "@random" && _ConfigurationService.ModelConfig.Models.ContainsKey(index))
                 {
-                    PlayerModelChanger.getInstance().Logger.LogInformation($"model '{index}' defined in DefaultModels.json does not exist. Skipped.");
+                    _Logger.LogInformation($"model '{index}' defined in DefaultModels.json does not exist. Skipped.");
                     defaultModels.RemoveAt(i);
                     break;
                 }

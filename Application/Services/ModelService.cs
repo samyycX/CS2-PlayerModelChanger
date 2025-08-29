@@ -1,8 +1,10 @@
+using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Extensions;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Localization;
+using PlayerModelChanger.Services;
 
 namespace PlayerModelChanger;
 
@@ -15,43 +17,49 @@ struct MapDefaultModel
 public class ModelService
 {
 
+    private ConfigurationService _ConfigurationService;
     private ModelConfig _Config;
-    public IStorage _Storage;
-
-    private DefaultModelManager _DefaultModelManager;
-
+    private IStorage _Storage;
     private IStringLocalizer _Localizer;
-
-    private ModelCacheManager _CacheManager;
+    private DefaultModelService _DefaultModelManager;
+    private ModelCacheService _CacheManager;
+    private PlayerService _PlayerService;
+    private PermissionService _PermissionService;
 
     private Dictionary<ulong, MapDefaultModel> _MapDefaultModels = new Dictionary<ulong, MapDefaultModel>();
 
 
     private Dictionary<ulong, long> _ModelChangeCooldown = new Dictionary<ulong, long>();
 
-    public ModelService(ModelConfig Config, IStorage storage, IStringLocalizer localizer, DefaultModelManager defaultModelManager)
+    public ModelService(
+        ConfigurationService configurationService,
+        DatabaseService databaseService,
+        IStringLocalizer localizer,
+        DefaultModelService defaultModelService,
+        ModelCacheService modelCacheService,
+        PlayerService playerService,
+        PermissionService permissionService
+        )
     {
-        this._Config = Config;
-        this._Storage = storage;
-        this._Localizer = localizer;
+        _ConfigurationService = configurationService;
+        _Config = configurationService.ModelConfig;
+        _Storage = databaseService.GetStorage();
+        _Localizer = localizer;
+        _DefaultModelManager = defaultModelService;
+        _CacheManager = modelCacheService;
+        _PlayerService = playerService;
+        _PermissionService = permissionService;
 
-        this._DefaultModelManager = defaultModelManager;
-        _CacheManager = new ModelCacheManager(storage);
         _CacheManager.ResyncCache();
     }
 
-    public static void InitializeModel(string key, Model model)
+    public void InitializeModel(string key, Model model)
     {
         model.Index = key;
         if (model.Name == "")
         {
             model.Name = model.Index;
         }
-    }
-    public void ReloadConfig(string ModuleDirectory, ModelConfig config)
-    {
-        this._Config = config;
-        _DefaultModelManager.ReloadConfig(ModuleDirectory, this);
     }
     public void ResyncCache()
     {
@@ -100,7 +108,7 @@ public class ModelService
             if (Utils.CanPlayerSetModelInstantly(player, side))
             {
                 var model = GetPlayerModel(player, side);
-                Utils.InstantUpdatePlayer(player, model, _Config.Inspection.Enable);
+                InstantUpdatePlayer(player, model, _Config.Inspection.Enable);
             }
         }
     }
@@ -120,7 +128,7 @@ public class ModelService
             if (Utils.CanPlayerSetModelInstantly(player, Side.All))
             {
                 var model = GetModel(player.Team == CsTeam.Terrorist ? tModel : ctModel);
-                Utils.InstantUpdatePlayer(player, model, inspection && _Config.Inspection.Enable && model?.Index != "@random");
+                InstantUpdatePlayer(player, model, inspection && _Config.Inspection.Enable && model?.Index != "@random");
             }
         }
     }
@@ -140,7 +148,7 @@ public class ModelService
 
     public bool CanPlayerApplyModel(CCSPlayerController player, Side side, Model model)
     {
-        return Utils.PlayerHasPermission(player, model.Permissions, model.PermissionsOr) && // permission
+        return _PermissionService.PlayerHasPermission(player, model.Permissions, model.PermissionsOr) && // permission
             (model.Side == Side.All || model.Side == side); // side
     }
 
@@ -259,7 +267,7 @@ public class ModelService
                 return false;
             }
 
-            if (!Utils.PlayerHasPermission(player, model.Permissions, model.PermissionsOr))
+            if (!_PermissionService.PlayerHasPermission(player, model.Permissions, model.PermissionsOr))
             {
                 player.PrintToChat(_Localizer["model.nopermission", modelIndex]);
                 return false;
@@ -432,7 +440,7 @@ public class ModelService
         if (Utils.CanPlayerSetModelInstantly(player, Side.All))
         {
             var model = GetPlayerNowTeamModel(player);
-            Utils.InstantUpdatePlayer(player, model, _Config.Inspection.Enable);
+            InstantUpdatePlayer(player, model, _Config.Inspection.Enable);
         }
     }
 
@@ -498,5 +506,84 @@ public class ModelService
     public void ClearMapDefaultModel()
     {
         _MapDefaultModels.Clear();
+    }
+
+    public void InstantUpdatePlayer(CCSPlayerController player, Model? model, bool enableThirdPersonPreview)
+    {
+        if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid)
+        {
+            return;
+        }
+        SetModelNextServerFrame(player, model, model == null ? false : model.Disableleg).ContinueWith((_) =>
+        {
+            Server.NextFrame(() =>
+            {
+                if (enableThirdPersonPreview)
+                {
+                    var model = GetPlayerNowTeamModel(player);
+                    var path = "";
+                    if (model == null || model.Path == "")
+                    {
+                        path = player.PlayerPawn.Value.CBodyComponent?.SceneNode?.GetSkeletonInstance().ModelState.ModelName;
+                    }
+                    else
+                    {
+                        path = model.Path;
+                    }
+                    if (path != null)
+                    {
+                        _PlayerService.GetInspectionService(player.Slot).InspectModelForPlayer(path, model);
+                    }
+                }
+                player.PrintToChat(_Localizer["command.model.instantsuccess"]);
+            });
+        });
+    }
+
+    public Task SetModelNextServerFrame(CCSPlayerController player, Model? model, bool disableleg)
+    {
+        return Server.NextFrameAsync(() =>
+        {
+            var pawn = player.Pawn.Value!;
+            var originalRender = pawn.Render;
+            if (model == null)
+            {
+                var defaultModel = GetMapDefaultModel(player);
+                if (defaultModel != null)
+                {
+                    pawn.SetModel(defaultModel);
+
+                }
+                pawn.Render = Color.FromArgb(_ConfigurationService.ModelConfig.DisableDefaultModelLeg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+                Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+
+                return;
+            }
+            pawn.SetModel(model.Path);
+            pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
+            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+
+            if (model.FixedSkin != -1)
+            {
+                pawn.AcceptInput("Skin", pawn, pawn, model.FixedSkin.ToString());
+            }
+            else
+            {
+                pawn.AcceptInput("Skin", pawn, pawn, GetSkinPreference(player, model).ToString());
+            }
+
+            ulong meshgroupmask = pawn.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.MeshGroupMask;
+            if (InitMeshgroupPreference(player, model, meshgroupmask))
+            {
+                return;
+            }
+            meshgroupmask = Utils.CalculateMeshgroupmask(GetMeshgroupPreference(player, model).ToArray(), model.FixedMeshgroups);
+            if (meshgroupmask != 0)
+            {
+                pawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.MeshGroupMask = meshgroupmask;
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_CBodyComponent");
+            }
+
+        });
     }
 }
