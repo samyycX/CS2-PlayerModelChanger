@@ -20,10 +20,19 @@ public class MeshgroupPreferenceCache
 
 }
 
+public class SkinPreferenceCache
+{
+    public ulong steamid { get; set; }
+    public required string model { get; set; }
+    public int skin { get; set; }
+}
+
 public class ModelCacheManager
 {
     private List<ModelCache> _Cache = new List<ModelCache>();
     private List<MeshgroupPreferenceCache> _MeshgroupPreferenceCache = new List<MeshgroupPreferenceCache>();
+    private List<SkinPreferenceCache> _SkinPreferenceCache = new List<SkinPreferenceCache>();
+
     private IStorage _Storage;
     public ModelCacheManager(IStorage storage)
     {
@@ -114,5 +123,24 @@ public class ModelCacheManager
         obj.meshgroups.Remove(meshgroup);
     }
 
+    public void UpdateSkinPerference(ulong steamid, string modelIndex, int skin)
+    {
+        var obj = _SkinPreferenceCache.Find(model => model.steamid == steamid && model.model == modelIndex);
+        if (obj == null)
+        {
+            obj = new SkinPreferenceCache { steamid = steamid, model = modelIndex, skin = skin };
+        }
+        obj.skin = skin;
+    }
+
+    public int GetSkinPreference(ulong steamid, string modelIndex)
+    {
+        var obj = _SkinPreferenceCache.Find(model => model.steamid == steamid && model.model == modelIndex);
+        if (obj == null)
+        {
+            return 0;
+        }
+        return obj.skin;
+    }
 
 }

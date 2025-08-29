@@ -17,6 +17,12 @@ public class Model
     [JsonPropertyName("hideinmenu")] public bool HideInMenu { get; set; }
     [JsonPropertyName("fixedmeshgroups")] public Dictionary<int, int> FixedMeshgroups { get; set; } = [];
     [JsonPropertyName("meshgroups")] public Dictionary<string, dynamic> Meshgroups { get; set; } = new();
+
+    [JsonPropertyName("fixedskin")]
+    public int FixedSkin { get; set; } = -1;
+
+    [JsonPropertyName("skins")]
+    public Dictionary<string, int> Skins { get; set; } = [];
 }
 
 public class CaseInsensitiveJsonStringEnumConverter : JsonConverter<Side>

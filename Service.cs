@@ -462,6 +462,23 @@ public class ModelService
         }
         _MapDefaultModels[player.AuthorizedSteamID!.SteamId64] = m;
     }
+
+    public int GetSkinPreference(CCSPlayerController player, Model model)
+    {
+        return _CacheManager.GetSkinPreference(player.AuthorizedSteamID!.SteamId64, model.Index);
+    }
+
+    public void SetSkinPreference(CCSPlayerController player, Model model, int skin, bool update = true)
+    {
+        _CacheManager.UpdateSkinPerference(player.AuthorizedSteamID!.SteamId64, model.Index, skin);
+        _Storage.UpdateSkinPerference(player.AuthorizedSteamID!.SteamId64, model.Index, skin);
+        if (update)
+        {
+            var pawn = player.PlayerPawn.Value!;
+            pawn.AcceptInput("Skin", pawn, pawn, skin.ToString());
+        }
+    }
+
     public string? GetMapDefaultModel(CCSPlayerController player)
     {
         if (!_MapDefaultModels.ContainsKey(player.AuthorizedSteamID!.SteamId64))

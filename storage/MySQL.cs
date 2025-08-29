@@ -68,6 +68,18 @@ public class MySQLStorage : IStorage
                 INDEX `model` (`model`)
             );
         """);
+
+        // skip preference
+        conn.Execute($"""
+            CREATE TABLE IF NOT EXISTS `{table}_skippreferences` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                `steamid` BIGINT UNSIGNED NOT NULL,
+                `model` VARCHAR(255) NOT NULL,
+                `skin` INT UNSIGNED NOT NULL,
+                INDEX `steamid` (`steamid`),
+                INDEX `model` (`model`)
+            );
+        """);
     }
 
     public async Task<MySqlConnection> ConnectAsync()
@@ -174,14 +186,14 @@ public class MySQLStorage : IStorage
             var existing = connection.QueryFirstOrDefault<int>($"SELECT COUNT(*) FROM `{Table}_meshgrouppreferences` WHERE `steamid` = {SteamID} AND `model` = '{modelIndex}' AND `meshgroup` = {meshgroup};");
             if (existing == 0)
             {
-                await connection.ExecuteAsync($"INSERT INTO `{Table}_meshgrouppreferences` (`steamid`, `model`, `meshgroup`) VALUES ({SteamID}, '{modelIndex}', {meshgroup});");
+                await connection.ExecuteAsync($"INSERT INTO `{Table}_meshgrouppreferences` (`steamid`, `model`, `meshgroup`) VALUES (@SteamID, @modelIndex, @meshgroup);", new { SteamID, modelIndex, meshgroup });
             }
         });
     }
 
     public void RemoveMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup)
     {
-        ExecuteAsync($"DELETE FROM `{Table}_meshgrouppreferences` WHERE `steamid` = {SteamID} AND `model` = '{modelIndex}' AND `meshgroup` = {meshgroup};", null);
+        ExecuteAsync($"DELETE FROM `{Table}_meshgrouppreferences` WHERE `steamid` = @SteamID AND `model` = @modelIndex AND `meshgroup` = @meshgroup;", new { SteamID, modelIndex, meshgroup });
     }
     class MeshgroupPreferenceRow
     {
@@ -190,7 +202,19 @@ public class MySQLStorage : IStorage
         public int meshgroup { get; set; }
 
     }
-    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>> GetCaches()
+    
+    public int GetSkinPreference(ulong SteamID, string modelIndex)
+    {
+        using MySqlConnection connection = ConnectAsync().Result;
+        return connection.QueryFirstOrDefault<int>($"SELECT `skin` FROM `{Table}_skippreferences` WHERE `steamid` = @SteamID AND `model` = @modelIndex;", new { SteamID, modelIndex });
+    }
+
+    public void UpdateSkinPerference(ulong SteamID, string modelIndex, int skin)
+    {
+        ExecuteAsync($"INSERT INTO `{Table}_skippreferences` (`steamid`, `model`, `skin`) VALUES (@SteamID, @modelIndex, @skin) ON DUPLICATE KEY UPDATE `skin` = @skin;", new { SteamID, modelIndex, skin });
+    }
+
+    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>, List<SkinPreferenceCache>> GetCaches()
     {
         using MySqlConnection connection = ConnectAsync().Result;
         List<ModelCache> modelCache = connection.Query<ModelCache>($"select * from {Table};").ToList();
@@ -206,6 +230,8 @@ public class MySQLStorage : IStorage
             }
             cache.meshgroups.Add((int)query.meshgroup);
         }
-        return new(modelCache, meshgroupPreferenceCaches);
+
+        var skinPreferenceCaches = connection.Query<SkinPreferenceCache>($"SELECT * FROM `{Table}_skippreferences`").ToList();
+        return new(modelCache, meshgroupPreferenceCaches, skinPreferenceCaches);
     }
 }

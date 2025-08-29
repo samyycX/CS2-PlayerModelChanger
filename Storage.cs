@@ -11,5 +11,9 @@ public interface IStorage
     public List<int> GetMeshgroupPreference(ulong SteamID, string modelIndex);
     public void AddMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup);
     public void RemoveMeshgroupPreference(ulong SteamID, string modelIndex, int meshgroup);
-    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>> GetCaches();
+
+    public int GetSkinPreference(ulong SteamID, string modelIndex);
+    public void UpdateSkinPerference(ulong SteamID, string modelIndex, int skin);
+
+    public Tuple<List<ModelCache>, List<MeshgroupPreferenceCache>, List<SkinPreferenceCache>> GetCaches();
 }

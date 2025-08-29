@@ -117,4 +117,22 @@ public partial class PlayerModelChanger
         }
         OpenSelectMeshgroupMenu(player);
     }
+
+    [ConsoleCommand("css_skin", "Select skin.")]
+    [ConsoleCommand("css_mat", "Select skin.")]
+    [ConsoleCommand("css_materialgroup", "Select skin.")]
+    [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_ONLY)]
+    public void SkinCommand(CCSPlayerController player, CommandInfo commandInfo)
+    {
+        if (Config.DisablePlayerSelection)
+        {
+            return;
+        }
+        if (!Utils.PlayerHasBasicPermission(player))
+        {
+            commandInfo.ReplyToCommand(Localizer["model.nochangepermission"]);
+            return;
+        }
+        OpenSelectSkinMenu(player);
+    }
 }
