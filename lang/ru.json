@@ -28,6 +28,7 @@
   "modelmenu.unset": "Не установлен",
   "modelmenu.random": "Рандом",
   "modelmenu.default": "умолчанию",
+  "modelmenu.skin": "Skin",
   "model.wrongteam": "%pmc_prefix%{red}Вы не можете сделать {default} {0}{red} модель с этой стороны.",
   "model.none": "{red}Нету",
   "model.nopermission": "%pmc_prefix%{red}У вас нет разрешения на эту модель.",

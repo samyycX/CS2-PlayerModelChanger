@@ -325,10 +325,8 @@ public partial class PlayerModelChanger : BasePlugin, IPluginConfig<ModelConfig>
             pawn.Render = Color.FromArgb(disableleg ? 254 : 255, originalRender.R, originalRender.G, originalRender.B);
             Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
 
-            Logger.LogInformation($"Setting skin to {model.FixedSkin} for {player.SteamID}");
             if (model.FixedSkin != -1)
             {
-                Logger.LogInformation($"Setting skin to {model.FixedSkin} for {player.SteamID}");
                 pawn.AcceptInput("Skin", pawn, pawn, model.FixedSkin.ToString());
             }
             else
