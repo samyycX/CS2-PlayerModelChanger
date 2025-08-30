@@ -5,8 +5,10 @@ using CounterStrikeSharp.API.Modules.Extensions;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Localization;
 using PlayerModelChanger.Services;
+using PlayerModelChanger.Models;
+using PlayerModelChanger.Services.Storage;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services;
 
 struct MapDefaultModel
 {

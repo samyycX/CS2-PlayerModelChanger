@@ -29,7 +29,9 @@ public class PlayerService {
       return;
     }
     _ManagedPlayers.Remove(slot);
+    _InspectionServices.Where(service => service.Slot == slot).ToList().ForEach(service => service.Unload());
     _InspectionServices.RemoveAll(service => service.Slot == slot);
+    _ModelServices.Where(service => service.Slot == slot).ToList().ForEach(service => service.Unload());
     _ModelServices.RemoveAll(service => service.Slot == slot);
   }
 

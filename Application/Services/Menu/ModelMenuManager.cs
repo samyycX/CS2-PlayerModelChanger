@@ -1,7 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services.Menu;
+
 
 public class ModelMenuManager
 {

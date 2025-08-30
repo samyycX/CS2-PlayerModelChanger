@@ -2,7 +2,7 @@ using System.Text;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Localization;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services.Menu;
 
 public abstract class MenuOption
 {

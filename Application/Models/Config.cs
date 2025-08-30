@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Core;
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Models;
 
 public class BotIndexConvertor : JsonConverter<List<string>>
 {

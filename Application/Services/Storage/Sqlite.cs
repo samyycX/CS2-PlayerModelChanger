@@ -2,7 +2,8 @@ using Microsoft.Data.Sqlite;
 using Dapper;
 using PlayerModelChanger.Services;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services.Storage;
+
 
 public class SqliteStorage : IStorage
 {
