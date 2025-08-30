@@ -48,9 +48,9 @@ public class BotIndexConvertor : JsonConverter<List<string>>
 public class BotsConfig
 {
     [JsonConverter(typeof(BotIndexConvertor))]
-    public List<string> CT { get; set; } = [];
+    public List<string> CT { get; set; } = new List<string>();
     [JsonConverter(typeof(BotIndexConvertor))]
-    public List<string> T { get; set; } = [];
+    public List<string> T { get; set; } = new List<string>();
 
 }
 
