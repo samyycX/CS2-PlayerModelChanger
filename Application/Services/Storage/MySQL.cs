@@ -2,7 +2,7 @@ using Dapper;
 using MySqlConnector;
 using PlayerModelChanger.Services;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services.Storage;
 public class MySQLStorage : IStorage
 {
 

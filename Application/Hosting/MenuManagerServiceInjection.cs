@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using PlayerModelChanger.Services;
+using PlayerModelChanger.Services.Menu;
 
 namespace PlayerModelChanger.Hosting;
 

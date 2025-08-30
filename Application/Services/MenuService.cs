@@ -3,6 +3,8 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using Microsoft.Extensions.Localization;
 using PlayerModelChanger.Factories;
+using PlayerModelChanger.Models;
+using PlayerModelChanger.Services.Menu;
 
 namespace PlayerModelChanger.Services;
 

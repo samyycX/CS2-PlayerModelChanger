@@ -1,6 +1,7 @@
 using PlayerModelChanger.Services;
 
-namespace PlayerModelChanger;
+namespace PlayerModelChanger.Services.Storage;
+
 
 public interface IStorage
 {
